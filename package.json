@@ -1,0 +1,47 @@
+{
+	"name": "koxik",
+	"version": "2.0.0",
+	"description": "Multilingual Discord bot with modern features and extensible architecture.",
+	"main": "dist/index.js",
+	"type": "module",
+	"scripts": {
+		"dev": "bun run --env-file=.env.dev ./src/index.ts",
+		"build": "tsup ./src && tsc-alias",
+		"start": "node --env-file=.env ./dist/index.js",
+		"start:dev": "node --env-file=.env.dev ./dist/index.js",
+		"format": "biome format --write ./src",
+		"lint": "biome check --write ./src",
+		"migrate:dev": "dotenv -e .env.dev -- prisma migrate dev",
+		"migrate:prod": "dotenv -e .env -- prisma migrate deploy"
+	},
+	"keywords": [
+		"discord-bot",
+		"bot",
+		"brasil",
+		"brazil",
+		"discord",
+		"brazilian"
+	],
+	"author": "Noa",
+	"license": "MIT",
+	"packageManager": "bun@1.2.14",
+	"dependencies": {
+		"@magicyan/discord": "^1.5.4",
+		"@prisma/client": "^6.16.3",
+		"axios": "^1.12.2",
+		"discord.js": "^14.22.1",
+		"dotenv": "^16.6.1",
+		"starlightskinapi": "^1.0.10",
+		"zod": "^3.25.76"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.2.4",
+		"@types/node": "^22.18.8",
+		"dotenv-cli": "^10.0.0",
+		"prisma": "^6.16.3",
+		"tsc-alias": "^1.8.16",
+		"tsup": "^8.5.0",
+		"tsx": "^4.20.6",
+		"typescript": "^5.9.3"
+	}
+}

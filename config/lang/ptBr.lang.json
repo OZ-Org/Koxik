@@ -1,0 +1,188 @@
+{
+	"ping": [
+		"📡 Minha Latência atual está em ``%ping%``",
+		"⏱️ Resposta do ping: ``%ping_response%``"
+	],
+	"create_user": {
+		"created": "🚀 %user_mention% sua conta foi criada com sucesso! Agora você pode usar comandos de economia!",
+		"fail": "🚫 %user_mention% sua conta não foi criada. Tente novamente mais tarde!",
+		"already": "🚫 %user_mention% vocês já tem uma conta! Use o comando ``/dinheiro`` para ver seu saldo atual."
+	},
+	"botStats": {
+		"title": "📊 Estatísticas do Bot Koxik",
+		"mostUsed": {
+			"today": "Mais usado hoje",
+			"yesterday": "Mais usado ontem",
+			"year": "Mais usado no ano"
+		},
+		"total": {
+			"today": "Total de comandos hoje",
+			"yesterday": "Total de comandos ontem"
+		},
+		"errorFetching": "❌ Ocorreu um erro ao buscar as estatísticas do bot.",
+		"none": "Nenhum"
+	},
+	"eco": {
+		"balance": {
+			"title": "Carteira Digital",
+			"wallet": "Carteira",
+			"bank": "Banco",
+			"total": "Total",
+			"footer": "Sistema de Economia • Koxik Bot",
+			"userNotFound": {
+				"title": "Usuário Não Encontrado",
+				"description": "O usuário **%user%** não possui uma conta no sistema. Eles precisam usar algum comando de economia primeiro."
+			}
+		},
+		"deposit": {
+			"success": {
+				"title": "Depósito Realizado",
+				"description": "Você depositou **%amount%** polens no seu banco com sucesso!",
+				"newBalance": "Nova Carteira",
+				"newBank": "Novo Banco"
+			},
+			"error": {
+				"title": "Erro no Depósito",
+				"invalidAmount": "Quantidade inválida para depósito!",
+				"userNotFound": "Usuário não encontrado! Use algum comando de economia primeiro.",
+				"insufficientFunds": "Você não tem fundos suficientes na carteira!",
+				"failed": "Falha ao depositar: %error%"
+			}
+		},
+		"pay": {
+			"confirmation": {
+				"title": "Confirmação de Transferência",
+				"description": "**%payer%** deseja transferir **%amount%** polens para **%receiver%** via **%method%**",
+				"accept": "Aceitar",
+				"decline": "Recusar"
+			},
+			"details": {
+				"title": "Detalhes da Transação",
+				"amount": "Quantia",
+				"fee": "Taxa",
+				"total": "Total a Pagar",
+				"robbery": "Chance de Roubo"
+			},
+			"method": {
+				"balance": "Carteira",
+				"bank": "Banco",
+				"wallet": "Carteira Digital",
+				"walletDescription": "• **Taxa:** 2,5%\n• **Roubo:** 40% de chance\n• **Velocidade:** Instantânea",
+				"bankDescription": "• **Taxa:** 10%\n• **Roubo:** 1% de chance\n• **Velocidade:** Instantânea\n• **Segurança:** Alta"
+			},
+			"balance": {
+				"current": "Saldo Disponível"
+			},
+			"footer": "Transação expira em",
+			"success": {
+				"title": "Transação Realizada",
+				"description": "**%payer%** transferiu com sucesso para **%receiver%**! 💸",
+				"sent": "Enviado",
+				"fee": "Taxa Cobrada",
+				"received": "Recebido",
+				"robbed": "Roubo Ocorrido!",
+				"robbedDescription": "Infelizmente, **%stolen%** polens foram roubados durante a transferência! 😱"
+			},
+			"error": {
+				"title": "Erro na Transação",
+				"invalidAmount": "Valor inválido: %amount%",
+				"cannotPayYourself": "Você não pode pagar a si mesmo!",
+				"payerNotFound": "Pagador não encontrado.",
+				"insufficientFunds": "Você não tem fundos suficientes para pagar **%amount%** polens.",
+				"pending": "%payer% quer pagar %receiver% %amount% via %method%. Aceita?",
+				"notReceiver": "Só o usuário destinatário pode aceitar ou recusar esta transação.",
+				"generic": "Erro ao processar pagamento: %error%",
+				"receiverNotFound": "O usuário **%user%** não existe no sistema. Ele precisa executar algum comando primeiro."
+			},
+			"declined": {
+				"title": "Transação Recusada",
+				"message": "**%receiver%** recusou o pagamento de **%payer%**."
+			},
+			"expired": {
+				"title": "Transação Expirada",
+				"message": "A transação entre **%payer%** e **%receiver%** expirou."
+			}
+		},
+		"daily": {
+			"success": {
+				"title": "Recompensa Diária Coletada!",
+				"description": "Você recebeu sua recompensa diária!",
+				"reward": "Recompensa",
+				"balance": "Saldo Atual"
+			},
+			"bonus": {
+				"title": "Bônus de Sequência!",
+				"description": "🎉 Você ganhou **%bonus%** polens extras por coletar daily por **%streak%** dias consecutivos!"
+			},
+			"streak": {
+				"title": "Sequência Ativa",
+				"description": "🔥 **%streak%** dias consecutivos! Faltam **%remaining%** dias para o próximo bônus!"
+			},
+			"cooldown": {
+				"title": "Daily em Cooldown",
+				"description": "Você já coletou sua recompensa diária hoje!"
+			},
+			"nextClaim": "Próxima coleta disponível",
+			"error": {
+				"title": "Erro ao Coletar Daily"
+			}
+		},
+		"leaderboard": {
+			"title": "Ranking dos Mais Ricos",
+			"description": "Os usuários com mais polens no servidor!",
+			"empty": "Nenhum usuário encontrado no ranking.",
+			"ranking": "Classificação"
+		}
+	},
+	"user": {
+		"info": {
+			"description": "💫 Informações completas do usuário",
+			"badges": "🏅 Badges",
+			"noBadges": "Nenhuma badge",
+			"accountCreated": "📅 Conta criada",
+			"level": "⭐ Level",
+			"xp": "⚡ XP",
+			"balance": "💰 Saldo",
+			"lastDaily": "⏰ Último Daily"
+		}
+	},
+	"ban": {
+		"responses": {
+			"confirm_prompt": [
+				"Tem certeza que quer banir **%user%**? Isso é definitivo.",
+				"Caso sim, usa o botão de confirmar!"
+			],
+			"confirm_button": "Sim, eu quero mandar elx pro lixo! ⚒️",
+			"cancel_button": "Não, minha raiva passou",
+			"cancelled": "Cancelado, **%user%** tá salvo por enquanto hahaha",
+			"success": "Pronto. **%user%** foi banido. Paz à sua alma. :3",
+			"error_cannot_ban_self": "Você não pode se banir, por favor não tente :/",
+			"error_cannot_ban_owner": "Não dá pra banir o dono do servidor, bro. %suspect%",
+			"error_member_not_found": "Não achei o usuário %user% no servidor. ༼ ༎ຶ ᆺ ༎ຶ༽",
+			"error_bot_higher_role": "Meu cargo não é alto o suficiente pra banir esse usuário. (╥_╥)",
+			"error_higher_role": "Você não tem permissão/hierarquia pra banir esse usuário. ╥﹏╥",
+			"error_no_guild": "Esse comando precisa ser usado dentro de um servidor. (╯°□°）╯",
+			"error_on_ban": "Deu ruim na hora de banir, tenta de novo mais tarde. (;﹏;)",
+			"timeout": "Tempo esgotado. Se mudou de ideia, chama de novo :3",
+			"reason_template": "Banido por %moderator% via comando."
+		}
+	},
+	"mine": {
+		"no_backpack": "❌ Você não tem mochila nem ferramentas.",
+		"pickaxe_not_found": "⚒️ Você não possui essa picareta.",
+		"pickaxe_broken": "⚒️ Sua picareta está quebrada!",
+		"mining_start": "🌍 A aventura começou!",
+		"mining_progress": "⛏️ Minerando blocos...",
+		"lava_appears": "🔥 Lava à frente! Clique rápido!",
+		"lava_jump_success": "💨 Você pulou da lava com sucesso!",
+		"mining_complete": "✅ Mineração concluída",
+		"choose_loot_action": "Escolha o que fazer com seus minérios:",
+		"keep_loot": "📦 Guardar tudo",
+		"burn_loot": "🔥 Queimar tudo",
+		"stop_button": "✋ Parar Mineração",
+		"not_your_button": "❌ Não é você!",
+		"durability_field": "Durabilidade",
+		"loot_field": "Minérios",
+		"none_yet": "Nenhum ainda..."
+	}
+}

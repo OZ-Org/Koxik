@@ -1,0 +1,15 @@
+{
+  "language": "en",
+  "conventionalCommits": true,
+  "commitStyle": "conventional",
+  "maxMessageLength": 72,
+  "includeScope": true,
+  "includeBreakingChanges": true,
+  "emojis": false,
+  "git": {
+    "autoAdd": false,
+    "confirmBeforeCommit": false,
+    "includeStats": true,
+    "autoCommit": false
+  }
+}

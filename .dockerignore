@@ -1,0 +1,11 @@
+# Node/Bun
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Sistema
+.DS_Store
+.git
+.gitignore
+docker-compose.yml
+Dockerfile

@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  koxik-bot:
+    build: .
+    container_name: koxik-bot
+    restart: unless-stopped
+    env_file:
+      - .env.dev
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    command: node --env-file=.env.dev dist/index.js

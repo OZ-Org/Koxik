@@ -1,0 +1,188 @@
+{
+	"ping": [
+		"📡 My current latency is ``%ping%``",
+		"⏱️ Ping response time: ``%ping_response%``"
+	],
+	"create_user": {
+		"created": "🚀 %user_mention% your account has been successfully created! You can now use economy commands!",
+		"fail": "🚫 %user_mention% your account could not be created. Please try again later!",
+		"already": "🚫 %user_mention% you already have an account! Use the command ``/balance`` to see your balance."
+	},
+	"botStats": {
+		"title": "📊 Koxik Bot Stats",
+		"mostUsed": {
+			"today": "Most used today",
+			"yesterday": "Most used yesterday",
+			"year": "Most used this year"
+		},
+		"total": {
+			"today": "Total commands today",
+			"yesterday": "Total commands yesterday"
+		},
+		"errorFetching": "❌ An error occurred while fetching bot stats.",
+		"none": "None"
+	},
+	"eco": {
+		"balance": {
+			"title": "Digital Wallet",
+			"wallet": "Wallet",
+			"bank": "Bank",
+			"total": "Total",
+			"footer": "Economy System • Koxik Bot",
+			"userNotFound": {
+				"title": "User Not Found",
+				"description": "User **%user%** doesn't have an account in the system. They need to use an economy command first."
+			}
+		},
+		"deposit": {
+			"success": {
+				"title": "Deposit Completed",
+				"description": "You successfully deposited **%amount%** polens to your bank!",
+				"newBalance": "New Wallet",
+				"newBank": "New Bank"
+			},
+			"error": {
+				"title": "Deposit Error",
+				"invalidAmount": "Invalid amount for deposit!",
+				"userNotFound": "User not found! Use an economy command first.",
+				"insufficientFunds": "You don't have enough funds in your wallet!",
+				"failed": "Failed to deposit: %error%"
+			}
+		},
+		"pay": {
+			"confirmation": {
+				"title": "Transfer Confirmation",
+				"description": "**%payer%** wants to transfer **%amount%** polens to **%receiver%** via **%method%**",
+				"accept": "Accept",
+				"decline": "Decline"
+			},
+			"details": {
+				"title": "Transaction Details",
+				"amount": "Amount",
+				"fee": "Fee",
+				"total": "Total to Pay",
+				"robbery": "Robbery Chance"
+			},
+			"method": {
+				"balance": "Wallet",
+				"bank": "Bank",
+				"wallet": "Digital Wallet",
+				"walletDescription": "• **Fee:** 2.5%\n• **Robbery:** 40% chance\n• **Speed:** Instant",
+				"bankDescription": "• **Fee:** 10%\n• **Robbery:** 1% chance\n• **Speed:** Instant\n• **Security:** High"
+			},
+			"balance": {
+				"current": "Available Balance"
+			},
+			"footer": "Transaction expires in",
+			"success": {
+				"title": "Transaction Completed",
+				"description": "**%payer%** successfully transferred to **%receiver%**! 💸",
+				"sent": "Sent",
+				"fee": "Fee Charged",
+				"received": "Received",
+				"robbed": "Robbery Occurred!",
+				"robbedDescription": "Unfortunately, **%stolen%** polens were stolen during the transfer! 😱"
+			},
+			"error": {
+				"title": "Transaction Error",
+				"invalidAmount": "Invalid amount: %amount%",
+				"cannotPayYourself": "You cannot pay yourself!",
+				"payerNotFound": "Payer not found.",
+				"insufficientFunds": "You don't have enough funds to pay **%amount%** polens.",
+				"pending": "%payer% wants to pay %receiver% %amount% via %method%. Do you accept?",
+				"notReceiver": "Only the receiver can accept or decline this transaction.",
+				"generic": "Error while processing payment: %error%",
+				"receiverNotFound": "User **%user%** does not exist in the system. They need to run an economy command first."
+			},
+			"declined": {
+				"title": "Transaction Declined",
+				"message": "**%receiver%** declined the payment from **%payer%**."
+			},
+			"expired": {
+				"title": "Transaction Expired",
+				"message": "The transaction between **%payer%** and **%receiver%** has expired."
+			}
+		},
+		"daily": {
+			"success": {
+				"title": "Daily Reward Claimed!",
+				"description": "You received your daily reward!",
+				"reward": "Reward",
+				"balance": "Current Balance"
+			},
+			"bonus": {
+				"title": "Streak Bonus!",
+				"description": "🎉 You earned **%bonus%** extra polens for claiming daily for **%streak%** consecutive days!"
+			},
+			"streak": {
+				"title": "Active Streak",
+				"description": "🔥 **%streak%** consecutive days! **%remaining%** days left for the next bonus!"
+			},
+			"cooldown": {
+				"title": "Daily on Cooldown",
+				"description": "You already claimed your daily reward today!"
+			},
+			"nextClaim": "Next claim available",
+			"error": {
+				"title": "Error Claiming Daily"
+			}
+		},
+		"leaderboard": {
+			"title": "Richest Users Ranking",
+			"description": "Users with the most polens on the server!",
+			"empty": "No users found in the ranking.",
+			"ranking": "Classification"
+		}
+	},
+	"user": {
+		"info": {
+			"description": "💫 Complete user information",
+			"badges": "🏅 Badges",
+			"noBadges": "No badges",
+			"accountCreated": "📅 Account created",
+			"level": "⭐ Level",
+			"xp": "⚡ XP",
+			"balance": "💰 Balance",
+			"lastDaily": "⏰ Last Daily"
+		}
+	},
+	"ban": {
+		"responses": {
+			"confirm_prompt": [
+				"You sure you want ban **%user%**? This is final.",
+				"If yes, press button confirm! :3"
+			],
+			"confirm_button": "Yes, i want send they to trash! ⚒️",
+			"cancel_button": "No, my anger passed",
+			"cancelled": "Cancelled, **%user%** is safe now hahaha",
+			"success": "Done. **%user%** baned. Rest in peace. :3",
+			"error_cannot_ban_self": "You can not ban youself, pls not try :/",
+			"error_cannot_ban_owner": "Cant ban server owner, bro. %suspect%",
+			"error_member_not_found": "Not find user %user% in server. (╥_╥)",
+			"error_bot_higher_role": "My role not high enough to ban this user. (╯︵╰,)",
+			"error_higher_role": "You no have permission/hierarchie to ban this user. ╥﹏╥",
+			"error_no_guild": "Command must used in server. (╯°□°）╯",
+			"error_on_ban": "Oops, something wrong ban, try again later. (;﹏;)",
+			"timeout": "Time out. If changed mind, run command again :3",
+			"reason_template": "Baned by %moderator% via command."
+		}
+	},
+	"mine": {
+		"no_backpack": "❌ You don't have a backpack or tools.",
+		"pickaxe_not_found": "⚒️ You don't have this pickaxe.",
+		"pickaxe_broken": "⚒️ Your pickaxe is broken!",
+		"mining_start": "🌍 The adventure has begun!",
+		"mining_progress": "⛏️ Mining blocks...",
+		"lava_appears": "🔥 Lava ahead! Click quickly!",
+		"lava_jump_success": "💨 You successfully jumped over the lava!",
+		"mining_complete": "✅ Mining complete",
+		"choose_loot_action": "Choose what to do with your ores:",
+		"keep_loot": "📦 Keep everything",
+		"burn_loot": "🔥 Burn everything",
+		"stop_button": "✋ Stop Mining",
+		"not_your_button": "❌ Not your button!",
+		"durability_field": "Durability",
+		"loot_field": "Ores",
+		"none_yet": "None yet..."
+	}
+}

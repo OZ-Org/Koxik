@@ -1,0 +1,7 @@
+{
+	"npm.packageManager": "bun",
+	"[typescript]": {
+		"editor.defaultFormatter": "vscode.typescript-language-features"
+	},
+	"workbench.statusBar.visible": true
+}
