@@ -46,7 +46,7 @@
 				"invalidAmount": "Invalid amount for deposit!",
 				"userNotFound": "User not found! Use an economy command first.",
 				"insufficientFunds": "You don't have enough funds in your wallet!",
-				"failed": "Failed to deposit: %error%"
+				"failed": "❌ Failed to deposit. Try again, you got this! 💪"
 			}
 		},
 		"pay": {
@@ -92,15 +92,16 @@
 				"pending": "%payer% wants to pay %receiver% %amount% via %method%. Do you accept?",
 				"notReceiver": "Only the receiver can accept or decline this transaction.",
 				"generic": "Error while processing payment: %error%",
-				"receiverNotFound": "User **%user%** does not exist in the system. They need to run an economy command first."
+				"receiverNotFound": "User **%user%** does not exist in the system. They need to run an economy command first.",
+				"transactionFailed": "❌ Transaction failed. Try again!"
 			},
 			"declined": {
 				"title": "Transaction Declined",
-				"message": "**%receiver%** declined the payment from **%payer%**."
+				"message": "**%receiver%** declined the payment from **%payer%**. Awkward! 😬"
 			},
 			"expired": {
 				"title": "Transaction Expired",
-				"message": "The transaction between **%payer%** and **%receiver%** has expired."
+				"message": "⏰ Transaction between **%payer%** and **%receiver%** expired. Try again!"
 			}
 		},
 		"daily": {
@@ -124,7 +125,8 @@
 			},
 			"nextClaim": "Next claim available",
 			"error": {
-				"title": "Error Claiming Daily"
+				"title": "Error Claiming Daily",
+				"failed": "❌ Error claiming daily. Bad luck! Try later."
 			}
 		},
 		"leaderboard": {
@@ -132,6 +134,14 @@
 			"description": "Users with the most polens on the server!",
 			"empty": "No users found in the ranking.",
 			"ranking": "Classification"
+		},
+		"error": {
+			"title": "Operation Error",
+			"generic": "Something went wrong. Try again later! 🥲",
+			"createAccount": "Create an account using </create account:1419159279935688795>"
+		},
+		"footer": {
+			"error": "Economy System • Something went wrong :/"
 		}
 	},
 	"user": {
@@ -144,7 +154,8 @@
 			"xp": "⚡ XP",
 			"balance": "💰 Balance",
 			"lastDaily": "⏰ Last Daily"
-		}
+		},
+		"notFound": "❌ User not found in the system!"
 	},
 	"ban": {
 		"responses": {

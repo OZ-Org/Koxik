@@ -19,7 +19,8 @@
 			"@base": ["./index.ts"],
 			"@db": ["./base/db/prisma.ts"],
 			"@menus/*": ["./menus/*"],
-			"@misc/*": ["./misc/*"]
+			"@misc/*": ["./misc/*"],
+			"@basedir/*": ["./base/*"]
 		},
 		"allowArbitraryExtensions": true
 	},

@@ -46,7 +46,7 @@
 				"invalidAmount": "¡Cantidad inválida para depósito!",
 				"userNotFound": "¡Usuario no encontrado! Usa un comando de economía primero.",
 				"insufficientFunds": "¡No tienes fondos suficientes en tu billetera!",
-				"failed": "Error al depositar: %error%"
+				"failed": "❌ Error al depositar. ¡Inténtalo de nuevo! 💪"
 			}
 		},
 		"pay": {
@@ -92,15 +92,16 @@
 				"pending": "%payer% quiere pagar a %receiver% %amount% vía %method%. ¿Aceptas?",
 				"notReceiver": "Solo el receptor puede aceptar o rechazar esta transacción.",
 				"generic": "Error al procesar el pago: %error%",
-				"receiverNotFound": "El usuario **%user%** no existe en el sistema. Necesita ejecutar un comando de economía primero."
+				"receiverNotFound": "El usuario **%user%** no existe en el sistema. Necesita ejecutar un comando de economía primero.",
+				"transactionFailed": "❌ La transacción falló. ¡Intenta de nuevo!"
 			},
 			"declined": {
 				"title": "Transacción Rechazada",
-				"message": "**%receiver%** rechazó el pago de **%payer%**."
+				"message": "**%receiver%** rechazó el pago de **%payer%**. ¡Qué tenso! 😬"
 			},
 			"expired": {
 				"title": "Transacción Expirada",
-				"message": "La transacción entre **%payer%** y **%receiver%** ha expirado."
+				"message": "⏰ La transacción entre **%payer%** y **%receiver%** expiró. ¡Intenta otra vez!"
 			}
 		},
 		"daily": {
@@ -124,7 +125,8 @@
 			},
 			"nextClaim": "Próximo reclamo disponible",
 			"error": {
-				"title": "Error al Reclamar Daily"
+				"title": "Error al Reclamar Daily",
+				"failed": "❌ Error al reclamar el daily. ¡Mala suerte! Intenta más tarde."
 			}
 		},
 		"leaderboard": {
@@ -132,6 +134,14 @@
 			"description": "¡Usuarios con más polens en el servidor!",
 			"empty": "No se encontraron usuarios en el ranking.",
 			"ranking": "Clasificación"
+		},
+		"error": {
+			"title": "Error de Operación",
+			"generic": "Algo salió mal. ¡Intenta más tarde! 🥲",
+			"createAccount": "Crea una cuenta usando </create account:1419159279935688795>"
+		},
+		"footer": {
+			"error": "Sistema de Economía • Algo falló :/"
 		}
 	},
 	"user": {
@@ -144,7 +154,8 @@
 			"xp": "⚡ XP",
 			"balance": "💰 Saldo",
 			"lastDaily": "⏰ Último Daily"
-		}
+		},
+		"notFound": "❌ ¡Usuario no encontrado en el sistema!"
 	},
 	"ban": {
 		"responses": {

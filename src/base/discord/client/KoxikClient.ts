@@ -1,24 +1,27 @@
 import { prisma } from '@db';
-import {
-	Client,
-	type ClientEvents,
-	GatewayIntentBits,
-	Partials,
-} from 'discord.js';
+import { type ClientEvents, GatewayIntentBits, Partials } from 'discord.js';
+import { KoxikClient } from './bot/CustomClient.js';
 import { setupInteractionHandler } from './bot/interactionHandler.js';
 import { loadCommandsFromDisk, loadEventsFromDisk } from './bot/loaders.js';
 import { syncCommands } from './bot/sync.js';
 import type { BotOptions, Command, Event } from './bot/types.js';
 
 export function createBot(options: BotOptions) {
-	const client = new Client({
-		intents: [
-			GatewayIntentBits.GuildMembers,
-			GatewayIntentBits.Guilds,
-			GatewayIntentBits.GuildModeration,
-		],
-		partials: [Partials.GuildMember, Partials.User],
-	});
+	const client = new KoxikClient(
+		{
+			intents: [
+				GatewayIntentBits.GuildMembers,
+				GatewayIntentBits.Guilds,
+				GatewayIntentBits.GuildModeration,
+			],
+			partials: [Partials.GuildMember, Partials.User],
+		},
+		Array.isArray(options.owner)
+			? options.owner
+			: options.owner
+				? [options.owner]
+				: [],
+	);
 
 	const commands = new Map<string, Command>();
 
@@ -57,6 +60,7 @@ export function createBot(options: BotOptions) {
 			.$connect()
 			.then(() => console.log('🌊 Connected to DB!'))
 			.catch(() => console.error('❌ Could not connect to DB!'));
+
 		await loadCommandsFromDisk(commands);
 		await loadEventsFromDisk(createEvent);
 		await client.login(options.token);
@@ -64,3 +68,4 @@ export function createBot(options: BotOptions) {
 
 	return { client, createCommand, createEvent };
 }
+export { KoxikClient };

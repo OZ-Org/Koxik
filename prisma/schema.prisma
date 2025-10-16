@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  output   = "../src/base/db/generated/prisma"
 }
 
 datasource db {
@@ -21,8 +21,8 @@ model User {
   lastDaily        DateTime?
   createdAt        DateTime  @default(now())
   transactions     Json?
-  datingWith       String?    @unique
-  marriedWith      String?    @unique
+  datingWith       String?   @unique
+  marriedWith      String?   @unique
   configs          Json?
 }
 

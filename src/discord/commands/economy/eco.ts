@@ -1,8 +1,8 @@
 import { createCommand } from '@base';
 import { prisma } from '@db';
 import { replyLang } from '@fx/utils/replyLang.js';
+import { createRow, EmbedPlusBuilder } from '@magicyan/discord';
 import {
-	ActionRowBuilder,
 	ButtonBuilder,
 	ButtonStyle,
 	Colors,
@@ -14,15 +14,10 @@ import {
 	time,
 } from 'discord.js';
 
+// ==================== TIPOS ====================
 export interface Transaction {
 	id: string;
-	type:
-		| 'daily'
-		| 'pay_sent'
-		| 'pay_received'
-		| 'deposit'
-		| 'withdraw'
-		| 'mine_created';
+	type: 'daily' | 'pay_sent' | 'pay_received' | 'deposit' | 'withdraw' | 'mine_created';
 	amount: number;
 	timestamp: number;
 	description?: string;
@@ -30,6 +25,28 @@ export interface Transaction {
 	to?: string;
 }
 
+interface UserData {
+	balance: number;
+	bank: number;
+	transactions: Transaction[];
+}
+
+interface PaymentResult {
+	sent: number;
+	fee: number;
+	robbed: boolean;
+	stolen: number;
+	received: number;
+	method: 'balance' | 'bank';
+}
+
+interface DailyResult {
+	balance: number;
+	bonus: number;
+	streakDays: number;
+}
+
+// ==================== HELPERS ====================
 function parseTransactions(raw: unknown): Transaction[] {
 	if (!raw) return [];
 	if (Array.isArray(raw)) return raw as Transaction[];
@@ -45,90 +62,104 @@ function parseTransactions(raw: unknown): Transaction[] {
 	return [];
 }
 
-async function getUserFullData(discordId: string) {
-	const user = await prisma.user.findUnique({
-		where: { discord_id: discordId },
-	});
-	if (!user) {
-		return null;
-	}
-
-	const transactions: Transaction[] = parseTransactions(
-		user.transactions as unknown,
-	);
-	return {
-		balance: user.balance,
-		bank: user.bank ?? 0,
-		transactions,
-	};
+function generateTransactionId(): string {
+	return `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
 }
 
-async function createUser(discordId: string) {
-	return await prisma.user.create({
-		data: {
-			discord_id: discordId,
-			balance: 0,
-			bank: 0,
-			transactions: [] as unknown as any,
-		},
-	});
+// ==================== EMBEDS HELPERS ====================
+function createErrorEmbed(locale: Locale, title: string, description: string): EmbedBuilder {
+	return new EmbedBuilder()
+		.setColor(Colors.Red)
+		.setTitle(`❌ ${title}`)
+		.setDescription(description)
+		.setTimestamp()
+		.setFooter({ text: replyLang(locale, 'eco#footer#error') });
+}
+
+function createSuccessEmbed(title: string, description: string): EmbedBuilder {
+	return new EmbedBuilder()
+		.setColor(Colors.Green)
+		.setTitle(`✅ ${title}`)
+		.setDescription(description)
+		.setTimestamp();
+}
+
+// ==================== DATABASE ====================
+async function getUserFullData(discordId: string): Promise<UserData | null> {
+	try {
+		const user = await prisma.user.findUnique({
+			where: { discord_id: discordId },
+		});
+
+		if (!user) return null;
+
+		return {
+			balance: user.balance,
+			bank: user.bank ?? 0,
+			transactions: parseTransactions(user.transactions as unknown),
+		};
+	} catch (error) {
+		console.error('[getUserFullData] Error:', error);
+		throw error;
+	}
 }
 
 async function addTransaction(
 	discordId: string,
 	transaction: Omit<Transaction, 'id'>,
-) {
-	const user = await prisma.user.findUnique({
-		where: { discord_id: discordId },
-	});
-	if (!user) return;
+): Promise<void> {
+	try {
+		const user = await prisma.user.findUnique({
+			where: { discord_id: discordId },
+		});
 
-	const transactions: Transaction[] = parseTransactions(
-		user.transactions as unknown,
-	);
-	const newTransaction: Transaction = {
-		...transaction,
-		id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-	};
+		if (!user) return;
 
-	transactions.unshift(newTransaction);
-	if (transactions.length > 50) {
-		transactions.splice(50);
+		const transactions = parseTransactions(user.transactions as unknown);
+		const newTransaction: Transaction = {
+			...transaction,
+			id: generateTransactionId(),
+		};
+
+		transactions.unshift(newTransaction);
+		if (transactions.length > 50) transactions.splice(50);
+
+		await prisma.user.update({
+			where: { discord_id: discordId },
+			data: { transactions: transactions as unknown as any },
+		});
+	} catch (error) {
+		console.error('[addTransaction] Error:', error);
+		throw error;
 	}
-	await prisma.user.update({
-		where: { discord_id: discordId },
-		data: {
-			transactions: transactions as unknown as any,
-		},
-	});
 }
 
+// ==================== BUSINESS LOGIC ====================
 async function payUser(
 	payerId: string,
 	receiverId: string,
 	amount: number,
 	method: 'balance' | 'bank',
 	locale: Locale,
-) {
+): Promise<PaymentResult> {
 	if (amount <= 0) {
-		throw new Error(
-			replyLang(locale, 'eco#pay#error#invalidAmount', { amount }),
-		);
+		throw new Error(replyLang(locale, 'eco#pay#error#invalidAmount', { amount }));
 	}
+
 	if (payerId === receiverId) {
 		throw new Error(replyLang(locale, 'eco#pay#error#cannotPayYourself'));
 	}
 
-	const payer = await prisma.user.findUnique({
-		where: { discord_id: payerId },
-	});
+	const payer = await prisma.user.findUnique({ where: { discord_id: payerId } });
 	if (!payer) {
-		throw new Error(replyLang(locale, 'eco#pay#error#payerNotFound'));
+		throw new Error(
+			replyLang(locale, 'user#notFound') +
+			' ' +
+			replyLang(locale, 'eco#error#createAccount'),
+		);
 	}
 
-	const receiver = await prisma.user.findUnique({
-		where: { discord_id: receiverId },
-	});
+	const receiver = await prisma.user.findUnique({ where: { discord_id: receiverId } });
 	if (!receiver) {
 		throw new Error(
 			replyLang(locale, 'eco#pay#error#receiverNotFound', { user: receiverId }),
@@ -136,78 +167,81 @@ async function payUser(
 	}
 
 	const sourceBalance = method === 'bank' ? (payer.bank ?? 0) : payer.balance;
-	if (sourceBalance < amount) {
+	const taxRate = method === 'bank' ? 0.1 : 0.025;
+	const robberyChance = method === 'bank' ? 0.01 : 0.4;
+	const tax = Math.floor(amount * taxRate);
+	const totalCost = amount + tax;
+
+	if (sourceBalance < totalCost) {
 		throw new Error(
 			replyLang(locale, 'eco#pay#error#insufficientFunds', {
-				amount: amount.toLocaleString(),
+				amount: totalCost.toLocaleString(),
 			}),
 		);
 	}
 
-	const taxRate = method === 'bank' ? 0.1 : 0.025;
-	const robberyChance = method === 'bank' ? 0.01 : 0.4;
-
-	const tax = Math.floor(amount * taxRate);
-	let received = amount;
-	const totalCost = amount + tax;
-
 	let robbed = false;
 	let stolen = 0;
+	let received = amount;
+
 	if (Math.random() < robberyChance) {
 		robbed = true;
 		stolen = Math.floor(amount * 0.16);
 		received = Math.max(0, amount - stolen);
 	}
 
-	if (method === 'bank') {
-		const currentBank = payer.bank ?? 0;
+	// Transação atômica
+	try {
+		if (method === 'bank') {
+			await prisma.user.update({
+				where: { discord_id: payerId },
+				data: { bank: { decrement: totalCost } },
+			});
+		} else {
+			await prisma.user.update({
+				where: { discord_id: payerId },
+				data: { balance: { decrement: totalCost } },
+			});
+		}
+
 		await prisma.user.update({
-			where: { discord_id: payerId },
-			data: { bank: { set: Math.max(0, currentBank - totalCost) } },
+			where: { discord_id: receiverId },
+			data: { balance: { increment: received } },
 		});
-	} else {
-		await prisma.user.update({
-			where: { discord_id: payerId },
-			data: { balance: { decrement: totalCost } },
+
+		await addTransaction(payerId, {
+			type: 'pay_sent',
+			amount: -totalCost,
+			timestamp: Date.now(),
+			description: `Sent ${amount.toLocaleString()} (fee: ${tax.toLocaleString()})`,
+			to: receiverId,
 		});
+
+		await addTransaction(receiverId, {
+			type: 'pay_received',
+			amount: received,
+			timestamp: Date.now(),
+			description: robbed ? `Received (${stolen.toLocaleString()} stolen)` : 'Received',
+			from: payerId,
+		});
+
+		return { sent: amount, fee: tax, robbed, stolen, received, method };
+	} catch (error) {
+		console.error('[payUser] Transaction failed:', error);
+		throw new Error(replyLang(locale, 'eco#pay#error#transactionFailed'));
 	}
-
-	await prisma.user.update({
-		where: { discord_id: receiverId },
-		data: { balance: { increment: received } },
-	});
-
-	await addTransaction(payerId, {
-		type: 'pay_sent',
-		amount: -totalCost,
-		timestamp: Date.now(),
-		description: `Sent ${amount.toLocaleString()} to user (fee: ${tax.toLocaleString()})`,
-		to: receiverId,
-	});
-
-	await addTransaction(receiverId, {
-		type: 'pay_received',
-		amount: received,
-		timestamp: Date.now(),
-		description: `Received from user${robbed ? ` (${stolen.toLocaleString()} stolen)` : ''}`,
-		from: payerId,
-	});
-
-	return {
-		sent: amount,
-		fee: tax,
-		robbed,
-		stolen,
-		received,
-		method,
-	};
 }
 
-async function claimDaily(discordId: string, dailyAmount: number) {
+async function claimDaily(discordId: string, dailyAmount: number, locale: Locale): Promise<DailyResult> {
 	const now = new Date();
-	let user = await prisma.user.findUnique({ where: { discord_id: discordId } });
+	const user = await prisma.user.findUnique({ where: { discord_id: discordId } });
+
 	if (!user) {
-		user = await createUser(discordId);
+		throw new Error(
+			replyLang(locale, 'user#notFound') +
+			' ' +
+			replyLang(locale, 'eco#error#createAccount'),
+		);
 	}
 
 	if (user.lastDaily && now.getTime() - user.lastDaily.getTime() < 86400000) {
@@ -216,50 +250,46 @@ async function claimDaily(discordId: string, dailyAmount: number) {
 	}
 
 	const transactions = parseTransactions(user.transactions as unknown);
-	const dailyTransactions = transactions
-		.filter((t) => t.type === 'daily')
-		.slice(0, 10);
+	const dailyTransactions = transactions.filter((t) => t.type === 'daily').slice(0, 10);
 
-	let bonus = 0;
 	let streakDays = 0;
-
-	const oneDayMs = 86400000;
 	let currentDate = now.getTime();
+	const oneDayMs = 86400000;
 
 	for (const transaction of dailyTransactions) {
-		const transactionDate = transaction.timestamp;
-		const daysDiff = Math.floor((currentDate - transactionDate) / oneDayMs);
-
+		const daysDiff = Math.floor((currentDate - transaction.timestamp) / oneDayMs);
 		if (daysDiff === 1) {
 			streakDays++;
-			currentDate = transactionDate;
+			currentDate = transaction.timestamp;
 		} else {
 			break;
 		}
 	}
 
-	if (streakDays >= 9) {
-		bonus = Math.floor(dailyAmount * 2);
-	}
-
+	const bonus = streakDays >= 9 ? Math.floor(dailyAmount * 2) : 0;
 	const totalReward = dailyAmount + bonus;
 
-	user = await prisma.user.update({
-		where: { discord_id: discordId },
-		data: {
-			balance: { increment: totalReward },
-			lastDaily: now,
-		},
-	});
+	try {
+		const updatedUser = await prisma.user.update({
+			where: { discord_id: discordId },
+			data: {
+				balance: { increment: totalReward },
+				lastDaily: now,
+			},
+		});
 
-	await addTransaction(discordId, {
-		type: 'daily',
-		amount: totalReward,
-		timestamp: now.getTime(),
-		description: `Daily reward${bonus > 0 ? ` + ${bonus.toLocaleString()} streak bonus` : ''}`,
-	});
+		await addTransaction(discordId, {
+			type: 'daily',
+			amount: totalReward,
+			timestamp: now.getTime(),
+			description: bonus > 0 ? `Daily + ${bonus.toLocaleString()} streak` : 'Daily reward',
+		});
 
-	return { balance: user.balance, bonus, streakDays: streakDays + 1 };
+		return { balance: updatedUser.balance, bonus, streakDays: streakDays + 1 };
+	} catch (error) {
+		console.error('[claimDaily] Error:', error);
+		throw new Error(replyLang(locale, 'eco#daily#error#failed'));
+	}
 }
 
 async function depositMoney(discordId: string, amount: number, locale: Locale) {
@@ -267,10 +297,13 @@ async function depositMoney(discordId: string, amount: number, locale: Locale) {
 		throw new Error(replyLang(locale, 'eco#deposit#error#invalidAmount'));
 	}
 
-	let user = await prisma.user.findUnique({ where: { discord_id: discordId } });
-
+	const user = await prisma.user.findUnique({ where: { discord_id: discordId } });
 	if (!user) {
-		user = await createUser(discordId);
+		throw new Error(
+			replyLang(locale, 'user#notFound') +
+			' ' +
+			replyLang(locale, 'eco#error#createAccount'),
+		);
 	}
 
 	if (user.balance < amount) {
@@ -278,12 +311,11 @@ async function depositMoney(discordId: string, amount: number, locale: Locale) {
 	}
 
 	try {
-		const currentBank = user.bank ?? 0;
 		const updatedUser = await prisma.user.update({
 			where: { discord_id: discordId },
 			data: {
 				balance: { decrement: amount },
-				bank: { set: currentBank + amount },
+				bank: { increment: amount },
 			},
 		});
 
@@ -291,7 +323,7 @@ async function depositMoney(discordId: string, amount: number, locale: Locale) {
 			type: 'deposit',
 			amount,
 			timestamp: Date.now(),
-			description: `Deposited ${amount.toLocaleString()} polens to bank`,
+			description: `Deposited ${amount.toLocaleString()} polens`,
 		});
 
 		return {
@@ -300,19 +332,25 @@ async function depositMoney(discordId: string, amount: number, locale: Locale) {
 			newBank: updatedUser.bank ?? 0,
 		};
 	} catch (error) {
-		console.error('DEPOSIT ERROR', error);
-		throw new Error(`Erro ao fazer depósito: ${error}`);
+		console.error('[depositMoney] Error:', error);
+		throw new Error(replyLang(locale, 'eco#deposit#error#failed'));
 	}
 }
 
-async function getLeaderboard(limit = 3) {
-	return prisma.user.findMany({
-		orderBy: { balance: 'desc' },
-		take: limit,
-		select: { discord_id: true, balance: true },
-	});
+async function getLeaderboard(limit = 10) {
+	try {
+		return await prisma.user.findMany({
+			orderBy: { balance: 'desc' },
+			take: limit,
+			select: { discord_id: true, balance: true },
+		});
+	} catch (error) {
+		console.error('[getLeaderboard] Error:', error);
+		throw error;
+	}
 }
 
+// ==================== COMMAND ====================
 export default createCommand({
 	data: new SlashCommandBuilder()
 		.setName('eco')
@@ -325,7 +363,10 @@ export default createCommand({
 			sub
 				.setName('balance')
 				.setDescription('Check your balance')
-				.setNameLocalizations({ 'pt-BR': 'saldo', 'es-ES': 'saldo' })
+				.setNameLocalizations({
+					'pt-BR': 'saldo',
+					'es-ES': 'saldo'
+				})
 				.setDescriptionLocalizations({
 					'pt-BR': 'Veja sua bufunfa',
 					'es-ES': 'Ver tu dinero',
@@ -334,9 +375,12 @@ export default createCommand({
 					user
 						.setName('user')
 						.setDescription('Which user will see the balance?')
-						.setNameLocalizations({ 'pt-BR': 'usuario', 'es-ES': 'usuario' })
+						.setNameLocalizations({
+							'pt-BR': 'usuario',
+							'es-ES': 'usuario'
+						})
 						.setDescriptionLocalizations({
-							'pt-BR': 'Qual será o usuário que será visto o saldo?',
+							'pt-BR': 'Qual usuário você quer ver o saldo?',
 							'es-ES': '¿Qué usuario verá el saldo?',
 						}),
 				),
@@ -345,9 +389,12 @@ export default createCommand({
 			sub
 				.setName('deposit')
 				.setDescription('Deposit money to your bank')
-				.setNameLocalizations({ 'pt-BR': 'depositar', 'es-ES': 'depositar' })
+				.setNameLocalizations({
+					'pt-BR': 'depositar',
+					'es-ES': 'depositar'
+				})
 				.setDescriptionLocalizations({
-					'pt-BR': 'Deposite dinheiro no seu banco',
+					'pt-BR': 'Deposite dinheiro no banco',
 					'es-ES': 'Deposita dinero en tu banco',
 				})
 				.addNumberOption((opt) =>
@@ -356,20 +403,24 @@ export default createCommand({
 						.setDescription('Amount to deposit')
 						.setNameLocalizations({
 							'pt-BR': 'quantia',
-							'es-ES': 'cantidad',
+							'es-ES': 'cantidad'
 						})
 						.setDescriptionLocalizations({
-							'pt-BR': 'Quantidade de polens para depositar',
-							'es-ES': 'Cantidad de polens a depositar',
+							'pt-BR': 'Quantia para depositar',
+							'es-ES': 'Cantidad a depositar',
 						})
-						.setRequired(true),
+						.setRequired(true)
+						.setMinValue(1),
 				),
 		)
 		.addSubcommand((sub) =>
 			sub
 				.setName('pay')
 				.setDescription('Pay another user')
-				.setNameLocalizations({ 'pt-BR': 'pagar', 'es-ES': 'pagar' })
+				.setNameLocalizations({
+					'pt-BR': 'pagar',
+					'es-ES': 'pagar'
+				})
 				.setDescriptionLocalizations({
 					'pt-BR': 'Pague outro usuário',
 					'es-ES': 'Paga a otro usuario',
@@ -378,10 +429,13 @@ export default createCommand({
 					opt
 						.setName('user')
 						.setDescription('User to pay')
-						.setNameLocalizations({ 'pt-BR': 'usuario', 'es-ES': 'usuario' })
+						.setNameLocalizations({
+							'pt-BR': 'usuario',
+							'es-ES': 'usuario'
+						})
 						.setDescriptionLocalizations({
-							'pt-BR': 'Usuário que vai receber o pagamento',
-							'es-ES': 'Usuario que recibirá el pago',
+							'pt-BR': 'Usuário que receberá',
+							'es-ES': 'Usuario que recibirá',
 						})
 						.setRequired(true),
 				)
@@ -391,33 +445,43 @@ export default createCommand({
 						.setDescription('Amount to pay')
 						.setNameLocalizations({
 							'pt-BR': 'quantia',
-							'es-ES': 'cantidad',
+							'es-ES': 'cantidad'
 						})
 						.setDescriptionLocalizations({
-							'pt-BR': 'Quantidade de polens para pagar',
-							'es-ES': 'Cantidad de dinero a pagar',
+							'pt-BR': 'Quantia para pagar',
+							'es-ES': 'Cantidad a pagar',
 						})
-						.setRequired(true),
+						.setRequired(true)
+						.setMinValue(1),
 				)
 				.addStringOption((opt) =>
 					opt
 						.setName('method')
-						.setDescription('Method by which the transfer will be carried out?')
-						.setNameLocalizations({ 'es-ES': 'método', 'pt-BR': 'método' })
+						.setDescription('Payment method')
+						.setNameLocalizations({
+							'pt-BR': 'método',
+							'es-ES': 'método'
+						})
 						.setDescriptionLocalizations({
-							'pt-BR': 'Método pelo qual a transferência será realizada?',
-							'es-ES': 'Método por el cual se realizará la transferencia?',
+							'pt-BR': 'Método de pagamento',
+							'es-ES': 'Método de pago',
 						})
 						.addChoices(
 							{
 								name: 'Wallet',
 								value: 'balance',
-								name_localizations: { 'pt-BR': 'Carteira', 'es-ES': 'Cartera' },
+								name_localizations: {
+									'pt-BR': 'Carteira',
+									'es-ES': 'Cartera'
+								},
 							},
 							{
 								name: 'Bank',
 								value: 'bank',
-								name_localizations: { 'pt-BR': 'Banco', 'es-ES': 'Banco' },
+								name_localizations: {
+									'pt-BR': 'Banco',
+									'es-ES': 'Banco'
+								},
 							},
 						),
 				),
@@ -426,7 +490,10 @@ export default createCommand({
 			sub
 				.setName('daily')
 				.setDescription('Claim your daily reward')
-				.setNameLocalizations({ 'pt-BR': 'daily', 'es-ES': 'diario' })
+				.setNameLocalizations({
+					'pt-BR': 'daily',
+					'es-ES': 'diario'
+				})
 				.setDescriptionLocalizations({
 					'pt-BR': 'Pegue sua recompensa diária',
 					'es-ES': 'Reclama tu recompensa diaria',
@@ -436,449 +503,384 @@ export default createCommand({
 			sub
 				.setName('leaderboard')
 				.setDescription('Check the richest users')
-				.setNameLocalizations({ 'pt-BR': 'ranking', 'es-ES': 'ranking' })
+				.setNameLocalizations({
+					'pt-BR': 'ranking',
+					'es-ES': 'ranking'
+				})
 				.setDescriptionLocalizations({
-					'pt-BR': 'Veja os usuários mais ricos',
-					'es-ES': 'Ve los usuarios más ricos',
+					'pt-BR': 'Veja os mais ricos',
+					'es-ES': 'Ve los más ricos',
 				}),
 		),
 
 	run: async (client, interaction) => {
-		const discordUserID = interaction.user.id;
+		const subcommand = interaction.options.getSubcommand(true);
 
-		async function balanceLogic() {
+		// ==================== BALANCE ====================
+		if (subcommand === 'balance') {
 			await interaction.deferReply({ flags: ['Ephemeral'] });
-			const userToSee = interaction.options.getUser('user') ?? interaction.user;
 
-			if (userToSee.id !== interaction.user.id) {
+			try {
+				const userToSee = interaction.options.getUser('user') ?? interaction.user;
 				const userData = await getUserFullData(userToSee.id);
-				if (!userData) {
-					const embed = new EmbedBuilder()
-						.setColor(Colors.Red)
-						.setTitle(
-							`❌ ${replyLang(interaction.locale, 'eco#balance#userNotFound#title')}`,
-						)
-						.setDescription(
-							replyLang(
-								interaction.locale,
-								'eco#balance#userNotFound#description',
-								{
-									user: userToSee.displayName,
-								},
-							),
-						)
-						.setTimestamp();
 
+				if (!userData) {
+					const embed = createErrorEmbed(
+						interaction.locale,
+						replyLang(interaction.locale, 'eco#balance#userNotFound#title'),
+						replyLang(interaction.locale, 'eco#balance#userNotFound#description', {
+							user: userToSee.displayName,
+						}),
+					);
 					await interaction.editReply({ embeds: [embed] });
 					return;
 				}
 
-				const embed = new EmbedBuilder()
-					.setColor(Colors.Gold)
-					.setTitle(`💰 ${replyLang(interaction.locale, 'eco#balance#title')}`)
-					.setDescription(`**${userToSee.displayName}**`)
-					.addFields(
+				const total = userData.balance + userData.bank;
+				const embed = new EmbedPlusBuilder({
+					author: {
+						name: replyLang(interaction.locale, 'eco#balance#title'),
+						iconURL: client.user?.displayAvatarURL(),
+					},
+					color: Colors.Gold,
+					description: `**${userToSee.displayName}**`,
+					fields: [
 						{
-							name: `🏦 ${replyLang(interaction.locale, 'eco#balance#wallet')}`,
+							name: `💰 ${replyLang(interaction.locale, 'eco#balance#wallet')}`,
 							value: `\`${userData.balance.toLocaleString()}\` polens`,
 							inline: true,
 						},
 						{
-							name: `🏛️ ${replyLang(interaction.locale, 'eco#balance#bank')}`,
+							name: `🏦 ${replyLang(interaction.locale, 'eco#balance#bank')}`,
 							value: `\`${userData.bank.toLocaleString()}\` polens`,
 							inline: true,
 						},
 						{
 							name: `💎 ${replyLang(interaction.locale, 'eco#balance#total')}`,
-							value: `\`${(userData.balance + userData.bank).toLocaleString()}\` polens`,
+							value: `\`${total.toLocaleString()}\` polens`,
 							inline: false,
 						},
-					)
-					.setThumbnail(userToSee.displayAvatarURL())
-					.setTimestamp()
-					.setFooter({
-						text: `${replyLang(interaction.locale, 'eco#balance#footer')}`,
-						iconURL: client.user?.displayAvatarURL(),
-					});
-
-				await interaction.editReply({ embeds: [embed] });
-				return;
-			}
-
-			let userData = await getUserFullData(userToSee.id);
-			if (!userData) userData = { balance: 0, bank: 0, transactions: [] };
-
-			const addAll = userData?.balance + userData?.bank;
-
-			const embed = new EmbedBuilder()
-				.setColor(Colors.Gold)
-				.setTitle(`💰 ${replyLang(interaction.locale, 'eco#balance#title')}`)
-				.setDescription(`**${userToSee.displayName}**`)
-				.addFields(
-					{
-						name: `🏦 ${replyLang(interaction.locale, 'eco#balance#wallet')}`,
-						value: `\`${userData?.balance.toLocaleString()}\` polens`,
-						inline: true,
+					],
+					thumbnail: {
+						url: userToSee.displayAvatarURL({ size: 256 })
 					},
-					{
-						name: `🏛️ ${replyLang(interaction.locale, 'eco#balance#bank')}`,
-						value: `\`${userData?.bank.toLocaleString()}\` polens`,
-						inline: true,
-					},
-					{
-						name: `💎 ${replyLang(interaction.locale, 'eco#balance#total')}`,
-						value: `\`${addAll.toLocaleString()}\` polens`,
-						inline: false,
-					},
-				)
-				.setThumbnail(userToSee.displayAvatarURL())
-				.setTimestamp()
-				.setFooter({
-					text: `${replyLang(interaction.locale, 'eco#balance#footer')}`,
-					iconURL: client.user?.displayAvatarURL(),
+					timestamp: Date.now().toLocaleString(),
+					footer: {
+
+						text: replyLang(interaction.locale, 'eco#balance#footer'),
+						iconURL: interaction.user.displayAvatarURL(),
+					}
 				});
 
-			await interaction.editReply({ embeds: [embed] });
+				await interaction.editReply({ embeds: [embed] });
+			} catch (error) {
+				console.error('[balance] Error:', error);
+				const embed = createErrorEmbed(
+					interaction.locale,
+					replyLang(interaction.locale, 'eco#error#title'),
+					replyLang(interaction.locale, 'eco#error#generic'),
+				);
+				await interaction.editReply({ embeds: [embed] });
+			}
 		}
 
-		async function depositLogic() {
+		// ==================== DEPOSIT ====================
+		else if (subcommand === 'deposit') {
 			await interaction.deferReply();
-			const amount = interaction.options.getNumber('amount', true);
 
 			try {
-				const result = await depositMoney(
-					discordUserID,
-					amount,
-					interaction.locale,
-				);
+				const amount = interaction.options.getNumber('amount', true);
+				const result = await depositMoney(interaction.user.id, amount, interaction.locale);
 
-				const embed = new EmbedBuilder()
-					.setColor(Colors.Green)
-					.setTitle(
-						`🏦 ${replyLang(interaction.locale, 'eco#deposit#success#title')}`,
-					)
-					.setDescription(
-						replyLang(interaction.locale, 'eco#deposit#success#description', {
-							amount: result?.deposited.toLocaleString(),
-						}),
-					)
+				const embed = createSuccessEmbed(
+					replyLang(interaction.locale, 'eco#deposit#success#title'),
+					replyLang(interaction.locale, 'eco#deposit#success#description', {
+						amount: result.deposited.toLocaleString(),
+					}),
+				)
 					.addFields(
 						{
 							name: `💰 ${replyLang(interaction.locale, 'eco#deposit#success#newBalance')}`,
-							value: `\`${result?.newBalance?.toLocaleString()}\` polens`,
+							value: `\`${result.newBalance.toLocaleString()}\` polens`,
 							inline: true,
 						},
 						{
-							name: `🏛️ ${replyLang(interaction.locale, 'eco#deposit#success#newBank')}`,
-							value: `\`${result?.newBank.toLocaleString()}\` polens`,
+							name: `🏦 ${replyLang(interaction.locale, 'eco#deposit#success#newBank')}`,
+							value: `\`${result.newBank.toLocaleString()}\` polens`,
 							inline: true,
 						},
 					)
-					.setTimestamp();
+					.setThumbnail(interaction.user.displayAvatarURL({ size: 128 }));
 
 				await interaction.editReply({ embeds: [embed] });
-			} catch (err: any) {
-				const errorEmbed = new EmbedBuilder()
-					.setColor(Colors.Red)
-					.setTitle(
-						`❌ ${replyLang(interaction.locale, 'eco#deposit#error#title')}`,
-					)
-					.setDescription(err.message)
-					.setTimestamp();
-
-				await interaction.editReply({ embeds: [errorEmbed] });
+			} catch (error: any) {
+				console.error('[deposit] Error:', error);
+				const embed = createErrorEmbed(
+					interaction.locale,
+					replyLang(interaction.locale, 'eco#deposit#error#title'),
+					error.message,
+				);
+				await interaction.editReply({ embeds: [embed] });
 			}
 		}
 
-		async function payLogic() {
+		// ==================== PAY ====================
+		else if (subcommand === 'pay') {
 			await interaction.deferReply();
 
-			const userToPay = interaction.options.getUser('user', true);
-			const moneyToPay = interaction.options.getNumber('amount', true);
-			const method =
-				(interaction.options.getString('method') as 'balance' | 'bank') ??
-				'balance';
-			const receiver = await prisma.user.findUnique({
-				where: { discord_id: userToPay.id },
-			});
+			try {
+				const userToPay = interaction.options.getUser('user', true);
+				const amount = interaction.options.getNumber('amount', true);
+				const method = (interaction.options.getString('method') as 'balance' | 'bank') ?? 'balance';
 
-			if (!receiver) {
-				const errorEmbed = new EmbedBuilder()
-					.setColor(Colors.Red)
-					.setTitle(
-						`❌ ${replyLang(interaction.locale, 'eco#pay#error#title')}`,
-					)
-					.setDescription(
+				const receiver = await prisma.user.findUnique({ where: { discord_id: userToPay.id } });
+				if (!receiver) {
+					const embed = createErrorEmbed(
+						interaction.locale,
+						replyLang(interaction.locale, 'eco#pay#error#title'),
 						replyLang(interaction.locale, 'eco#pay#error#receiverNotFound', {
 							user: userToPay.username,
 						}),
-					)
-					.setTimestamp();
-
-				await interaction.editReply({ embeds: [errorEmbed] });
-				return;
-			}
-
-			let payerData = await getUserFullData(interaction.user.id);
-			if (!payerData) {
-				payerData = await getUserFullData(interaction.user.id);
-				return;
-			}
-
-			const sourceBalance =
-				method === 'bank' ? payerData.bank : payerData.balance;
-			const taxRate = method === 'bank' ? 0.1 : 0.025;
-			const robberyChance = method === 'bank' ? 0.01 : 0.4;
-			const tax = Math.floor(moneyToPay * taxRate);
-			const totalCost = moneyToPay + tax;
-
-			const infoEmbed = new EmbedBuilder()
-				.setColor(Colors.Blue)
-				.setTitle(
-					`💸 ${replyLang(interaction.locale, 'eco#pay#confirmation#title')}`,
-				)
-				.setDescription(
-					replyLang(interaction.locale, 'eco#pay#confirmation#description', {
-						payer: interaction.user.displayName,
-						receiver: userToPay.displayName,
-						amount: moneyToPay.toLocaleString(),
-						method: replyLang(interaction.locale, `eco#pay#method#${method}`),
-					}),
-				)
-				.addFields(
-					{
-						name: `📊 ${replyLang(interaction.locale, 'eco#pay#details#title')}`,
-						value: [
-							`**${replyLang(interaction.locale, 'eco#pay#details#amount')}:** \`${moneyToPay.toLocaleString()}\` polens`,
-							`**${replyLang(interaction.locale, 'eco#pay#details#fee')}:** \`${tax.toLocaleString()}\` polens (${(taxRate * 100).toFixed(1)}%)`,
-							`**${replyLang(interaction.locale, 'eco#pay#details#total')}:** \`${totalCost.toLocaleString()}\` polens`,
-							`**${replyLang(interaction.locale, 'eco#pay#details#robbery')}:** ${(robberyChance * 100).toFixed(1)}%`,
-						].join('\n'),
-						inline: false,
-					},
-					{
-						name: `🏦 ${replyLang(interaction.locale, 'eco#pay#method#wallet')}`,
-						value: replyLang(
-							interaction.locale,
-							'eco#pay#method#walletDescription',
-						),
-						inline: true,
-					},
-					{
-						name: `🏛️ ${replyLang(interaction.locale, 'eco#pay#method#bank')}`,
-						value: replyLang(
-							interaction.locale,
-							'eco#pay#method#bankDescription',
-						),
-						inline: true,
-					},
-					{
-						name: `💰 ${replyLang(interaction.locale, 'eco#pay#balance#current')}`,
-						value: `\`${sourceBalance.toLocaleString()}\` polens`,
-						inline: false,
-					},
-				)
-				.setThumbnail(userToPay.displayAvatarURL())
-				.setTimestamp()
-				.setFooter({
-					text: `${replyLang(interaction.locale, 'eco#pay#footer')} • ${time(new Date(Date.now() + 5 * 60 * 1000), TimestampStyles.RelativeTime)}`,
-					iconURL: interaction.user.displayAvatarURL(),
-				});
-
-			if (sourceBalance < totalCost) {
-				infoEmbed
-					.setColor(Colors.Red)
-					.setTitle(
-						`❌ ${replyLang(interaction.locale, 'eco#pay#error#title')}`,
-					)
-					.setDescription(
-						replyLang(interaction.locale, 'eco#pay#error#insufficientFunds', {
-							amount: totalCost.toLocaleString(),
-						}),
 					);
-
-				await interaction.editReply({ embeds: [infoEmbed] });
-				return;
-			}
-
-			const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-				new ButtonBuilder()
-					.setCustomId('accept')
-					.setLabel(
-						replyLang(interaction.locale, 'eco#pay#confirmation#accept'),
-					)
-					.setStyle(ButtonStyle.Success)
-					.setEmoji('✅'),
-				new ButtonBuilder()
-					.setCustomId('decline')
-					.setLabel(
-						replyLang(interaction.locale, 'eco#pay#confirmation#decline'),
-					)
-					.setStyle(ButtonStyle.Danger)
-					.setEmoji('❌'),
-			);
-
-			const msg = await interaction.editReply({
-				embeds: [infoEmbed],
-				components: [row],
-			});
-
-			const collector = msg.createMessageComponentCollector({
-				componentType: ComponentType.Button,
-				time: 5 * 60 * 1000, // 5 min
-			});
-
-			collector.on('collect', async (i) => {
-				if (i.user.id !== userToPay.id) {
-					const errorEmbed = new EmbedBuilder()
-						.setColor(Colors.Red)
-						.setDescription(
-							replyLang(interaction.locale, 'eco#pay#error#notReceiver'),
-						)
-						.setTimestamp();
-
-					await i.reply({
-						embeds: [errorEmbed],
-						flags: ['Ephemeral'],
-					});
+					await interaction.editReply({ embeds: [embed] });
 					return;
 				}
 
-				if (i.customId === 'accept') {
-					try {
-						const result = await payUser(
-							interaction.user.id,
-							userToPay.id,
-							moneyToPay,
-							method,
-							interaction.locale,
+				const payerData = await getUserFullData(interaction.user.id);
+				if (!payerData) {
+					const embed = createErrorEmbed(
+						interaction.locale,
+						replyLang(interaction.locale, 'eco#pay#error#title'),
+						replyLang(interaction.locale, 'user#notFound') +
+						' ' +
+						replyLang(interaction.locale, 'eco#error#createAccount'),
+					);
+					await interaction.editReply({ embeds: [embed] });
+					return;
+				}
+
+				const sourceBalance = method === 'bank' ? payerData.bank : payerData.balance;
+				const taxRate = method === 'bank' ? 0.1 : 0.025;
+				const robberyChance = method === 'bank' ? 0.01 : 0.4;
+				const tax = Math.floor(amount * taxRate);
+				const totalCost = amount + tax;
+
+				const infoEmbed = new EmbedPlusBuilder({
+					color: Colors.Blue,
+					author: {
+						name: replyLang(interaction.locale, 'eco#pay#confirmation#title'),
+						iconURL: interaction.user.displayAvatarURL(),
+					},
+					description: replyLang(interaction.locale, 'eco#pay#confirmation#description', {
+						payer: interaction.user.displayName,
+						receiver: userToPay.displayName,
+						amount: amount.toLocaleString(),
+						method: replyLang(interaction.locale, `eco#pay#method#${method}`),
+					}),
+					fields: [
+						{
+							name: `📊 ${replyLang(interaction.locale, 'eco#pay#details#title')}`,
+							value: [
+								`**${replyLang(interaction.locale, 'eco#pay#details#amount')}:** \`${amount.toLocaleString()}\` polens`,
+								`**${replyLang(interaction.locale, 'eco#pay#details#fee')}:** \`${tax.toLocaleString()}\` polens (${(taxRate * 100).toFixed(1)}%)`,
+								`**${replyLang(interaction.locale, 'eco#pay#details#total')}:** \`${totalCost.toLocaleString()}\` polens`,
+								`**${replyLang(interaction.locale, 'eco#pay#details#robbery')}:** ${(robberyChance * 100).toFixed(1)}%`,
+							].join('\n'),
+							inline: false,
+						},
+						{
+							name: `💰 ${replyLang(interaction.locale, 'eco#pay#balance#current')}`,
+							value: `\`${sourceBalance.toLocaleString()}\` polens`,
+							inline: false,
+						}
+					],
+					thumbnail: {
+						url: userToPay.displayAvatarURL({ size: 128 })
+					},
+					timestamp: Date.now(),
+					footer: {
+						text: `${replyLang(interaction.locale, 'eco#pay#footer')} • ${time(new Date(Date.now() + 5 * 60 * 1000), TimestampStyles.RelativeTime)}`,
+						iconURL: client.user?.displayAvatarURL(),
+					}
+				});
+
+				if (sourceBalance < totalCost) {
+					infoEmbed
+						.setColor(Colors.Red)
+						.setAuthor({
+							name: replyLang(interaction.locale, 'eco#pay#error#title'),
+							iconURL: interaction.user.displayAvatarURL(),
+						})
+						.setDescription(
+							replyLang(interaction.locale, 'eco#pay#error#insufficientFunds', {
+								amount: totalCost.toLocaleString(),
+							}),
 						);
 
-						const successEmbed = new EmbedBuilder()
-							.setColor(result.robbed ? Colors.Orange : Colors.Green)
-							.setTitle(
-								`✅ ${replyLang(interaction.locale, 'eco#pay#success#title')}`,
-							)
+					await interaction.editReply({ embeds: [infoEmbed] });
+					return;
+				}
+
+				const row = createRow(
+					new ButtonBuilder()
+						.setCustomId('accept')
+						.setLabel(replyLang(interaction.locale, 'eco#pay#confirmation#accept'))
+						.setStyle(ButtonStyle.Success)
+						.setEmoji('✅'),
+					new ButtonBuilder()
+						.setCustomId('decline')
+						.setLabel(replyLang(interaction.locale, 'eco#pay#confirmation#decline'))
+						.setStyle(ButtonStyle.Danger)
+						.setEmoji('❌'),
+				);
+
+				const msg = await interaction.editReply({ embeds: [infoEmbed], components: [row] });
+
+				const collector = msg.createMessageComponentCollector({
+					componentType: ComponentType.Button,
+					time: 5 * 60 * 1000,
+				});
+
+				collector.on('collect', async (i) => {
+					if (i.user.id !== userToPay.id) {
+						const errorEmbed = createErrorEmbed(
+							interaction.locale,
+							'',
+							replyLang(interaction.locale, 'eco#pay#error#notReceiver'),
+						);
+						await i.reply({ embeds: [errorEmbed], flags: ['Ephemeral'] });
+						return;
+					}
+
+					if (i.customId === 'accept') {
+						try {
+							const result = await payUser(
+								interaction.user.id,
+								userToPay.id,
+								amount,
+								method,
+								interaction.locale,
+							);
+
+							const successEmbed = new EmbedBuilder({
+								color: result.robbed ? Colors.Orange : Colors.Green,
+								author: {
+									name: replyLang(interaction.locale, 'eco#pay#success#title'),
+									iconURL: client.user?.displayAvatarURL(),
+								},
+								description: replyLang(interaction.locale, 'eco#pay#success#description', {
+									payer: interaction.user.displayName,
+									receiver: userToPay.displayName,
+								}),
+								fields: [
+									{
+										name: `📤 ${replyLang(interaction.locale, 'eco#pay#success#sent')}`,
+										value: `\`${result.sent.toLocaleString()}\` polens`,
+										inline: true,
+									},
+									{
+										name: `💸 ${replyLang(interaction.locale, 'eco#pay#success#fee')}`,
+										value: `\`${result.fee.toLocaleString()}\` polens`,
+										inline: true,
+									},
+									{
+										name: `📥 ${replyLang(interaction.locale, 'eco#pay#success#received')}`,
+										value: `\`${result.received.toLocaleString()}\` polens`,
+										inline: true,
+									},
+								],
+								thumbnail: {
+									url: userToPay.displayAvatarURL({ size: 128 })
+								},
+								timestamp: Date.now()
+							})
+
+							if (result.robbed) {
+								successEmbed.addFields({
+									name: `🦹 ${replyLang(interaction.locale, 'eco#pay#success#robbed')}`,
+									value: replyLang(interaction.locale, 'eco#pay#success#robbedDescription', {
+										stolen: result.stolen.toLocaleString(),
+									}),
+									inline: false,
+								});
+							}
+
+							await i.update({ embeds: [successEmbed], components: [] });
+						} catch (err: any) {
+							console.error('[pay] Error:', err);
+							const errorEmbed = createErrorEmbed(
+								interaction.locale,
+								replyLang(interaction.locale, 'eco#pay#error#title'),
+								err.message,
+							);
+							await i.update({ embeds: [errorEmbed], components: [] });
+						}
+						collector.stop('done');
+					} else if (i.customId === 'decline') {
+						const declineEmbed = new EmbedBuilder()
+							.setColor(Colors.Red)
+							.setAuthor({
+								name: replyLang(interaction.locale, 'eco#pay#declined#title'),
+								iconURL: userToPay.displayAvatarURL(),
+							})
 							.setDescription(
-								replyLang(interaction.locale, 'eco#pay#success#description', {
+								replyLang(interaction.locale, 'eco#pay#declined#message', {
 									payer: interaction.user.displayName,
 									receiver: userToPay.displayName,
 								}),
 							)
-							.addFields(
-								{
-									name: `📤 ${replyLang(interaction.locale, 'eco#pay#success#sent')}`,
-									value: `\`${result.sent.toLocaleString()}\` polens`,
-									inline: true,
-								},
-								{
-									name: `💸 ${replyLang(interaction.locale, 'eco#pay#success#fee')}`,
-									value: `\`${result.fee.toLocaleString()}\` polens`,
-									inline: true,
-								},
-								{
-									name: `📥 ${replyLang(interaction.locale, 'eco#pay#success#received')}`,
-									value: `\`${result.received.toLocaleString()}\` polens`,
-									inline: true,
-								},
-							)
 							.setTimestamp();
 
-						if (result.robbed) {
-							successEmbed
-								.addFields({
-									name: `🦹 ${replyLang(interaction.locale, 'eco#pay#success#robbed')}`,
-									value: replyLang(
-										interaction.locale,
-										'eco#pay#success#robbedDescription',
-										{
-											stolen: result.stolen.toLocaleString(),
-										},
-									),
-									inline: false,
-								})
-								.setColor(Colors.Orange);
-						}
-
-						await i.update({
-							embeds: [successEmbed],
-							components: [],
-						});
-					} catch (err: any) {
-						const errorEmbed = new EmbedBuilder()
-							.setColor(Colors.Red)
-							.setTitle(
-								`❌ ${replyLang(interaction.locale, 'eco#pay#error#title')}`,
-							)
-							.setDescription(err.message)
-							.setTimestamp();
-
-						await i.update({
-							embeds: [errorEmbed],
-							components: [],
-						});
+						await i.update({ embeds: [declineEmbed], components: [] });
+						collector.stop('declined');
 					}
-					collector.stop('done');
-				} else if (i.customId === 'decline') {
-					const declineEmbed = new EmbedBuilder()
-						.setColor(Colors.Red)
-						.setTitle(
-							`❌ ${replyLang(interaction.locale, 'eco#pay#declined#title')}`,
-						)
-						.setDescription(
-							replyLang(interaction.locale, 'eco#pay#declined', {
-								payer: interaction.user.displayName,
-								receiver: userToPay.displayName,
-							}),
-						)
-						.setTimestamp();
+				});
 
-					await i.update({
-						embeds: [declineEmbed],
-						components: [],
-					});
-					collector.stop('declined');
-				}
-			});
+				collector.on('end', async (_, reason) => {
+					if (reason === 'time') {
+						const expiredEmbed = new EmbedBuilder()
+							.setColor(Colors.Yellow)
+							.setAuthor({
+								name: replyLang(interaction.locale, 'eco#pay#expired#title'),
+								iconURL: client.user?.displayAvatarURL(),
+							})
+							.setDescription(
+								replyLang(interaction.locale, 'eco#pay#expired#message', {
+									payer: interaction.user.displayName,
+									receiver: userToPay.displayName,
+								}),
+							)
+							.setTimestamp();
 
-			collector.on('end', async (_, reason) => {
-				if (reason === 'time') {
-					const expiredEmbed = new EmbedBuilder()
-						.setColor(Colors.Yellow)
-						.setTitle(
-							`⏰ ${replyLang(interaction.locale, 'eco#pay#expired#title')}`,
-						)
-						.setDescription(
-							replyLang(interaction.locale, 'eco#pay#expired', {
-								payer: interaction.user.displayName,
-								receiver: userToPay.displayName,
-							}),
-						)
-						.setTimestamp();
-
-					await msg.edit({
-						embeds: [expiredEmbed],
-						components: [],
-					});
-				}
-			});
+						await msg.edit({ embeds: [expiredEmbed], components: [] });
+					}
+				});
+			} catch (error: any) {
+				console.error('[pay] Error:', error);
+				const embed = createErrorEmbed(
+					interaction.locale,
+					replyLang(interaction.locale, 'eco#pay#error#title'),
+					error.message || replyLang(interaction.locale, 'eco#error#generic'),
+				);
+				await interaction.editReply({ embeds: [embed] });
+			}
 		}
 
-		async function dailyLogic() {
+		// ==================== DAILY ====================
+		else if (subcommand === 'daily') {
 			await interaction.deferReply({ flags: ['Ephemeral'] });
-			const dailyAmount = Math.floor(Math.random() * (30 - 5 + 1)) + 5;
 
 			try {
-				const result = await claimDaily(discordUserID, dailyAmount);
+				const dailyAmount = Math.floor(Math.random() * (30 - 5 + 1)) + 5;
+				const result = await claimDaily(interaction.user.id, dailyAmount, interaction.locale);
 
 				const dailyEmbed = new EmbedBuilder()
-					.setColor(Colors.Yellow)
-					.setTitle(
-						`🌞 ${replyLang(interaction.locale, 'eco#daily#success#title')}`,
-					)
-					.setDescription(
-						replyLang(interaction.locale, 'eco#daily#success#description'),
-					)
+					.setColor(result.bonus > 0 ? Colors.Gold : Colors.Yellow)
+					.setAuthor({
+						name: replyLang(interaction.locale, 'eco#daily#success#title'),
+						iconURL: interaction.user.displayAvatarURL(),
+					})
+					.setDescription(replyLang(interaction.locale, 'eco#daily#success#description'))
 					.addFields(
 						{
 							name: `🎁 ${replyLang(interaction.locale, 'eco#daily#success#reward')}`,
@@ -891,116 +893,114 @@ export default createCommand({
 							inline: true,
 						},
 					)
-					.setThumbnail(interaction.user.displayAvatarURL())
-					.setTimestamp();
+					.setThumbnail(interaction.user.displayAvatarURL({ size: 128 }))
+					.setTimestamp()
+					.setFooter({
+						text: replyLang(interaction.locale, 'eco#balance#footer'),
+						iconURL: client.user?.displayAvatarURL(),
+					});
 
 				if (result.bonus > 0) {
 					dailyEmbed.addFields({
 						name: `🔥 ${replyLang(interaction.locale, 'eco#daily#bonus#title')}`,
-						value: replyLang(
-							interaction.locale,
-							'eco#daily#bonus#description',
-							{
-								bonus: result.bonus.toLocaleString(),
-								streak: result.streakDays.toString(),
-							},
-						),
+						value: replyLang(interaction.locale, 'eco#daily#bonus#description', {
+							bonus: result.bonus.toLocaleString(),
+							streak: result.streakDays.toString(),
+						}),
 						inline: false,
 					});
-					dailyEmbed.setColor(Colors.Gold);
 				} else if (result.streakDays > 1) {
 					dailyEmbed.addFields({
 						name: `📅 ${replyLang(interaction.locale, 'eco#daily#streak#title')}`,
-						value: replyLang(
-							interaction.locale,
-							'eco#daily#streak#description',
-							{
-								streak: result.streakDays.toString(),
-								remaining: (10 - result.streakDays).toString(),
-							},
-						),
+						value: replyLang(interaction.locale, 'eco#daily#streak#description', {
+							streak: result.streakDays.toString(),
+							remaining: (10 - result.streakDays).toString(),
+						}),
 						inline: false,
 					});
 				}
 
 				await interaction.editReply({ embeds: [dailyEmbed] });
-			} catch (err: any) {
-				if (err.cooldown) {
+			} catch (error: any) {
+				console.error('[daily] Error:', error);
+
+				if (error.cooldown) {
 					const cooldownEmbed = new EmbedBuilder()
 						.setColor(Colors.Orange)
-						.setTitle(
-							`⏳ ${replyLang(interaction.locale, 'eco#daily#cooldown#title')}`,
-						)
-						.setDescription(
-							replyLang(interaction.locale, 'eco#daily#cooldown#description'),
-						)
+						.setAuthor({
+							name: replyLang(interaction.locale, 'eco#daily#cooldown#title'),
+							iconURL: interaction.user.displayAvatarURL(),
+						})
+						.setDescription(replyLang(interaction.locale, 'eco#daily#cooldown#description'))
 						.addFields({
 							name: `🕐 ${replyLang(interaction.locale, 'eco#daily#nextClaim')}`,
-							value: time(err.nextClaim, TimestampStyles.RelativeTime),
+							value: time(error.nextClaim, TimestampStyles.RelativeTime),
 							inline: false,
 						})
 						.setTimestamp();
 
 					await interaction.editReply({ embeds: [cooldownEmbed] });
 				} else {
-					const errorEmbed = new EmbedBuilder()
-						.setColor(Colors.Red)
-						.setTitle(
-							`❌ ${replyLang(interaction.locale, 'eco#daily#error#title')}`,
-						)
-						.setDescription(err.message)
-						.setTimestamp();
-
+					const errorEmbed = createErrorEmbed(
+						interaction.locale,
+						replyLang(interaction.locale, 'eco#daily#error#title'),
+						error.message || replyLang(interaction.locale, 'eco#error#generic'),
+					);
 					await interaction.editReply({ embeds: [errorEmbed] });
 				}
 			}
 		}
 
-		async function leaderboardLogic() {
+		// ==================== LEADERBOARD ====================
+		else if (subcommand === 'leaderboard') {
 			await interaction.deferReply();
-			const topUsers = await getLeaderboard(10);
 
-			const leaderboardEmbed = new EmbedBuilder()
-				.setColor(Colors.Gold)
-				.setTitle(
-					`🏆 ${replyLang(interaction.locale, 'eco#leaderboard#title')}`,
-				)
-				.setDescription(
-					replyLang(interaction.locale, 'eco#leaderboard#description'),
-				)
-				.setTimestamp();
+			try {
+				const topUsers = await getLeaderboard(10);
 
-			if (topUsers.length === 0) {
-				leaderboardEmbed.setDescription(
-					replyLang(interaction.locale, 'eco#leaderboard#empty'),
-				);
-			} else {
-				const medals = ['🥇', '🥈', '🥉'];
-				const formatted = topUsers
-					.map((user, index) => {
-						const medal = medals[index] || `**${index + 1}.**`;
-						return `${medal} <@${user.discord_id}> • \`${user.balance.toLocaleString()}\` polens`;
+				const leaderboardEmbed = new EmbedBuilder()
+					.setColor(Colors.Gold)
+					.setAuthor({
+						name: replyLang(interaction.locale, 'eco#leaderboard#title'),
+						iconURL: client.user?.displayAvatarURL(),
 					})
-					.join('\n');
+					.setDescription(replyLang(interaction.locale, 'eco#leaderboard#description'))
+					.setTimestamp()
+					.setFooter({
+						text: replyLang(interaction.locale, 'eco#balance#footer'),
+						iconURL: interaction.user.displayAvatarURL(),
+					});
 
-				leaderboardEmbed.addFields({
-					name: `👑 ${replyLang(interaction.locale, 'eco#leaderboard#ranking')}`,
-					value: formatted,
-					inline: false,
-				});
+				if (topUsers.length === 0) {
+					leaderboardEmbed.setDescription(
+						replyLang(interaction.locale, 'eco#leaderboard#empty'),
+					);
+				} else {
+					const medals = ['🥇', '🥈', '🥉'];
+					const formatted = topUsers
+						.map((user, index) => {
+							const medal = medals[index] || `**${index + 1}.**`;
+							return `${medal} <@${user.discord_id}> • \`${user.balance.toLocaleString()}\` polens`;
+						})
+						.join('\n');
+
+					leaderboardEmbed.addFields({
+						name: `👑 ${replyLang(interaction.locale, 'eco#leaderboard#ranking')}`,
+						value: formatted,
+						inline: false,
+					});
+				}
+
+				await interaction.editReply({ embeds: [leaderboardEmbed] });
+			} catch (error) {
+				console.error('[leaderboard] Error:', error);
+				const embed = createErrorEmbed(
+					interaction.locale,
+					replyLang(interaction.locale, 'eco#error#title'),
+					replyLang(interaction.locale, 'eco#error#generic'),
+				);
+				await interaction.editReply({ embeds: [embed] });
 			}
-
-			await interaction.editReply({ embeds: [leaderboardEmbed] });
 		}
-
-		const subcommand = interaction.options.getSubcommand(true);
-		const handlers: Record<string, () => Promise<void>> = {
-			balance: balanceLogic,
-			deposit: depositLogic,
-			pay: payLogic,
-			daily: dailyLogic,
-			leaderboard: leaderboardLogic,
-		};
-		await (handlers[subcommand]?.() ?? Promise.resolve());
 	},
 });

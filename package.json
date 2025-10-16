@@ -12,7 +12,8 @@
 		"format": "biome format --write ./src",
 		"lint": "biome check --write ./src",
 		"migrate:dev": "dotenv -e .env.dev -- prisma migrate dev",
-		"migrate:prod": "dotenv -e .env -- prisma migrate deploy"
+		"migrate:prod": "dotenv -e .env -- prisma migrate deploy",
+		"generate": "prisma generate"
 	},
 	"keywords": [
 		"discord-bot",
@@ -26,19 +27,19 @@
 	"license": "MIT",
 	"packageManager": "bun@1.2.14",
 	"dependencies": {
-		"@magicyan/discord": "^1.5.4",
-		"@prisma/client": "^6.16.3",
+		"@magicyan/discord": "^1.6.0",
+		"@prisma/client": "^6.17.1",
 		"axios": "^1.12.2",
-		"discord.js": "^14.22.1",
-		"dotenv": "^16.6.1",
+		"chalk": "^5.6.2",
+		"discord.js": "^14.23.2",
 		"starlightskinapi": "^1.0.10",
 		"zod": "^3.25.76"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.2.4",
-		"@types/node": "^22.18.8",
+		"@biomejs/biome": "^2.2.5",
+		"@types/node": "^22.18.10",
 		"dotenv-cli": "^10.0.0",
-		"prisma": "^6.16.3",
+		"prisma": "^6.17.1",
 		"tsc-alias": "^1.8.16",
 		"tsup": "^8.5.0",
 		"tsx": "^4.20.6",

@@ -3,60 +3,75 @@ import type { BotOptions, Command } from './types.js';
 
 export async function syncCommands(
 	client: Client,
-	commands: Map<string, Command>,
+	commandMap: Map<string, Command>,
 	options: BotOptions,
 ) {
-	if (!options.commands?.registerOn) return;
+	const { token, commands } = options;
 
-	const rest = new REST({ version: '10' }).setToken(options.token);
-	const body = Array.from(commands.values()).map((c) => c.data.toJSON());
+	if (!commands?.registerOn) return;
+	if (!client.user) throw new Error('🚫 The bot is not ready yet!');
 
-	if (!client.user) throw new Error('The bot is not ready yet!');
+	const registerOn = commands.registerOn;
+	const rest = new REST({ version: '10' }).setToken(token);
+	const body = Array.from(commandMap.values()).map((c) => c.data.toJSON());
 
 	let existing: ApplicationCommand[] = [];
 
-	if (options.commands.registerOn === 'global') {
-		// --- Sincroniza globais ---
+	// 🌍 Modo Global
+	if (registerOn.type === 'Global') {
 		existing = (await rest.get(
 			Routes.applicationCommands(client.user.id),
 		)) as ApplicationCommand[];
+
 		console.log(`🌍 Current global commands: ${existing.length}`);
 		await rest.put(Routes.applicationCommands(client.user.id), { body });
 		console.log('✅ Global commands synchronized!');
 
-		// --- Remove todos os comandos de guildas ---
-		if (client.guilds.cache.size > 0) {
-			for (const [guildId] of client.guilds.cache) {
-				try {
-					await rest.put(
-						Routes.applicationGuildCommands(client.user.id, guildId),
-						{ body: [] },
-					);
-					console.log(`🧹 Cleared guild commands in ${guildId}`);
-				} catch (err) {
-					console.warn(`⚠️ Failed to clear guild ${guildId}:`, err);
-				}
+		// limpa todas as guilds
+		for (const [guildId] of client.guilds.cache) {
+			try {
+				await rest.put(
+					Routes.applicationGuildCommands(client.user.id, guildId),
+					{ body: [] },
+				);
+				console.log(`🧹 Cleared guild commands in ${guildId}`);
+			} catch (err) {
+				console.warn(`⚠️ Failed to clear guild ${guildId}:`, err);
 			}
 		}
-	} else {
-		const guildId = options.commands.registerOn;
-		// --- Sincroniza comandos na guild ---
-		existing = (await rest.get(
-			Routes.applicationGuildCommands(client.user.id, guildId),
-		)) as ApplicationCommand[];
-		console.log(`🏠 Current commands in guild ${guildId}: ${existing.length}`);
-		await rest.put(Routes.applicationGuildCommands(client.user.id, guildId), {
-			body,
-		});
-		console.log(`✅ Commands synchronized in guild ${guildId}!`);
+	}
 
-		// --- Remove todos os comandos globais ---
+	// 🏠 Modo Guild
+	else if (registerOn.type === 'Guild') {
+		for (const guildId of registerOn.guilds) {
+			try {
+				existing = (await rest.get(
+					Routes.applicationGuildCommands(client.user.id, guildId),
+				)) as ApplicationCommand[];
+
+				console.log(
+					`🏠 Current commands in guild ${guildId}: ${existing.length}`,
+				);
+
+				await rest.put(
+					Routes.applicationGuildCommands(client.user.id, guildId),
+					{
+						body,
+					},
+				);
+				console.log(`✅ Commands synchronized in guild ${guildId}!`);
+			} catch (err) {
+				console.warn(`⚠️ Failed to sync guild ${guildId}:`, err);
+			}
+		}
+
+		// limpa globais
 		await rest.put(Routes.applicationCommands(client.user.id), { body: [] });
 		console.log('🧹 Cleared all global commands!');
 	}
 
-	// logs de diferença
-	const newNames = new Set(commands.keys());
+	// 🧾 Log de mudanças
+	const newNames = new Set(commandMap.keys());
 	const oldNames = new Set(existing.map((c) => c.name));
 
 	for (const old of oldNames) {

@@ -1,7 +1,6 @@
 import { createCommand } from '@base';
 import { replyLang } from '@fx/utils/replyLang.js';
 import {
-	ActionRowBuilder,
 	ButtonBuilder,
 	type ButtonInteraction,
 	ButtonStyle,
@@ -10,6 +9,7 @@ import {
 	PermissionFlagsBits,
 	SlashCommandBuilder,
 } from 'discord.js';
+import { createRow } from "@magicyan/discord"
 import { emotes } from 'misc/emotes.js';
 
 export default createCommand({
@@ -50,10 +50,16 @@ export default createCommand({
 			});
 		}
 
-		const targetUser = interaction.options.getUser('membro', true);
+		const targetUser = interaction.options.getUser('member', true);
 		const targetMember = await interaction.guild.members
 			.fetch(targetUser.id)
 			.catch(() => null);
+
+		if (!targetMember) {
+			return interaction.reply({
+
+			})
+		}
 
 		if (targetUser.id === interaction.user.id) {
 			return interaction.reply({
@@ -81,8 +87,8 @@ export default createCommand({
 		}
 
 		const me =
-			interaction.guild.members.cache.get(client.user!.id) ??
-			(await interaction.guild.members.fetch(client.user!.id));
+			interaction.guild.members.cache.get(client.solid.user.id) ??
+			(await interaction.guild.members.fetch(client.solid.user.id));
 		const executor = interaction.member as GuildMember;
 
 		if (me.roles.highest.position <= targetMember.roles.highest.position) {
@@ -94,7 +100,7 @@ export default createCommand({
 
 		if (
 			(executor as GuildMember).roles.highest.position <=
-				targetMember.roles.highest.position &&
+			targetMember.roles.highest.position &&
 			interaction.guild.ownerId !== (executor as GuildMember).id
 		) {
 			return interaction.reply({
@@ -116,7 +122,7 @@ export default createCommand({
 			.setLabel(t(locale, 'ban#responses#cancel_button'))
 			.setStyle(ButtonStyle.Secondary);
 
-		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+		const row = createRow(
 			confirmButton,
 			cancelButton,
 		);
@@ -147,9 +153,9 @@ export default createCommand({
 				collector.stop('cancelled');
 				await interaction.editReply({
 					content:
-						t(locale, 'ban#responses#cancelled', {
+						`${t(locale, 'ban#responses#cancelled', {
 							user: `${targetUser.tag}`,
-						}) + ' :3',
+						})} :3`,
 					components: [],
 				});
 				return;
@@ -164,13 +170,13 @@ export default createCommand({
 						moderator: interaction.user.tag,
 					});
 
-					await interaction.guild!.members.ban(targetUser.id, { reason });
+					await interaction.guild?.members.ban(targetUser.id, { reason });
 
 					await interaction.editReply({
 						content:
-							t(locale, 'ban#responses#success', {
+							`${t(locale, 'ban#responses#success', {
 								user: `${targetUser.tag}`,
-							}) + ' 💥 :3',
+							})} 💥 :3`,
 						components: [],
 					});
 				} catch (err) {

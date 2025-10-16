@@ -12,7 +12,7 @@ import {
 	type User as UserDiscord,
 } from 'discord.js';
 import { emotes } from 'misc/emotes.js';
-import type { User as UserDB } from '../../generated/prisma/client.js';
+import type { User as UserDB } from '../../base/db/generated/prisma/client.js';
 
 const { badges } = emotes;
 const KOXIK_ID = '1358116081126084608';
