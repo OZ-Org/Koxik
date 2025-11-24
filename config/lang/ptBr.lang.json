@@ -3,6 +3,20 @@
 		"📡 Minha Latência atual está em ``%ping%``",
 		"⏱️ Resposta do ping: ``%ping_response%``"
 	],
+	"8ball": {
+		"responses": [
+			"Com certeza.",
+			"Não conte com isso.",
+			"Sem dúvidas.",
+			"Pergunte novamente mais tarde.",
+			"Definitivamente não.",
+			"Você pode contar com isso.",
+			"Melhor não te dizer agora.",
+			"Minhas fontes dizem que não.",
+			"Parece bom.",
+			"Muito duvidoso."
+		]
+	},
 	"create_user": {
 		"created": "🚀 %user_mention% sua conta foi criada com sucesso! Agora você pode usar comandos de economia!",
 		"fail": "🚫 %user_mention% sua conta não foi criada. Tente novamente mais tarde!",

@@ -3,6 +3,20 @@
 		"📡 My current latency is ``%ping%``",
 		"⏱️ Ping response time: ``%ping_response%``"
 	],
+	"8ball": {
+		"responses": [
+			"It is certain.",
+			"Don't count on it.",
+			"Without a doubt.",
+			"Ask again later.",
+			"Definitely not.",
+			"You may rely on it.",
+			"Better not tell you now.",
+			"My sources say no.",
+			"Outlook good.",
+			"Very doubtful."
+		]
+	},
 	"create_user": {
 		"created": "🚀 %user_mention% your account has been successfully created! You can now use economy commands!",
 		"fail": "🚫 %user_mention% your account could not be created. Please try again later!",
