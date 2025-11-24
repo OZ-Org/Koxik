@@ -2,6 +2,7 @@ import { createCommand } from '@base';
 import { prisma } from '@db';
 import { replyLang } from '@fx/utils/replyLang.js';
 import { createRow, EmbedPlusBuilder } from '@magicyan/discord';
+import { emotes } from '@misc/emotes.js';
 import {
 	ButtonBuilder,
 	ButtonStyle,
@@ -14,10 +15,15 @@ import {
 	time,
 } from 'discord.js';
 
-// ==================== TIPOS ====================
 export interface Transaction {
 	id: string;
-	type: 'daily' | 'pay_sent' | 'pay_received' | 'deposit' | 'withdraw' | 'mine_created';
+	type:
+		| 'daily'
+		| 'pay_sent'
+		| 'pay_received'
+		| 'deposit'
+		| 'withdraw'
+		| 'mine_created';
 	amount: number;
 	timestamp: number;
 	description?: string;
@@ -46,7 +52,6 @@ interface DailyResult {
 	streakDays: number;
 }
 
-// ==================== HELPERS ====================
 function parseTransactions(raw: unknown): Transaction[] {
 	if (!raw) return [];
 	if (Array.isArray(raw)) return raw as Transaction[];
@@ -66,8 +71,11 @@ function generateTransactionId(): string {
 	return `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
 }
 
-// ==================== EMBEDS HELPERS ====================
-function createErrorEmbed(locale: Locale, title: string, description: string): EmbedBuilder {
+function createErrorEmbed(
+	locale: Locale,
+	title: string,
+	description: string,
+): EmbedBuilder {
 	return new EmbedBuilder()
 		.setColor(Colors.Red)
 		.setTitle(`❌ ${title}`)
@@ -84,7 +92,6 @@ function createSuccessEmbed(title: string, description: string): EmbedBuilder {
 		.setTimestamp();
 }
 
-// ==================== DATABASE ====================
 async function getUserFullData(discordId: string): Promise<UserData | null> {
 	try {
 		const user = await prisma.user.findUnique({
@@ -143,23 +150,29 @@ async function payUser(
 	locale: Locale,
 ): Promise<PaymentResult> {
 	if (amount <= 0) {
-		throw new Error(replyLang(locale, 'eco#pay#error#invalidAmount', { amount }));
+		throw new Error(
+			replyLang(locale, 'eco#pay#error#invalidAmount', { amount }),
+		);
 	}
 
 	if (payerId === receiverId) {
 		throw new Error(replyLang(locale, 'eco#pay#error#cannotPayYourself'));
 	}
 
-	const payer = await prisma.user.findUnique({ where: { discord_id: payerId } });
+	const payer = await prisma.user.findUnique({
+		where: { discord_id: payerId },
+	});
 	if (!payer) {
 		throw new Error(
 			replyLang(locale, 'user#notFound') +
-			' ' +
-			replyLang(locale, 'eco#error#createAccount'),
+				' ' +
+				replyLang(locale, 'eco#error#createAccount'),
 		);
 	}
 
-	const receiver = await prisma.user.findUnique({ where: { discord_id: receiverId } });
+	const receiver = await prisma.user.findUnique({
+		where: { discord_id: receiverId },
+	});
 	if (!receiver) {
 		throw new Error(
 			replyLang(locale, 'eco#pay#error#receiverNotFound', { user: receiverId }),
@@ -221,7 +234,9 @@ async function payUser(
 			type: 'pay_received',
 			amount: received,
 			timestamp: Date.now(),
-			description: robbed ? `Received (${stolen.toLocaleString()} stolen)` : 'Received',
+			description: robbed
+				? `Received (${stolen.toLocaleString()} stolen)`
+				: 'Received',
 			from: payerId,
 		});
 
@@ -232,15 +247,21 @@ async function payUser(
 	}
 }
 
-async function claimDaily(discordId: string, dailyAmount: number, locale: Locale): Promise<DailyResult> {
+async function claimDaily(
+	discordId: string,
+	dailyAmount: number,
+	locale: Locale,
+): Promise<DailyResult> {
 	const now = new Date();
-	const user = await prisma.user.findUnique({ where: { discord_id: discordId } });
+	const user = await prisma.user.findUnique({
+		where: { discord_id: discordId },
+	});
 
 	if (!user) {
 		throw new Error(
 			replyLang(locale, 'user#notFound') +
-			' ' +
-			replyLang(locale, 'eco#error#createAccount'),
+				' ' +
+				replyLang(locale, 'eco#error#createAccount'),
 		);
 	}
 
@@ -250,14 +271,18 @@ async function claimDaily(discordId: string, dailyAmount: number, locale: Locale
 	}
 
 	const transactions = parseTransactions(user.transactions as unknown);
-	const dailyTransactions = transactions.filter((t) => t.type === 'daily').slice(0, 10);
+	const dailyTransactions = transactions
+		.filter((t) => t.type === 'daily')
+		.slice(0, 10);
 
 	let streakDays = 0;
 	let currentDate = now.getTime();
 	const oneDayMs = 86400000;
 
 	for (const transaction of dailyTransactions) {
-		const daysDiff = Math.floor((currentDate - transaction.timestamp) / oneDayMs);
+		const daysDiff = Math.floor(
+			(currentDate - transaction.timestamp) / oneDayMs,
+		);
 		if (daysDiff === 1) {
 			streakDays++;
 			currentDate = transaction.timestamp;
@@ -282,7 +307,8 @@ async function claimDaily(discordId: string, dailyAmount: number, locale: Locale
 			type: 'daily',
 			amount: totalReward,
 			timestamp: now.getTime(),
-			description: bonus > 0 ? `Daily + ${bonus.toLocaleString()} streak` : 'Daily reward',
+			description:
+				bonus > 0 ? `Daily + ${bonus.toLocaleString()} streak` : 'Daily reward',
 		});
 
 		return { balance: updatedUser.balance, bonus, streakDays: streakDays + 1 };
@@ -297,12 +323,14 @@ async function depositMoney(discordId: string, amount: number, locale: Locale) {
 		throw new Error(replyLang(locale, 'eco#deposit#error#invalidAmount'));
 	}
 
-	const user = await prisma.user.findUnique({ where: { discord_id: discordId } });
+	const user = await prisma.user.findUnique({
+		where: { discord_id: discordId },
+	});
 	if (!user) {
 		throw new Error(
 			replyLang(locale, 'user#notFound') +
-			' ' +
-			replyLang(locale, 'eco#error#createAccount'),
+				' ' +
+				replyLang(locale, 'eco#error#createAccount'),
 		);
 	}
 
@@ -365,7 +393,7 @@ export default createCommand({
 				.setDescription('Check your balance')
 				.setNameLocalizations({
 					'pt-BR': 'saldo',
-					'es-ES': 'saldo'
+					'es-ES': 'saldo',
 				})
 				.setDescriptionLocalizations({
 					'pt-BR': 'Veja sua bufunfa',
@@ -377,7 +405,7 @@ export default createCommand({
 						.setDescription('Which user will see the balance?')
 						.setNameLocalizations({
 							'pt-BR': 'usuario',
-							'es-ES': 'usuario'
+							'es-ES': 'usuario',
 						})
 						.setDescriptionLocalizations({
 							'pt-BR': 'Qual usuário você quer ver o saldo?',
@@ -391,7 +419,7 @@ export default createCommand({
 				.setDescription('Deposit money to your bank')
 				.setNameLocalizations({
 					'pt-BR': 'depositar',
-					'es-ES': 'depositar'
+					'es-ES': 'depositar',
 				})
 				.setDescriptionLocalizations({
 					'pt-BR': 'Deposite dinheiro no banco',
@@ -403,7 +431,7 @@ export default createCommand({
 						.setDescription('Amount to deposit')
 						.setNameLocalizations({
 							'pt-BR': 'quantia',
-							'es-ES': 'cantidad'
+							'es-ES': 'cantidad',
 						})
 						.setDescriptionLocalizations({
 							'pt-BR': 'Quantia para depositar',
@@ -419,7 +447,7 @@ export default createCommand({
 				.setDescription('Pay another user')
 				.setNameLocalizations({
 					'pt-BR': 'pagar',
-					'es-ES': 'pagar'
+					'es-ES': 'pagar',
 				})
 				.setDescriptionLocalizations({
 					'pt-BR': 'Pague outro usuário',
@@ -431,7 +459,7 @@ export default createCommand({
 						.setDescription('User to pay')
 						.setNameLocalizations({
 							'pt-BR': 'usuario',
-							'es-ES': 'usuario'
+							'es-ES': 'usuario',
 						})
 						.setDescriptionLocalizations({
 							'pt-BR': 'Usuário que receberá',
@@ -445,7 +473,7 @@ export default createCommand({
 						.setDescription('Amount to pay')
 						.setNameLocalizations({
 							'pt-BR': 'quantia',
-							'es-ES': 'cantidad'
+							'es-ES': 'cantidad',
 						})
 						.setDescriptionLocalizations({
 							'pt-BR': 'Quantia para pagar',
@@ -460,7 +488,7 @@ export default createCommand({
 						.setDescription('Payment method')
 						.setNameLocalizations({
 							'pt-BR': 'método',
-							'es-ES': 'método'
+							'es-ES': 'método',
 						})
 						.setDescriptionLocalizations({
 							'pt-BR': 'Método de pagamento',
@@ -472,7 +500,7 @@ export default createCommand({
 								value: 'balance',
 								name_localizations: {
 									'pt-BR': 'Carteira',
-									'es-ES': 'Cartera'
+									'es-ES': 'Cartera',
 								},
 							},
 							{
@@ -480,7 +508,7 @@ export default createCommand({
 								value: 'bank',
 								name_localizations: {
 									'pt-BR': 'Banco',
-									'es-ES': 'Banco'
+									'es-ES': 'Banco',
 								},
 							},
 						),
@@ -492,7 +520,7 @@ export default createCommand({
 				.setDescription('Claim your daily reward')
 				.setNameLocalizations({
 					'pt-BR': 'daily',
-					'es-ES': 'diario'
+					'es-ES': 'diario',
 				})
 				.setDescriptionLocalizations({
 					'pt-BR': 'Pegue sua recompensa diária',
@@ -505,7 +533,7 @@ export default createCommand({
 				.setDescription('Check the richest users')
 				.setNameLocalizations({
 					'pt-BR': 'ranking',
-					'es-ES': 'ranking'
+					'es-ES': 'ranking',
 				})
 				.setDescriptionLocalizations({
 					'pt-BR': 'Veja os mais ricos',
@@ -521,16 +549,21 @@ export default createCommand({
 			await interaction.deferReply({ flags: ['Ephemeral'] });
 
 			try {
-				const userToSee = interaction.options.getUser('user') ?? interaction.user;
+				const userToSee =
+					interaction.options.getUser('user') ?? interaction.user;
 				const userData = await getUserFullData(userToSee.id);
 
 				if (!userData) {
 					const embed = createErrorEmbed(
 						interaction.locale,
 						replyLang(interaction.locale, 'eco#balance#userNotFound#title'),
-						replyLang(interaction.locale, 'eco#balance#userNotFound#description', {
-							user: userToSee.displayName,
-						}),
+						replyLang(
+							interaction.locale,
+							'eco#balance#userNotFound#description',
+							{
+								user: userToSee.displayName,
+							},
+						),
 					);
 					await interaction.editReply({ embeds: [embed] });
 					return;
@@ -562,14 +595,13 @@ export default createCommand({
 						},
 					],
 					thumbnail: {
-						url: userToSee.displayAvatarURL({ size: 256 })
+						url: userToSee.displayAvatarURL({ size: 256 }),
 					},
 					timestamp: Date.now().toLocaleString(),
 					footer: {
-
 						text: replyLang(interaction.locale, 'eco#balance#footer'),
 						iconURL: interaction.user.displayAvatarURL(),
-					}
+					},
 				});
 
 				await interaction.editReply({ embeds: [embed] });
@@ -590,7 +622,11 @@ export default createCommand({
 
 			try {
 				const amount = interaction.options.getNumber('amount', true);
-				const result = await depositMoney(interaction.user.id, amount, interaction.locale);
+				const result = await depositMoney(
+					interaction.user.id,
+					amount,
+					interaction.locale,
+				);
 
 				const embed = createSuccessEmbed(
 					replyLang(interaction.locale, 'eco#deposit#success#title'),
@@ -631,9 +667,13 @@ export default createCommand({
 			try {
 				const userToPay = interaction.options.getUser('user', true);
 				const amount = interaction.options.getNumber('amount', true);
-				const method = (interaction.options.getString('method') as 'balance' | 'bank') ?? 'balance';
+				const method =
+					(interaction.options.getString('method') as 'balance' | 'bank') ??
+					'balance';
 
-				const receiver = await prisma.user.findUnique({ where: { discord_id: userToPay.id } });
+				const receiver = await prisma.user.findUnique({
+					where: { discord_id: userToPay.id },
+				});
 				if (!receiver) {
 					const embed = createErrorEmbed(
 						interaction.locale,
@@ -652,14 +692,15 @@ export default createCommand({
 						interaction.locale,
 						replyLang(interaction.locale, 'eco#pay#error#title'),
 						replyLang(interaction.locale, 'user#notFound') +
-						' ' +
-						replyLang(interaction.locale, 'eco#error#createAccount'),
+							' ' +
+							replyLang(interaction.locale, 'eco#error#createAccount'),
 					);
 					await interaction.editReply({ embeds: [embed] });
 					return;
 				}
 
-				const sourceBalance = method === 'bank' ? payerData.bank : payerData.balance;
+				const sourceBalance =
+					method === 'bank' ? payerData.bank : payerData.balance;
 				const taxRate = method === 'bank' ? 0.1 : 0.025;
 				const robberyChance = method === 'bank' ? 0.01 : 0.4;
 				const tax = Math.floor(amount * taxRate);
@@ -671,12 +712,16 @@ export default createCommand({
 						name: replyLang(interaction.locale, 'eco#pay#confirmation#title'),
 						iconURL: interaction.user.displayAvatarURL(),
 					},
-					description: replyLang(interaction.locale, 'eco#pay#confirmation#description', {
-						payer: interaction.user.displayName,
-						receiver: userToPay.displayName,
-						amount: amount.toLocaleString(),
-						method: replyLang(interaction.locale, `eco#pay#method#${method}`),
-					}),
+					description: replyLang(
+						interaction.locale,
+						'eco#pay#confirmation#description',
+						{
+							payer: interaction.user.displayName,
+							receiver: userToPay.displayName,
+							amount: amount.toLocaleString(),
+							method: replyLang(interaction.locale, `eco#pay#method#${method}`),
+						},
+					),
 					fields: [
 						{
 							name: `📊 ${replyLang(interaction.locale, 'eco#pay#details#title')}`,
@@ -692,16 +737,16 @@ export default createCommand({
 							name: `💰 ${replyLang(interaction.locale, 'eco#pay#balance#current')}`,
 							value: `\`${sourceBalance.toLocaleString()}\` polens`,
 							inline: false,
-						}
+						},
 					],
 					thumbnail: {
-						url: userToPay.displayAvatarURL({ size: 128 })
+						url: userToPay.displayAvatarURL({ size: 128 }),
 					},
 					timestamp: Date.now(),
 					footer: {
 						text: `${replyLang(interaction.locale, 'eco#pay#footer')} • ${time(new Date(Date.now() + 5 * 60 * 1000), TimestampStyles.RelativeTime)}`,
 						iconURL: client.user?.displayAvatarURL(),
-					}
+					},
 				});
 
 				if (sourceBalance < totalCost) {
@@ -722,19 +767,27 @@ export default createCommand({
 				}
 
 				const row = createRow(
-					new ButtonBuilder()
-						.setCustomId('accept')
-						.setLabel(replyLang(interaction.locale, 'eco#pay#confirmation#accept'))
-						.setStyle(ButtonStyle.Success)
-						.setEmoji('✅'),
-					new ButtonBuilder()
-						.setCustomId('decline')
-						.setLabel(replyLang(interaction.locale, 'eco#pay#confirmation#decline'))
-						.setStyle(ButtonStyle.Danger)
-						.setEmoji('❌'),
+					new ButtonBuilder({
+						custom_id: 'accept/pay',
+						label: replyLang(interaction.locale, 'eco#pay#confirmation#accept'),
+						style: ButtonStyle.Danger,
+						emoji: emotes.utils.checkmark,
+					}),
+					new ButtonBuilder({
+						custom_id: 'decline/pay',
+						label: replyLang(
+							interaction.locale,
+							'eco#pay#confirmation#decline',
+						),
+						style: ButtonStyle.Secondary,
+						emoji: emotes.utils.crossmark,
+					}),
 				);
 
-				const msg = await interaction.editReply({ embeds: [infoEmbed], components: [row] });
+				const msg = await interaction.editReply({
+					embeds: [infoEmbed],
+					components: [row],
+				});
 
 				const collector = msg.createMessageComponentCollector({
 					componentType: ComponentType.Button,
@@ -752,7 +805,7 @@ export default createCommand({
 						return;
 					}
 
-					if (i.customId === 'accept') {
+					if (i.customId === 'accept/pay') {
 						try {
 							const result = await payUser(
 								interaction.user.id,
@@ -768,10 +821,14 @@ export default createCommand({
 									name: replyLang(interaction.locale, 'eco#pay#success#title'),
 									iconURL: client.user?.displayAvatarURL(),
 								},
-								description: replyLang(interaction.locale, 'eco#pay#success#description', {
-									payer: interaction.user.displayName,
-									receiver: userToPay.displayName,
-								}),
+								description: replyLang(
+									interaction.locale,
+									'eco#pay#success#description',
+									{
+										payer: interaction.user.displayName,
+										receiver: userToPay.displayName,
+									},
+								),
 								fields: [
 									{
 										name: `📤 ${replyLang(interaction.locale, 'eco#pay#success#sent')}`,
@@ -790,17 +847,21 @@ export default createCommand({
 									},
 								],
 								thumbnail: {
-									url: userToPay.displayAvatarURL({ size: 128 })
+									url: userToPay.displayAvatarURL({ size: 128 }),
 								},
-								timestamp: Date.now()
-							})
+								timestamp: Date.now(),
+							});
 
 							if (result.robbed) {
 								successEmbed.addFields({
 									name: `🦹 ${replyLang(interaction.locale, 'eco#pay#success#robbed')}`,
-									value: replyLang(interaction.locale, 'eco#pay#success#robbedDescription', {
-										stolen: result.stolen.toLocaleString(),
-									}),
+									value: replyLang(
+										interaction.locale,
+										'eco#pay#success#robbedDescription',
+										{
+											stolen: result.stolen.toLocaleString(),
+										},
+									),
 									inline: false,
 								});
 							}
@@ -816,7 +877,7 @@ export default createCommand({
 							await i.update({ embeds: [errorEmbed], components: [] });
 						}
 						collector.stop('done');
-					} else if (i.customId === 'decline') {
+					} else if (i.customId === 'decline/pay') {
 						const declineEmbed = new EmbedBuilder()
 							.setColor(Colors.Red)
 							.setAuthor({
@@ -872,7 +933,11 @@ export default createCommand({
 
 			try {
 				const dailyAmount = Math.floor(Math.random() * (30 - 5 + 1)) + 5;
-				const result = await claimDaily(interaction.user.id, dailyAmount, interaction.locale);
+				const result = await claimDaily(
+					interaction.user.id,
+					dailyAmount,
+					interaction.locale,
+				);
 
 				const dailyEmbed = new EmbedBuilder()
 					.setColor(result.bonus > 0 ? Colors.Gold : Colors.Yellow)
@@ -880,7 +945,9 @@ export default createCommand({
 						name: replyLang(interaction.locale, 'eco#daily#success#title'),
 						iconURL: interaction.user.displayAvatarURL(),
 					})
-					.setDescription(replyLang(interaction.locale, 'eco#daily#success#description'))
+					.setDescription(
+						replyLang(interaction.locale, 'eco#daily#success#description'),
+					)
 					.addFields(
 						{
 							name: `🎁 ${replyLang(interaction.locale, 'eco#daily#success#reward')}`,
@@ -903,19 +970,27 @@ export default createCommand({
 				if (result.bonus > 0) {
 					dailyEmbed.addFields({
 						name: `🔥 ${replyLang(interaction.locale, 'eco#daily#bonus#title')}`,
-						value: replyLang(interaction.locale, 'eco#daily#bonus#description', {
-							bonus: result.bonus.toLocaleString(),
-							streak: result.streakDays.toString(),
-						}),
+						value: replyLang(
+							interaction.locale,
+							'eco#daily#bonus#description',
+							{
+								bonus: result.bonus.toLocaleString(),
+								streak: result.streakDays.toString(),
+							},
+						),
 						inline: false,
 					});
 				} else if (result.streakDays > 1) {
 					dailyEmbed.addFields({
 						name: `📅 ${replyLang(interaction.locale, 'eco#daily#streak#title')}`,
-						value: replyLang(interaction.locale, 'eco#daily#streak#description', {
-							streak: result.streakDays.toString(),
-							remaining: (10 - result.streakDays).toString(),
-						}),
+						value: replyLang(
+							interaction.locale,
+							'eco#daily#streak#description',
+							{
+								streak: result.streakDays.toString(),
+								remaining: (10 - result.streakDays).toString(),
+							},
+						),
 						inline: false,
 					});
 				}
@@ -931,7 +1006,9 @@ export default createCommand({
 							name: replyLang(interaction.locale, 'eco#daily#cooldown#title'),
 							iconURL: interaction.user.displayAvatarURL(),
 						})
-						.setDescription(replyLang(interaction.locale, 'eco#daily#cooldown#description'))
+						.setDescription(
+							replyLang(interaction.locale, 'eco#daily#cooldown#description'),
+						)
 						.addFields({
 							name: `🕐 ${replyLang(interaction.locale, 'eco#daily#nextClaim')}`,
 							value: time(error.nextClaim, TimestampStyles.RelativeTime),
@@ -964,7 +1041,9 @@ export default createCommand({
 						name: replyLang(interaction.locale, 'eco#leaderboard#title'),
 						iconURL: client.user?.displayAvatarURL(),
 					})
-					.setDescription(replyLang(interaction.locale, 'eco#leaderboard#description'))
+					.setDescription(
+						replyLang(interaction.locale, 'eco#leaderboard#description'),
+					)
 					.setTimestamp()
 					.setFooter({
 						text: replyLang(interaction.locale, 'eco#balance#footer'),

@@ -10,4 +10,4 @@ services:
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
-    command: node --env-file=.env.dev dist/index.js
+    command: bun --env-file=.env.dev src/index.ts

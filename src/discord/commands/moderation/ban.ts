@@ -1,5 +1,6 @@
 import { createCommand } from '@base';
 import { replyLang } from '@fx/utils/replyLang.js';
+import { createRow } from '@magicyan/discord';
 import {
 	ButtonBuilder,
 	type ButtonInteraction,
@@ -9,7 +10,6 @@ import {
 	PermissionFlagsBits,
 	SlashCommandBuilder,
 } from 'discord.js';
-import { createRow } from "@magicyan/discord"
 import { emotes } from 'misc/emotes.js';
 
 export default createCommand({
@@ -46,7 +46,7 @@ export default createCommand({
 		if (!interaction.guild) {
 			return interaction.reply({
 				content: t(locale, 'ban#responses#error_no_guild'),
-				ephemeral: true,
+				flags: ['Ephemeral'],
 			});
 		}
 
@@ -56,15 +56,13 @@ export default createCommand({
 			.catch(() => null);
 
 		if (!targetMember) {
-			return interaction.reply({
-
-			})
+			return interaction.reply({});
 		}
 
 		if (targetUser.id === interaction.user.id) {
 			return interaction.reply({
 				content: t(locale, 'ban#responses#error_cannot_ban_self'),
-				ephemeral: true,
+				flags: ['Ephemeral'],
 			});
 		}
 
@@ -73,7 +71,7 @@ export default createCommand({
 				content: t(locale, 'ban#responses#error_cannot_ban_owner', {
 					suspect: emotes.misc.suspect,
 				}),
-				ephemeral: true,
+				flags: ['Ephemeral'],
 			});
 		}
 
@@ -82,7 +80,7 @@ export default createCommand({
 				content: t(locale, 'ban#responses#error_member_not_found', {
 					user: targetUser.tag,
 				}),
-				ephemeral: true,
+				flags: ['Ephemeral'],
 			});
 		}
 
@@ -94,18 +92,18 @@ export default createCommand({
 		if (me.roles.highest.position <= targetMember.roles.highest.position) {
 			return interaction.reply({
 				content: t(locale, 'ban#responses#error_bot_higher_role'),
-				ephemeral: true,
+				flags: ['Ephemeral'],
 			});
 		}
 
 		if (
 			(executor as GuildMember).roles.highest.position <=
-			targetMember.roles.highest.position &&
+				targetMember.roles.highest.position &&
 			interaction.guild.ownerId !== (executor as GuildMember).id
 		) {
 			return interaction.reply({
 				content: t(locale, 'ban#responses#error_higher_role'),
-				ephemeral: true,
+				flags: ['Ephemeral'],
 			});
 		}
 
@@ -122,17 +120,14 @@ export default createCommand({
 			.setLabel(t(locale, 'ban#responses#cancel_button'))
 			.setStyle(ButtonStyle.Secondary);
 
-		const row = createRow(
-			confirmButton,
-			cancelButton,
-		);
+		const row = createRow(confirmButton, cancelButton);
 
 		await interaction.reply({
 			content: t(locale, 'ban#responses#confirm_prompt', {
 				user: `${targetUser.tag}`,
 			}),
 			components: [row],
-			ephemeral: true,
+			flags: ['Ephemeral'],
 		});
 
 		const message = await interaction.fetchReply();
@@ -152,10 +147,9 @@ export default createCommand({
 				handled = true;
 				collector.stop('cancelled');
 				await interaction.editReply({
-					content:
-						`${t(locale, 'ban#responses#cancelled', {
-							user: `${targetUser.tag}`,
-						})} :3`,
+					content: `${t(locale, 'ban#responses#cancelled', {
+						user: `${targetUser.tag}`,
+					})} :3`,
 					components: [],
 				});
 				return;
@@ -173,10 +167,9 @@ export default createCommand({
 					await interaction.guild?.members.ban(targetUser.id, { reason });
 
 					await interaction.editReply({
-						content:
-							`${t(locale, 'ban#responses#success', {
-								user: `${targetUser.tag}`,
-							})} 💥 :3`,
+						content: `${t(locale, 'ban#responses#success', {
+							user: `${targetUser.tag}`,
+						})} 💥 :3`,
 						components: [],
 					});
 				} catch (err) {

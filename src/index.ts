@@ -7,6 +7,6 @@ export const { createCommand, createEvent } = createBot({
 		registerOn: RegisterType.Guild([
 			'1426601171455311973',
 			'1399909178495074304',
-		])
-	}
+		]),
+	},
 });

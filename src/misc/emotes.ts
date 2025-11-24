@@ -12,4 +12,8 @@ export const emotes = {
 	misc: {
 		suspect: '<:breadsus:1422770743451844668>',
 	},
+	utils: {
+		crossmark: '<:crossmark:1428874408772239461>',
+		checkmark: '<:checkmark:1428874404200189953>',
+	},
 };

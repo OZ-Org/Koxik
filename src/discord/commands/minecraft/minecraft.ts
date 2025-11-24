@@ -81,7 +81,7 @@ export default createCommand({
 				return interaction.reply({
 					content:
 						'❌ Você ainda não tem uma conta! Crie uma antes de começar sua jornada.',
-					ephemeral: true,
+					flags: ['Ephemeral'],
 				});
 			}
 
@@ -94,7 +94,7 @@ export default createCommand({
 				return interaction.reply({
 					content:
 						'⚠️ Você já começou sua jornada e já tem sua picareta inicial!',
-					ephemeral: true,
+					flags: ['Ephemeral'],
 				});
 			}
 

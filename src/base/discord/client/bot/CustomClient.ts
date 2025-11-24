@@ -1,17 +1,13 @@
-import { Client, type ClientUser, type ClientOptions } from 'discord.js';
+import { Client, type ClientOptions, type ClientUser } from 'discord.js';
 
 class SolidAccess {
-	constructor(private client: Client) { }
+	constructor(private client: Client) {}
 
 	get user(): ClientUser {
 		const user = this.client.user;
 		if (!user) throw new Error('client.user não está inicializado ainda!');
 		return user;
 	}
-
-	// aqui tu pode adicionar mais "seguros":
-	// get application() { ... }
-	// get guilds() { ... }
 }
 
 export class KoxikClient extends Client {

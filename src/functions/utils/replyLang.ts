@@ -10,26 +10,15 @@ type Variables = Record<string, string | number | boolean>;
 // Cria paths infinitas para intellisense
 type Join<K, P> = K extends string | number
 	? P extends string | number
-	? `${K}#${P}`
-	: never
+		? `${K}#${P}`
+		: never
 	: never;
 
 type NestedKeys<T> = T extends object
 	? {
-		[K in keyof T]: T[K] extends object ? K | Join<K, NestedKeys<T[K]>> : K;
-	}[keyof T]
+			[K in keyof T]: T[K] extends object ? K | Join<K, NestedKeys<T[K]>> : K;
+		}[keyof T]
 	: never;
-
-type NestedValue<T, P extends string> = P extends `${infer K}#${infer Rest}`
-	? K extends keyof T
-	? T[K] extends object
-	? NestedValue<T[K], Rest>
-	: never
-	: never
-	: P extends keyof T
-	? T[P]
-	: never;
-
 // ------------------ CARREGA LANGS UMA VEZ ------------------
 type Languages = {
 	'pt-BR': typeof ptBRSchema;
@@ -81,12 +70,12 @@ function replacePlaceholders(text: string, variables?: Variables): string {
 }
 
 // ------------------ FUNÇÃO PRINCIPAL ------------------
-export function replyLang<
-	T extends typeof ptBRSchema,
-	K extends NestedKeys<T>
->(locale: Locale, key: K, variables?: Variables): string {
+export function replyLang<T extends typeof ptBRSchema, K extends NestedKeys<T>>(
+	locale: Locale,
+	key: K,
+	variables?: Variables,
+): string {
 	const mappedLocale = localeMap[locale] ?? 'en-US';
-	// @ts-expect-error: TS não consegue inferir tipos dinâmicos de JSON
 	const rawText =
 		getNestedSafe(languages[mappedLocale], key) ??
 		getNestedSafe(languages['en-US'], key);

@@ -1,9 +1,11 @@
 import { prisma } from '@db';
-import type { Client, Interaction } from 'discord.js';
+import { logger } from '@fx/utils/logger.js';
+import type { Interaction } from 'discord.js';
+import type { KoxikClient } from './CustomClient.js';
 import type { Command } from './types.js';
 
 export function setupInteractionHandler(
-	client: Client,
+	client: KoxikClient,
 	commands: Map<string, Command>,
 ) {
 	client.on('interactionCreate', async (interaction: Interaction) => {
@@ -45,7 +47,10 @@ export function setupInteractionHandler(
 						},
 					});
 				} catch (err) {
-					console.error('Erro ao logar CommandStat:', err);
+					logger.error(
+						'Error while trying to create the log of commands used:',
+						err,
+					);
 				}
 			}
 
