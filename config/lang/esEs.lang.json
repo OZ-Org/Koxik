@@ -4,6 +4,9 @@
 		"⏱️ Tiempo de respuesta del ping: ``%ping_response%``"
 	],
 	"8ball": {
+		"title": "8Ball",
+		"question": "Pregunta",
+		"answer": "Respuesta",
 		"responses": [
 			"Es seguro.",
 			"No cuentes con ello.",
