@@ -1,5 +1,5 @@
 import { randomInt, randomUUID } from 'node:crypto';
-import { prisma } from '@db';
+import { UserController } from '../../jobs/UserController.js';
 import { replyLang } from '@fx/utils/replyLang.js';
 import type { BackpackItem, BackpackType, OreType } from '@misc/types.js';
 import {
@@ -64,7 +64,7 @@ async function handleLava(
 				content: replyLang(locale, 'mine#lava_jump_success'),
 				flags: ['Ephemeral'],
 			});
-			await lavaMsg.delete().catch(() => {});
+			await lavaMsg.delete().catch(() => { });
 		}
 	});
 
@@ -76,8 +76,8 @@ async function handleLava(
 					content: replyLang(locale, 'mine#lava_jump_fail'),
 					flags: ['Ephemeral'],
 				})
-				.catch(() => {});
-			await lavaMsg.delete().catch(() => {});
+				.catch(() => { });
+			await lavaMsg.delete().catch(() => { });
 		}
 	});
 
@@ -91,9 +91,7 @@ export async function mine(interaction: ChatInputCommandInteraction) {
 	const pickaxeId = interaction.options.getString('pickaxe', true);
 	const locale = interaction.locale ?? 'pt-BR';
 
-	const userDB = await prisma.user.findUnique({
-		where: { discord_id: user.id },
-	});
+	const userDB = await UserController.get(user.id);
 
 	if (!userDB?.backpack)
 		return interaction.reply({
@@ -189,10 +187,7 @@ export async function mine(interaction: ChatInputCommandInteraction) {
 			});
 		}
 
-		await prisma.user.update({
-			where: { discord_id: user.id },
-			data: { backpack: updatedBackpack },
-		});
+		await UserController.update(user.id, { backpack: updatedBackpack });
 	}
 
 	for (let tick = 0; tick < 20 && mining; tick++) {
@@ -226,7 +221,7 @@ export async function mine(interaction: ChatInputCommandInteraction) {
 		embed
 			.setColor(0x27ae60)
 			.setFooter({ text: replyLang(locale, 'mine#progress_footer') });
-		await msg.edit({ embeds: [embed], components: [stopRow] }).catch(() => {});
+		await msg.edit({ embeds: [embed], components: [stopRow] }).catch(() => { });
 
 		if (durability <= 0) {
 			mining = false;
@@ -268,7 +263,7 @@ export async function mine(interaction: ChatInputCommandInteraction) {
 
 		await msg
 			.edit({ embeds: [endEmbed], components: [lootRow] })
-			.catch(() => {});
+			.catch(() => { });
 
 		const lootCollector = msg.createMessageComponentCollector({
 			componentType: ComponentType.Button,
@@ -301,7 +296,7 @@ export async function mine(interaction: ChatInputCommandInteraction) {
 				});
 			}
 
-			await msg.edit({ embeds: [finalEmbed], components: [] }).catch(() => {});
+			await msg.edit({ embeds: [finalEmbed], components: [] }).catch(() => { });
 			await i.reply({
 				content: '✅ Ação concluída!',
 				flags: ['Ephemeral'],

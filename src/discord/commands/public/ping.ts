@@ -11,11 +11,13 @@ export default createCommand({
 			'es-ES': 'Mira la latencia actual del bot!',
 		}),
 	run: async (client, interaction) => {
+		const startTime = Date.now();
+
 		await interaction.reply({
 			flags: ['Ephemeral'],
 			content: replyLang(interaction.locale, 'ping', {
 				ping: `${client.ws.ping}ms`,
-				ping_response: `${Date.now() - interaction.createdTimestamp}ms`,
+				ping_response: `${Date.now() - startTime}ms`,
 			}),
 		});
 	},

@@ -1,7 +1,7 @@
 import { createCommand } from '@base';
-import { prisma } from '@db';
 import { MessageFlags, SlashCommandBuilder } from 'discord.js';
 import { createUserInfoEmbed } from 'menus/userinfo/user.info.js';
+import { UserController } from '../../../jobs/UserController.js';
 
 export default createCommand({
 	data: new SlashCommandBuilder()
@@ -30,15 +30,15 @@ export default createCommand({
 		const sub = interaction.options.getSubcommand(true);
 		if (sub !== 'info') return;
 
+		await interaction.deferReply();
+
 		const user = interaction.options.getUser('user', true);
 
-		const fullUserData = await prisma.user.findUnique({
-			where: { discord_id: user.id },
-		});
+		const fullUserData = await UserController.get(user.id);
 
 		const embed = createUserInfoEmbed(user, fullUserData, interaction.locale);
 
-		await interaction.reply({
+		await interaction.editReply({
 			components: [embed.container],
 			flags: [MessageFlags.IsComponentsV2],
 		});

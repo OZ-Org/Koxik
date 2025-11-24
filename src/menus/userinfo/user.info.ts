@@ -12,7 +12,9 @@ import {
 	type User as UserDiscord,
 } from 'discord.js';
 import { emotes } from 'misc/emotes.js';
-import type { User as UserDB } from '../../base/db/generated/prisma/client.js';
+import { user } from '@schemas';
+
+type UserDB = typeof user.$inferSelect;
 
 const { badges } = emotes;
 const KOXIK_ID = '1358116081126084608';
@@ -41,7 +43,8 @@ function createUserBadges(
 	type BadgeKeys = keyof typeof badges;
 
 	if (userDB?.badges) {
-		for (const b of userDB.badges as { badge_id: BadgeKeys }[]) {
+		const dbBadges = userDB.badges as { badge_id: BadgeKeys }[];
+		for (const b of dbBadges) {
 			if (badges[b.badge_id]) userBadges.push(badges[b.badge_id]);
 		}
 	}
@@ -69,11 +72,13 @@ export function createUserInfoEmbed(
 			? createXPBar(userDB.xp, userDB.level)
 			: null;
 
-	const relationshipField = userDB?.marriedWith
-		? brBuilder('💍 Casado com:', `<@${userDB.marriedWith}>`)
-		: userDB?.datingWith
-			? brBuilder('💖 Namorando com:', `<@${userDB.datingWith}>`)
-			: null;
+	// TODO: Add relationship fields to schema if needed
+	const relationshipField = null;
+	/* userDB?.marriedWith
+	? brBuilder('💍 Casado com:', `<@${userDB.marriedWith}>`)
+	: userDB?.datingWith
+		? brBuilder('💖 Namorando com:', `<@${userDB.datingWith}>`)
+		: null; */
 
 	const container = createContainer(
 		resolveColor('#752E2B'),
@@ -87,11 +92,11 @@ export function createUserInfoEmbed(
 		brBuilder('### Suas badges:', `## ${userBadges.join(' ')}`),
 		...(xpBar ? [brBuilder(xpBar)] : []),
 		userDB?.bank != null ? brBuilder('### Banco:', `P$ ${userDB.bank}`) : [],
-		userDB?.mining_resources
+		userDB?.miningResources
 			? brBuilder(
-					'### Recursos de mineração:',
-					`\`\`\`json\n${JSON.stringify(userDB.mining_resources, null, 2)}\n\`\`\``,
-				)
+				'### Recursos de mineração:',
+				`\`\`\`json\n${JSON.stringify(userDB.miningResources, null, 2)}\n\`\`\``,
+			)
 			: [],
 		...(relationshipField ? [relationshipField] : []),
 	);
@@ -133,16 +138,16 @@ export function createUserInfoEmbed(
 			...(userDB?.bank != null
 				? [{ name: 'Banco', value: `P$ ${userDB.bank}`, inline: true }]
 				: []),
-			...(userDB?.mining_resources
+			...(userDB?.miningResources
 				? [
-						{
-							name: 'Recursos de mineração',
-							value: `\`\`\`json\n${JSON.stringify(userDB.mining_resources, null, 2)}\n\`\`\``,
-							inline: false,
-						},
-					]
+					{
+						name: 'Recursos de mineração',
+						value: `\`\`\`json\n${JSON.stringify(userDB.miningResources, null, 2)}\n\`\`\``,
+						inline: false,
+					},
+				]
 				: []),
-			...(relationshipField
+			/* ...(relationshipField
 				? [
 						{
 							name: relationshipField.split(':')[0],
@@ -150,13 +155,14 @@ export function createUserInfoEmbed(
 							inline: false,
 						},
 					]
-				: []),
+				: []), */
 		);
 
 	if (userDB?.lastDaily) {
+		const lastDailyDate = new Date(userDB.lastDaily);
 		embed.addFields({
 			name: replyLang(locale, 'user#info#lastDaily'),
-			value: `<t:${Math.floor(userDB.lastDaily.getTime() / 1000)}:R>`,
+			value: `<t:${Math.floor(lastDailyDate.getTime() / 1000)}:R>`,
 			inline: false,
 		});
 	}

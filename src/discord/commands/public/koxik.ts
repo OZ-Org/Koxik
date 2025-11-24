@@ -1,4 +1,6 @@
-import { prisma } from 'base/db/prisma.js';
+import { db } from '@db';
+import { commandStat } from '@schemas';
+import { desc, eq, gte, sql, sum } from 'drizzle-orm';
 import {
 	ActionRowBuilder,
 	ButtonBuilder,
@@ -33,6 +35,7 @@ export default createCommand({
 		if (subcommand === null) return;
 
 		if (subcommand === 'analytics') {
+			await interaction.deferReply({ flags: ['Ephemeral'] });
 			try {
 				const today = new Date();
 				today.setHours(0, 0, 0, 0);
@@ -42,36 +45,41 @@ export default createCommand({
 				yesterday.setHours(0, 0, 0, 0);
 
 				const startOfYear = new Date(new Date().getFullYear(), 0, 1);
+				startOfYear.setHours(0, 0, 0, 0);
 
-				const topToday = await prisma.commandStat.findMany({
-					where: { date: today },
-					orderBy: { count: 'desc' },
-					take: 1,
+				const topToday = await db.query.commandStat.findMany({
+					where: eq(commandStat.date, today.toISOString()),
+					orderBy: [desc(commandStat.count)],
+					limit: 1,
 				});
 
-				const topYesterday = await prisma.commandStat.findMany({
-					where: { date: yesterday },
-					orderBy: { count: 'desc' },
-					take: 1,
+				const topYesterday = await db.query.commandStat.findMany({
+					where: eq(commandStat.date, yesterday.toISOString()),
+					orderBy: [desc(commandStat.count)],
+					limit: 1,
 				});
 
-				const topYear = await prisma.commandStat.groupBy({
-					by: ['command', 'subcommand'],
-					_sum: { count: true },
-					where: { date: { gte: startOfYear } },
-					orderBy: { _sum: { count: 'desc' } },
-					take: 1,
-				});
+				const topYear = await db
+					.select({
+						command: commandStat.command,
+						subcommand: commandStat.subcommand,
+						count: sum(commandStat.count).mapWith(Number),
+					})
+					.from(commandStat)
+					.where(gte(commandStat.date, startOfYear.toISOString()))
+					.groupBy(commandStat.command, commandStat.subcommand)
+					.orderBy(desc(sum(commandStat.count)))
+					.limit(1);
 
-				const totalToday = await prisma.commandStat.aggregate({
-					_sum: { count: true },
-					where: { date: today },
-				});
+				const totalToday = await db
+					.select({ count: sum(commandStat.count).mapWith(Number) })
+					.from(commandStat)
+					.where(eq(commandStat.date, today.toISOString()));
 
-				const totalYesterday = await prisma.commandStat.aggregate({
-					_sum: { count: true },
-					where: { date: yesterday },
-				});
+				const totalYesterday = await db
+					.select({ count: sum(commandStat.count).mapWith(Number) })
+					.from(commandStat)
+					.where(eq(commandStat.date, yesterday.toISOString()));
 
 				const formatCommand = (entry: any) => {
 					if (!entry) return replyLang(interaction.locale, 'botStats#none');
@@ -113,20 +121,20 @@ export default createCommand({
 						{
 							name:
 								'🏆 ' + replyLang(interaction.locale, 'botStats#mostUsed#year'),
-							value: `${formatCommand(topYear[0])} • **${topYear[0]?._sum.count ?? 0}**`,
+							value: `${formatCommand(topYear[0])} • **${topYear[0]?.count ?? 0}**`,
 							inline: false,
 						},
 						{
 							name:
 								'📈 ' + replyLang(interaction.locale, 'botStats#total#today'),
-							value: `**${totalToday._sum.count ?? 0}**`,
+							value: `**${totalToday[0]?.count ?? 0}**`,
 							inline: true,
 						},
 						{
 							name:
 								'📉 ' +
 								replyLang(interaction.locale, 'botStats#total#yesterday'),
-							value: `**${totalYesterday._sum.count ?? 0}**`,
+							value: `**${totalYesterday[0]?.count ?? 0}**`,
 							inline: true,
 						},
 					])
@@ -150,16 +158,14 @@ export default createCommand({
 						.setURL('https://koxik.ozorg.com'),
 				);
 
-				await interaction.reply({
+				await interaction.editReply({
 					embeds: [embed],
 					components: [row],
-					flags: ['Ephemeral'],
 				});
 			} catch (err) {
 				console.error('Erro ao buscar stats:', err);
-				await interaction.reply({
+				await interaction.editReply({
 					content: replyLang(interaction.locale, 'botStats#errorFetching'),
-					flags: ['Ephemeral'],
 				});
 			}
 		}

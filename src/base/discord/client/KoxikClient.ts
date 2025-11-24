@@ -1,4 +1,4 @@
-import { prisma } from '@db';
+import { db } from '@db';
 import { type ClientEvents, GatewayIntentBits, Partials } from 'discord.js';
 import { KoxikClient } from './bot/CustomClient.js';
 import { setupInteractionHandler } from './bot/interactionHandler.js';
@@ -56,8 +56,8 @@ export function createBot(options: BotOptions) {
 		process.on('unhandledRejection', console.error);
 		process.on('uncaughtException', console.error);
 
-		await prisma
-			.$connect()
+		await db.$client
+			.connect()
 			.then(() => console.log('🌊 Connected to DB!'))
 			.catch(() => console.error('❌ Could not connect to DB!'));
 

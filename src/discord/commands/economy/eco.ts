@@ -1,5 +1,5 @@
 import { createCommand } from '@base';
-import { prisma } from '@db';
+import { UserController } from '../../../jobs/UserController.js';
 import { replyLang } from '@fx/utils/replyLang.js';
 import { createRow, EmbedPlusBuilder } from '@magicyan/discord';
 import { emotes } from '@misc/emotes.js';
@@ -18,12 +18,12 @@ import {
 export interface Transaction {
 	id: string;
 	type:
-		| 'daily'
-		| 'pay_sent'
-		| 'pay_received'
-		| 'deposit'
-		| 'withdraw'
-		| 'mine_created';
+	| 'daily'
+	| 'pay_sent'
+	| 'pay_received'
+	| 'deposit'
+	| 'withdraw'
+	| 'mine_created';
 	amount: number;
 	timestamp: number;
 	description?: string;
@@ -94,49 +94,15 @@ function createSuccessEmbed(title: string, description: string): EmbedBuilder {
 
 async function getUserFullData(discordId: string): Promise<UserData | null> {
 	try {
-		const user = await prisma.user.findUnique({
-			where: { discord_id: discordId },
-		});
-
-		if (!user) return null;
+		const user = await UserController.get(discordId);
 
 		return {
 			balance: user.balance,
 			bank: user.bank ?? 0,
-			transactions: parseTransactions(user.transactions as unknown),
+			transactions: (user.transactions as Transaction[]) || [],
 		};
 	} catch (error) {
 		console.error('[getUserFullData] Error:', error);
-		throw error;
-	}
-}
-
-async function addTransaction(
-	discordId: string,
-	transaction: Omit<Transaction, 'id'>,
-): Promise<void> {
-	try {
-		const user = await prisma.user.findUnique({
-			where: { discord_id: discordId },
-		});
-
-		if (!user) return;
-
-		const transactions = parseTransactions(user.transactions as unknown);
-		const newTransaction: Transaction = {
-			...transaction,
-			id: generateTransactionId(),
-		};
-
-		transactions.unshift(newTransaction);
-		if (transactions.length > 50) transactions.splice(50);
-
-		await prisma.user.update({
-			where: { discord_id: discordId },
-			data: { transactions: transactions as unknown as any },
-		});
-	} catch (error) {
-		console.error('[addTransaction] Error:', error);
 		throw error;
 	}
 }
@@ -159,25 +125,8 @@ async function payUser(
 		throw new Error(replyLang(locale, 'eco#pay#error#cannotPayYourself'));
 	}
 
-	const payer = await prisma.user.findUnique({
-		where: { discord_id: payerId },
-	});
-	if (!payer) {
-		throw new Error(
-			replyLang(locale, 'user#notFound') +
-				' ' +
-				replyLang(locale, 'eco#error#createAccount'),
-		);
-	}
-
-	const receiver = await prisma.user.findUnique({
-		where: { discord_id: receiverId },
-	});
-	if (!receiver) {
-		throw new Error(
-			replyLang(locale, 'eco#pay#error#receiverNotFound', { user: receiverId }),
-		);
-	}
+	const payer = await UserController.get(payerId);
+	const receiver = await UserController.get(receiverId);
 
 	const sourceBalance = method === 'bank' ? (payer.bank ?? 0) : payer.balance;
 	const taxRate = method === 'bank' ? 0.1 : 0.025;
@@ -203,26 +152,21 @@ async function payUser(
 		received = Math.max(0, amount - stolen);
 	}
 
-	// Transação atômica
+	// Transação
 	try {
+		// Deduct from payer
 		if (method === 'bank') {
-			await prisma.user.update({
-				where: { discord_id: payerId },
-				data: { bank: { decrement: totalCost } },
-			});
+			await UserController.update(payerId, { bank: (payer.bank ?? 0) - totalCost });
 		} else {
-			await prisma.user.update({
-				where: { discord_id: payerId },
-				data: { balance: { decrement: totalCost } },
-			});
+			await UserController.removeBalance(payerId, totalCost);
 		}
 
-		await prisma.user.update({
-			where: { discord_id: receiverId },
-			data: { balance: { increment: received } },
-		});
+		// Add to receiver
+		await UserController.addBalance(receiverId, received);
 
-		await addTransaction(payerId, {
+		// Add transactions
+		await UserController.addTransaction(payerId, {
+			id: generateTransactionId(),
 			type: 'pay_sent',
 			amount: -totalCost,
 			timestamp: Date.now(),
@@ -230,7 +174,8 @@ async function payUser(
 			to: receiverId,
 		});
 
-		await addTransaction(receiverId, {
+		await UserController.addTransaction(receiverId, {
+			id: generateTransactionId(),
 			type: 'pay_received',
 			amount: received,
 			timestamp: Date.now(),
@@ -253,24 +198,17 @@ async function claimDaily(
 	locale: Locale,
 ): Promise<DailyResult> {
 	const now = new Date();
-	const user = await prisma.user.findUnique({
-		where: { discord_id: discordId },
-	});
+	const user = await UserController.get(discordId);
 
-	if (!user) {
-		throw new Error(
-			replyLang(locale, 'user#notFound') +
-				' ' +
-				replyLang(locale, 'eco#error#createAccount'),
-		);
+	if (user.lastDaily) {
+		const lastDailyDate = new Date(user.lastDaily);
+		if (now.getTime() - lastDailyDate.getTime() < 86400000) {
+			const nextClaim = new Date(lastDailyDate.getTime() + 86400000);
+			throw { cooldown: true, nextClaim };
+		}
 	}
 
-	if (user.lastDaily && now.getTime() - user.lastDaily.getTime() < 86400000) {
-		const nextClaim = new Date(user.lastDaily.getTime() + 86400000);
-		throw { cooldown: true, nextClaim };
-	}
-
-	const transactions = parseTransactions(user.transactions as unknown);
+	const transactions = (user.transactions as Transaction[]) || [];
 	const dailyTransactions = transactions
 		.filter((t) => t.type === 'daily')
 		.slice(0, 10);
@@ -295,15 +233,11 @@ async function claimDaily(
 	const totalReward = dailyAmount + bonus;
 
 	try {
-		const updatedUser = await prisma.user.update({
-			where: { discord_id: discordId },
-			data: {
-				balance: { increment: totalReward },
-				lastDaily: now,
-			},
-		});
+		await UserController.addBalance(discordId, totalReward);
+		const updatedUser = await UserController.update(discordId, { lastDaily: now.toISOString() });
 
-		await addTransaction(discordId, {
+		await UserController.addTransaction(discordId, {
+			id: generateTransactionId(),
 			type: 'daily',
 			amount: totalReward,
 			timestamp: now.getTime(),
@@ -323,31 +257,18 @@ async function depositMoney(discordId: string, amount: number, locale: Locale) {
 		throw new Error(replyLang(locale, 'eco#deposit#error#invalidAmount'));
 	}
 
-	const user = await prisma.user.findUnique({
-		where: { discord_id: discordId },
-	});
-	if (!user) {
-		throw new Error(
-			replyLang(locale, 'user#notFound') +
-				' ' +
-				replyLang(locale, 'eco#error#createAccount'),
-		);
-	}
+	const user = await UserController.get(discordId);
 
 	if (user.balance < amount) {
 		throw new Error(replyLang(locale, 'eco#deposit#error#insufficientFunds'));
 	}
 
 	try {
-		const updatedUser = await prisma.user.update({
-			where: { discord_id: discordId },
-			data: {
-				balance: { decrement: amount },
-				bank: { increment: amount },
-			},
-		});
+		await UserController.removeBalance(discordId, amount);
+		const updatedUser = await UserController.update(discordId, { bank: (user.bank ?? 0) + amount });
 
-		await addTransaction(discordId, {
+		await UserController.addTransaction(discordId, {
+			id: generateTransactionId(),
 			type: 'deposit',
 			amount,
 			timestamp: Date.now(),
@@ -367,11 +288,8 @@ async function depositMoney(discordId: string, amount: number, locale: Locale) {
 
 async function getLeaderboard(limit = 10) {
 	try {
-		return await prisma.user.findMany({
-			orderBy: { balance: 'desc' },
-			take: limit,
-			select: { discord_id: true, balance: true },
-		});
+		const users = await UserController.getLeaderboard(limit);
+		return users.map(u => ({ discord_id: u.discordId, balance: u.balance }));
 	} catch (error) {
 		console.error('[getLeaderboard] Error:', error);
 		throw error;
@@ -671,9 +589,7 @@ export default createCommand({
 					(interaction.options.getString('method') as 'balance' | 'bank') ??
 					'balance';
 
-				const receiver = await prisma.user.findUnique({
-					where: { discord_id: userToPay.id },
-				});
+				const receiver = await UserController.get(userToPay.id);
 				if (!receiver) {
 					const embed = createErrorEmbed(
 						interaction.locale,
@@ -692,8 +608,8 @@ export default createCommand({
 						interaction.locale,
 						replyLang(interaction.locale, 'eco#pay#error#title'),
 						replyLang(interaction.locale, 'user#notFound') +
-							' ' +
-							replyLang(interaction.locale, 'eco#error#createAccount'),
+						' ' +
+						replyLang(interaction.locale, 'eco#error#createAccount'),
 					);
 					await interaction.editReply({ embeds: [embed] });
 					return;

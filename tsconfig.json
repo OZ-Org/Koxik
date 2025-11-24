@@ -17,7 +17,8 @@
 		"paths": {
 			"@fx/*": ["./functions/*"],
 			"@base": ["./index.ts"],
-			"@db": ["./base/db/prisma.ts"],
+			"@db": ["./base/db/db.ts"],
+			"@schemas": ["./base/db/schemas.ts"],
 			"@menus/*": ["./menus/*"],
 			"@misc/*": ["./misc/*"],
 			"@basedir/*": ["./base/*"]

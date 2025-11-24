@@ -1,10 +1,10 @@
 // minecraft.ts
 import { createCommand } from '@base';
-import { prisma } from '@db';
 import { mine } from '@menus/minecraft/mine.js';
 import type { Transaction } from '@misc/types.js';
 import crypto from 'crypto';
 import { SlashCommandBuilder } from 'discord.js';
+import { UserController } from '../../../jobs/UserController.js';
 
 // Gerador de ID curto pra itens
 function genItemId(len = 8) {
@@ -73,17 +73,8 @@ export default createCommand({
 		if (sub === 'start') {
 			const user = interaction.user;
 
-			const userDB = await prisma.user.findUnique({
-				where: { discord_id: user.id },
-			});
-
-			if (!userDB) {
-				return interaction.reply({
-					content:
-						'❌ Você ainda não tem uma conta! Crie uma antes de começar sua jornada.',
-					flags: ['Ephemeral'],
-				});
-			}
+			// UserController.get creates the user if they don't exist
+			const userDB = await UserController.get(user.id);
 
 			// Inventário atual
 			const backpack = (userDB.backpack as any[]) || [];
@@ -116,16 +107,8 @@ export default createCommand({
 				description: 'Iniciou a jornada e recebeu a Picareta de Madeira',
 			};
 
-			await prisma.user.update({
-				where: { discord_id: user.id },
-				data: {
-					backpack: [...backpack, starterPickaxe],
-					transactions: [
-						...((userDB.transactions as any[]) || []),
-						newTransaction,
-					],
-				},
-			});
+			await UserController.addItemToBackpack(user.id, starterPickaxe as any);
+			await UserController.addTransaction(user.id, newTransaction);
 
 			return interaction.reply(
 				'🌟 Sua jornada começou! Você recebeu uma **Picareta de Madeira** para minerar!',
@@ -138,19 +121,16 @@ export default createCommand({
 		if (sub !== 'mine') return;
 
 		const user = interaction.user;
-		const userDB = await prisma.user.findUnique({
-			where: { discord_id: user.id },
-		});
+		const backpack = await UserController.getBackpack(user.id);
 
-		if (!userDB?.backpack) {
+		if (!backpack || backpack.length === 0) {
 			return interaction.respond([]);
 		}
 
-		const backpack = userDB.backpack as any[];
-		const pickaxes = backpack.filter((i) => i.type === 'pickaxe');
+		const pickaxes = backpack.filter((i: any) => i.type === 'pickaxe');
 
 		return interaction.respond(
-			pickaxes.map((pk) => ({
+			pickaxes.map((pk: any) => ({
 				name: `${pk.name} (Durabilidade: ${pk.durability})`,
 				value: pk.id,
 			})),

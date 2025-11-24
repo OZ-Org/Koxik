@@ -1,32 +1,7 @@
 import { createCommand } from '@base';
-import { prisma } from '@db';
 import { replyLang } from '@fx/utils/replyLang.js';
 import { SlashCommandBuilder } from 'discord.js';
-
-async function createUser(
-	discord_id: string,
-): Promise<{ success: boolean; exists?: boolean }> {
-	try {
-		const exists = await prisma.user.findFirst({
-			where: {
-				discord_id,
-			},
-		});
-
-		if (exists) {
-			return { success: false, exists: true };
-		}
-
-		await prisma.user.create({
-			data: {
-				discord_id,
-			},
-		});
-		return { success: true };
-	} catch (error) {
-		return { success: false };
-	}
-}
+import { UserController } from '../../../jobs/UserController.js';
 
 export default createCommand({
 	data: new SlashCommandBuilder()
@@ -57,15 +32,15 @@ export default createCommand({
 		const subcommand = interaction.options.getSubcommand();
 
 		if (subcommand === 'account') {
-			const user = await createUser(interaction.user.id);
+			const result = await UserController.create(interaction.user.id);
 
 			function reply() {
-				if (user.exists) {
+				if (result.alreadyExists) {
 					return replyLang(interaction.locale, 'create_user#already', {
 						user_mention: `<@${interaction.user.id}>`,
 					});
 				}
-				if (user.success) {
+				if (result.success) {
 					return replyLang(interaction.locale, 'create_user#created', {
 						user_mention: `<@${interaction.user.id}>`,
 					});
