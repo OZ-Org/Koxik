@@ -1,12 +1,27 @@
 import { RegisterType } from '@basedir/discord/client/bot/types.js';
-import { createBot } from '@basedir/discord/client/KoxikClient.js';
 
-export const { createCommand, createEvent } = createBot({
-	token: process.env.DISCORD_TOKEN as string,
+export { ApplicationCommandOptionType } from 'discord.js';
+
+import { createBot } from '@basedir/discord/client/KoxikClient.js';
+import { env } from '@env';
+
+export const {
+	createEvent,
+	createCommand,
+	createSubCommand,
+	createSubCommandGroup,
+	client
+} = createBot({
+	token: env.DISCORD_TOKEN,
 	commands: {
-		registerOn: RegisterType.Guild([
-			'1426601171455311973',
-			'1399909178495074304',
-		]),
+		registerOn: [
+			RegisterType.Depends.Guild<'development'>('development', [
+				'1426601171455311973',
+				'1399909178495074304',
+			]),
+			RegisterType.Depends.Guild<'production'>('production', [
+				'1445996370551902321',
+			]),
+		],
 	},
 });

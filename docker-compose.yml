@@ -1,13 +1,20 @@
 version: "3.9"
 
 services:
+  postgres:
+    image: postgres:15
+    env_file:
+      - .env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
   koxik-bot:
     build: .
-    container_name: koxik-bot
-    restart: unless-stopped
     env_file:
-      - .env.dev
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
-    command: bun --env-file=.env.dev src/index.ts
+      - .env
+    depends_on:
+      - postgres
+    command: bun --env-file=.env src/index.ts
+
+volumes:
+  pgdata:

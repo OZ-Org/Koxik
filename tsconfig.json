@@ -15,13 +15,14 @@
 		"isolatedModules": true,
 		"baseUrl": "./src",
 		"paths": {
-			"@fx/*": ["./functions/*"],
+			"@fx/*": ["./app/functions/*"],
 			"@base": ["./index.ts"],
-			"@db": ["./base/db/db.ts"],
-			"@schemas": ["./base/db/schemas.ts"],
-			"@menus/*": ["./menus/*"],
-			"@misc/*": ["./misc/*"],
-			"@basedir/*": ["./base/*"]
+			"@env": ["./env.ts"],
+			"@db": ["./core/base/db/db.ts"],
+			"@schemas": ["./core/base/db/schemas.ts"],
+			"@menus/*": ["./app/menus/*"],
+			"@misc/*": ["./app/misc/*"],
+			"@basedir/*": ["./core/base/*"]
 		},
 		"allowArbitraryExtensions": true
 	},
