@@ -10,7 +10,7 @@ export const {
 	createCommand,
 	createSubCommand,
 	createSubCommandGroup,
-	client
+	client,
 } = createBot({
 	token: env.DISCORD_TOKEN,
 	commands: {

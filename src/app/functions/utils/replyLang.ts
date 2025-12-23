@@ -10,14 +10,14 @@ type Variables = Record<string, string | number | boolean>;
 // Cria paths infinitas para intellisense
 type Join<K, P> = K extends string | number
 	? P extends string | number
-	? `${K}#${P}`
-	: never
+		? `${K}#${P}`
+		: never
 	: never;
 
 type NestedKeys<T> = T extends object
 	? {
-		[K in keyof T]: T[K] extends object ? K | Join<K, NestedKeys<T[K]>> : K;
-	}[keyof T]
+			[K in keyof T]: T[K] extends object ? K | Join<K, NestedKeys<T[K]>> : K;
+		}[keyof T]
 	: never;
 // ------------------ CARREGA LANGS UMA VEZ ------------------
 type Languages = {

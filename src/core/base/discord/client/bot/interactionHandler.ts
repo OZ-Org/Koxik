@@ -1,5 +1,5 @@
 import { db } from '@basedir/db/db.js';
-import { commandStat, blacklist } from '@basedir/db/schemas.js';
+import { blacklist, commandStat } from '@basedir/db/schemas.js';
 import { logger } from '@fx/utils/logger.js';
 import type { ChatInputCommandInteraction, Interaction } from 'discord.js';
 import { sql } from 'drizzle-orm';
@@ -21,7 +21,7 @@ async function safeExecuteCommand(
 		timeoutId = setTimeout(async () => {
 			if (!hasResponded && !interaction.replied && !interaction.deferred) {
 				try {
-					await interaction.deferReply({ flags: ["Ephemeral"] });
+					await interaction.deferReply({ flags: ['Ephemeral'] });
 					logger.warn(`Auto-deferred → ${interaction.commandName}`);
 				} catch (err) {
 					logger.error(
@@ -40,17 +40,20 @@ async function safeExecuteCommand(
 		try {
 			if (!interaction.replied && !interaction.deferred) {
 				await interaction.reply({
-					content: '❌ Ocorreu um erro ao executar este comando. Tente novamente.',
-					flags: ["Ephemeral"],
+					content:
+						'❌ Ocorreu um erro ao executar este comando. Tente novamente.',
+					flags: ['Ephemeral'],
 				});
 			} else if (interaction.deferred) {
 				await interaction.editReply({
-					content: '❌ Ocorreu um erro ao executar este comando. Tente novamente.'
+					content:
+						'❌ Ocorreu um erro ao executar este comando. Tente novamente.',
 				});
 			} else {
 				await interaction.followUp({
-					content: '❌ Ocorreu um erro ao executar este comando. Tente novamente.',
-					flags: ["Ephemeral"],
+					content:
+						'❌ Ocorreu um erro ao executar este comando. Tente novamente.',
+					flags: ['Ephemeral'],
 				});
 			}
 		} catch (replyErr) {
@@ -75,28 +78,36 @@ export function setupInteractionHandler(
 				const userBlacklisted = await db
 					.select()
 					.from(blacklist)
-					.where(sql`${blacklist.targetId} = ${interaction.user.id} AND ${blacklist.type} = 'user'`)
+					.where(
+						sql`${blacklist.targetId} = ${interaction.user.id} AND ${blacklist.type} = 'user'`,
+					)
 					.limit(1);
 
 				if (userBlacklisted.length > 0) {
-					await interaction.reply({
-						content: '🚫 You are banned from KoxikBot.',
-						flags: ["Ephemeral"],
-					}).catch(() => { });
+					await interaction
+						.reply({
+							content: '🚫 You are banned from KoxikBot.',
+							flags: ['Ephemeral'],
+						})
+						.catch(() => {});
 					return;
 				}
 
 				const guildBlacklisted = await db
 					.select()
 					.from(blacklist)
-					.where(sql`${blacklist.targetId} = ${interaction.guildId} AND ${blacklist.type} = 'guild'`)
+					.where(
+						sql`${blacklist.targetId} = ${interaction.guildId} AND ${blacklist.type} = 'guild'`,
+					)
 					.limit(1);
 
 				if (guildBlacklisted.length > 0) {
-					await interaction.reply({
-						content: '🚫 This server is banned from KoxikBot.',
-						flags: ["Ephemeral"],
-					}).catch(() => { });
+					await interaction
+						.reply({
+							content: '🚫 This server is banned from KoxikBot.',
+							flags: ['Ephemeral'],
+						})
+						.catch(() => {});
 					return;
 				}
 			} catch (err) {

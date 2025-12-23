@@ -22,6 +22,7 @@ export type BackpackItem =
 			type: 'pickaxe';
 			durability: number; // sempre definido em picaretas
 			name: string;
+			starter: boolean;
 			ores: OreType[]; // minérios que essa picareta pode minerar
 			rates: Record<OreType, number>; // % de chance para cada minério
 	  }

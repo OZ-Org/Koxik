@@ -69,10 +69,10 @@ export interface Command {
 	 * Defines the command name, description, options, and localization.
 	 */
 	data:
-		| SlashCommandBuilder
-		| SlashCommandSubcommandsOnlyBuilder
-		| SlashCommandOptionsOnlyBuilder
-		| Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'>;
+	| SlashCommandBuilder
+	| SlashCommandSubcommandsOnlyBuilder
+	| SlashCommandOptionsOnlyBuilder
+	| Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'>;
 
 	/**
 	 * The main command execution function.
@@ -89,6 +89,7 @@ export interface Command {
 	 * @param options - The autocomplete options
 	 */
 	autocomplete?: (options: AutocompleteOptions) => Promise<any>;
+	cooldown?: number;
 }
 
 /**
@@ -116,12 +117,24 @@ export interface Command {
  *   },
  * });
  */
-export interface Event<T extends keyof ClientEvents = keyof ClientEvents> {
+export interface Event<
+	T extends keyof ClientEvents = keyof ClientEvents,
+> {
 	/**
-	 * The name of the Discord event to listen to.
-	 * @see {@link https://discord.js.org/docs/packages/discord.js/main/Client:Class#Events Discord.js Events}
+	 * Unique internal name for this event.
+	 * Used for identification, logging and deduplication.
+	 *
+	 * Example: "ready:set-activity"
+	 *          "ready:sync-status"
 	 */
-	name: T;
+	name: string;
+
+	/**
+	 * Discord.js event name to listen to.
+	 *
+	 * Example: "clientReady", "guildCreate"
+	 */
+	event: T;
 
 	/**
 	 * Whether this event should only run once.
@@ -132,12 +145,11 @@ export interface Event<T extends keyof ClientEvents = keyof ClientEvents> {
 
 	/**
 	 * The event handler function.
-	 * Arguments depend on the event type.
-	 *
-	 * @param args - Event-specific arguments from Discord.js
+	 * Arguments depend on the Discord event type.
 	 */
 	run: (...args: ClientEvents[T]) => Promise<void> | void;
 }
+
 
 /**
  * Defines where Discord slash commands should be registered.

@@ -1,3 +1,4 @@
+import type { BackpackType, Transaction } from 'app/shared/types.js';
 import { sql } from 'drizzle-orm';
 import {
 	integer,
@@ -14,7 +15,7 @@ export const user = pgTable(
 	{
 		discordId: text('discord_id').notNull(),
 		balance: integer().default(0).notNull(),
-		backpack: jsonb(),
+		backpack: jsonb().$type<BackpackType>(),
 		level: integer().default(1).notNull(),
 		xp: integer().default(0).notNull(),
 		achievements: jsonb(),
@@ -27,7 +28,7 @@ export const user = pgTable(
 		lastDaily: timestamp({ precision: 3, mode: 'string' }),
 		datingWith: text('datingWith'),
 		marriedWith: text('marriedWith'),
-		transactions: jsonb(),
+		transactions: jsonb().$type<Transaction[]>(),
 	},
 	(table) => [
 		uniqueIndex('User_discord_id_key').using(
@@ -82,16 +83,16 @@ export const guilds = pgTable('Guild', {
 	}>(),
 });
 
-export const blacklist = pgTable("Blacklist", {
-	id: serial("id").primaryKey().notNull(),
+export const blacklist = pgTable('Blacklist', {
+	id: serial('id').primaryKey().notNull(),
 
-	targetId: text("target_id").notNull(), // pode ser userId ou guildId
-	type: text("type").notNull().$type<"user" | "guild">(), // "user" | "guild"
+	targetId: text('target_id').notNull(), // pode ser userId ou guildId
+	type: text('type').notNull().$type<'user' | 'guild'>(), // "user" | "guild"
 
-	reason: text("reason"),
-	addedBy: text("added_by"), // quem colocou na blacklist
+	reason: text('reason'),
+	addedBy: text('added_by'), // quem colocou na blacklist
 
-	createdAt: timestamp({ precision: 3, mode: "string" })
+	createdAt: timestamp({ precision: 3, mode: 'string' })
 		.default(sql`CURRENT_TIMESTAMP`)
 		.notNull(),
 });
