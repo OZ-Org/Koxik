@@ -48,6 +48,7 @@ export interface SubCommand {
 	options?: CommandOption[];
 	run: (options: CommandRunOptions) => Promise<any>;
 	autocomplete?: (options: AutocompleteOptions) => Promise<any>;
+	cooldown?: number;
 }
 
 export interface SubCommandGroupConfig {
@@ -71,6 +72,7 @@ export interface CommandConfig {
 	options?: CommandOption[];
 	run?: (options: CommandRunOptions) => Promise<any>;
 	autocomplete?: (options: AutocompleteOptions) => Promise<any>;
+	cooldown?: number;
 }
 
 // Legacy format with data property (old format)
@@ -82,6 +84,7 @@ export interface LegacyCommandConfig {
 		| Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'>;
 	run: (options: CommandRunOptions) => Promise<any>;
 	autocomplete?: (options: AutocompleteOptions) => Promise<any>;
+	cooldown?: number;
 }
 
 // Union type that accepts both formats
@@ -168,6 +171,8 @@ export class CommandBuilder implements Command {
 		| Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'>;
 	private runHandlers = new Map<string, Function>();
 	private autocompleteHandlers = new Map<string, Function>();
+	private subcommandConfigs = new Map<string, SubCommand>();
+	private cooldowns = new Map<string, number>();
 	private config: CommandConfig;
 	private legacyRun?: (options: CommandRunOptions) => Promise<any>;
 	private legacyAutocomplete?: (options: AutocompleteOptions) => Promise<any>;
@@ -185,6 +190,7 @@ export class CommandBuilder implements Command {
 				name: this.data.name,
 				description: this.data.description,
 				baseCommand: false,
+				cooldown: input.cooldown,
 			};
 		} else {
 			// New format
@@ -230,6 +236,7 @@ export class CommandBuilder implements Command {
 			).addSubcommand(subBuilder);
 
 			this.runHandlers.set(sub.name, sub.run);
+			this.subcommandConfigs.set(sub.name, sub);
 			if (sub.autocomplete) {
 				this.autocompleteHandlers.set(sub.name, sub.autocomplete);
 			}
@@ -266,6 +273,7 @@ export class CommandBuilder implements Command {
 			groupBuilder.addSubcommand(subBuilder);
 
 			this.runHandlers.set(`${config.name}.${sub.name}`, sub.run);
+			this.subcommandConfigs.set(`${config.name}.${sub.name}`, sub);
 			if (sub.autocomplete) {
 				this.autocompleteHandlers.set(
 					`${config.name}.${sub.name}`,
@@ -285,21 +293,87 @@ export class CommandBuilder implements Command {
 		const group = interaction.options.getSubcommandGroup(false);
 
 		if (group && subcommand) {
-			const handler = this.runHandlers.get(`${group}.${subcommand}`);
-			if (handler) return handler({ client, interaction });
+			const key = `${group}.${subcommand}`;
+			const subConfig = this.subcommandConfigs.get(key);
+			const handler = this.runHandlers.get(key);
+			if (handler) {
+				if (
+					await this.handleCooldown(
+						interaction,
+						key,
+						subConfig?.cooldown ?? this.config.cooldown ?? 0,
+					)
+				)
+					return;
+				return handler({ client, interaction });
+			}
 		} else if (subcommand) {
-			const handler = this.runHandlers.get(subcommand);
-			if (handler) return handler({ client, interaction });
+			const key = subcommand;
+			const subConfig = this.subcommandConfigs.get(key);
+			const handler = this.runHandlers.get(key);
+			if (handler) {
+				if (
+					await this.handleCooldown(
+						interaction,
+						key,
+						subConfig?.cooldown ?? this.config.cooldown ?? 0,
+					)
+				)
+					return;
+				return handler({ client, interaction });
+			}
 		}
 
 		// Use legacy run if available, otherwise use config.run
 		if (this.legacyRun) {
+			if (
+				await this.handleCooldown(
+					interaction,
+					'default',
+					this.config.cooldown || 0,
+				)
+			)
+				return;
 			return this.legacyRun({ client, interaction });
 		}
 
 		if (this.config.run && !this.config.baseCommand) {
+			if (
+				await this.handleCooldown(
+					interaction,
+					'default',
+					this.config.cooldown || 0,
+				)
+			)
+				return;
 			return this.config.run({ client, interaction });
 		}
+	}
+
+	private async handleCooldown(
+		interaction: any,
+		key: string,
+		duration: number,
+	): Promise<boolean> {
+		if (!duration) return false;
+
+		const userId = interaction.user.id;
+		const cooldownKey = `${userId}-${key}`;
+		const now = Date.now();
+		const expiration = this.cooldowns.get(cooldownKey);
+
+		if (expiration && now < expiration) {
+			const remaining = (expiration - now) / 1000;
+			await interaction.reply({
+				content: `You are on cooldown. Try again in ${remaining.toFixed(1)} seconds.`,
+				ephemeral: true,
+			});
+			return true;
+		}
+
+		this.cooldowns.set(cooldownKey, now + duration * 1000);
+		setTimeout(() => this.cooldowns.delete(cooldownKey), duration * 1000);
+		return false;
 	}
 
 	public async autocomplete({ client, interaction }: AutocompleteOptions) {
@@ -322,6 +396,10 @@ export class CommandBuilder implements Command {
 		if (this.config.autocomplete && !this.config.baseCommand) {
 			return this.config.autocomplete({ client, interaction });
 		}
+	}
+
+	public get cooldown(): number | undefined {
+		return this.config.cooldown;
 	}
 }
 

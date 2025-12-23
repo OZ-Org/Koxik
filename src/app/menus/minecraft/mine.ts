@@ -1,6 +1,11 @@
 import { randomInt, randomUUID } from 'node:crypto';
 import { replyLang } from '@fx/utils/replyLang.js';
-import type { BackpackItem, BackpackType, OreType } from 'app/shared/types.js';
+import type {
+	BackpackItem,
+	BackpackType,
+	OreType,
+	PickaxesTypesIDs,
+} from 'app/shared/types.js'; // Adicione PickaxesTypesIDs
 import {
 	ActionRowBuilder,
 	ButtonBuilder,
@@ -64,7 +69,7 @@ async function handleLava(
 				content: replyLang(locale, 'mine#lava_jump_success'),
 				flags: ['Ephemeral'],
 			});
-			await lavaMsg.delete().catch(() => { });
+			await lavaMsg.delete().catch(() => {});
 		}
 	});
 
@@ -76,8 +81,8 @@ async function handleLava(
 					content: replyLang(locale, 'mine#lava_jump_fail'),
 					flags: ['Ephemeral'],
 				})
-				.catch(() => { });
-			await lavaMsg.delete().catch(() => { });
+				.catch(() => {});
+			await lavaMsg.delete().catch(() => {});
 		}
 	});
 
@@ -119,7 +124,12 @@ export async function mine(interaction: ChatInputCommandInteraction) {
 	let durability = pickaxe.durability;
 	const maxDurability = pickaxe.durability;
 	let loot: Partial<Record<OreType, number>> = {};
+
+	// Variável para controlar se a mineração deve continuar
 	let mining = true;
+
+	// Variável para verificar se a picareta quebrou
+	let pickaxeBroke = false;
 
 	const embed = new EmbedBuilder({
 		title: replyLang(locale, 'mine#mining_start'),
@@ -164,38 +174,69 @@ export async function mine(interaction: ChatInputCommandInteraction) {
 
 		if (i.customId === 'stop') {
 			mining = false;
+			collector.stop('user_stop');
+
+			// Remover botão imediatamente
+			await msg.edit({ components: [] }).catch(() => {});
+
 			await i.reply({
 				content: replyLang(locale, 'mine#mining_stop'),
 				flags: ['Ephemeral'],
 			});
-			collector.stop('user_stop');
 		}
 	});
 
 	async function saveLoot() {
+		// Atualizar picareta com nova durabilidade
 		const updatedBackpack = backpack.map((i) =>
 			i.type === 'pickaxe' && i.id === pickaxe!.id ? { ...i, durability } : i,
 		) as BackpackType;
 
+		// Adicionar loot à mochila
 		for (const [ore, qty] of Object.entries(loot)) {
 			if (!qty) continue;
-			updatedBackpack.push({
-				id: `${ore}_${randomUUID()}`,
-				type: 'ore',
-				name: ore as OreType,
-				amount: qty,
-			});
+
+			// Verificar se já existe um item desse minério na mochila
+			const existingOreIndex = updatedBackpack.findIndex(
+				(item) => item.type === 'ore' && item.name === ore,
+			);
+
+			if (existingOreIndex !== -1) {
+				// Atualizar quantidade existente
+				const existingItem = updatedBackpack[existingOreIndex];
+				if (existingItem.type === 'ore') {
+					updatedBackpack[existingOreIndex] = {
+						...existingItem,
+						amount: existingItem.amount + qty,
+					};
+				}
+			} else {
+				// Adicionar novo item
+				updatedBackpack.push({
+					id: `${ore}_${randomUUID()}`,
+					type: 'ore',
+					name: ore as OreType,
+					amount: qty,
+				});
+			}
 		}
 
 		await UserController.update(user.id, { backpack: updatedBackpack });
 	}
 
-	for (let tick = 0; tick < 20 && mining; tick++) {
+	// Função para processar um ciclo de mineração
+	async function processMiningCycle(tick: number): Promise<boolean> {
 		await new Promise((res) => setTimeout(res, 1000));
 
 		// Evento aleatório: lava
 		if (randomInt(1, 25) === 13) {
 			durability = await handleLava(interaction, locale, durability);
+		}
+
+		// Garantir que pickaxe não é undefined antes de usar
+		if (!pickaxe) {
+			mining = false;
+			return false;
 		}
 
 		const ore = generateOre(pickaxe);
@@ -221,21 +262,48 @@ export async function mine(interaction: ChatInputCommandInteraction) {
 		embed
 			.setColor(0x27ae60)
 			.setFooter({ text: replyLang(locale, 'mine#progress_footer') });
-		await msg.edit({ embeds: [embed], components: [stopRow] }).catch(() => { });
 
+		// Apenas atualizar componentes se ainda estiver minerando
+		if (mining && durability > 0) {
+			await msg
+				.edit({ embeds: [embed], components: [stopRow] })
+				.catch(() => {});
+		} else {
+			await msg.edit({ embeds: [embed], components: [] }).catch(() => {});
+		}
+
+		// Verificar se a picareta quebrou
 		if (durability <= 0) {
 			mining = false;
-			collector.stop('break');
+			pickaxeBroke = true;
+			return false; // Parar mineração
 		}
+
+		return mining; // Continuar mineração se ainda for true
 	}
 
-	collector.on('end', async () => {
-		await saveLoot();
+	// Loop de mineração usando while para poder parar a qualquer momento
+	let tick = 0;
+	while (tick < 20 && mining) {
+		const shouldContinue = await processMiningCycle(tick);
+		if (!shouldContinue) break;
+		tick++;
+	}
 
-		const endEmbed = new EmbedBuilder({
-			title: `✅ ${replyLang(locale, 'mine#mining_complete')}`,
-			description: replyLang(locale, 'mine#choose_loot_action'),
-			color: 0x3498db,
+	// Parar o collector se ainda estiver ativo
+	if (collector && !collector.ended) {
+		collector.stop('mining_complete');
+	}
+
+	// Salvar o loot imediatamente após parar a mineração
+	await saveLoot();
+
+	// Verificar se a mineração foi interrompida por quebra da picareta
+	if (pickaxeBroke) {
+		const breakEmbed = new EmbedBuilder({
+			title: `💥 ${replyLang(locale, 'mine#pickaxe_broken_title')}`,
+			description: replyLang(locale, 'mine#pickaxe_broken_desc'),
+			color: 0xe74c3c,
 			fields: [
 				{
 					name: replyLang(locale, 'mine#loot_field'),
@@ -250,58 +318,95 @@ export async function mine(interaction: ChatInputCommandInteraction) {
 			},
 		});
 
-		const lootRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-			new ButtonBuilder()
-				.setCustomId('keep')
-				.setLabel(replyLang(locale, 'mine#keep_loot'))
-				.setStyle(ButtonStyle.Success),
-			new ButtonBuilder()
-				.setCustomId('burn')
-				.setLabel(replyLang(locale, 'mine#burn_loot'))
-				.setStyle(ButtonStyle.Danger),
-		);
+		await msg.edit({ embeds: [breakEmbed], components: [] }).catch(() => {});
+		return; // Terminar aqui se a picareta quebrou
+	}
 
-		await msg
-			.edit({ embeds: [endEmbed], components: [lootRow] })
-			.catch(() => { });
+	// Se chegou aqui, a mineração terminou normalmente ou foi interrompida pelo usuário
+	const endEmbed = new EmbedBuilder({
+		title: `✅ ${replyLang(locale, 'mine#mining_complete')}`,
+		description: replyLang(locale, 'mine#choose_loot_action'),
+		color: 0x3498db,
+		fields: [
+			{
+				name: replyLang(locale, 'mine#loot_field'),
+				value:
+					Object.entries(loot)
+						.map(([o, q]) => `• ${q}x **${o}**`)
+						.join('\n') || replyLang(locale, 'mine#none_yet'),
+			},
+		],
+		footer: {
+			text: `⚒️ ${replyLang(locale, 'mine#durability_field')}: ${durability}/${maxDurability}`,
+		},
+	});
 
-		const lootCollector = msg.createMessageComponentCollector({
-			componentType: ComponentType.Button,
-			time: 20000,
-		});
+	const lootRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+		new ButtonBuilder()
+			.setCustomId('keep')
+			.setLabel(replyLang(locale, 'mine#keep_loot'))
+			.setStyle(ButtonStyle.Success),
+		new ButtonBuilder()
+			.setCustomId('burn')
+			.setLabel(replyLang(locale, 'mine#burn_loot'))
+			.setStyle(ButtonStyle.Danger),
+	);
 
-		lootCollector.on('collect', async (i) => {
-			if (i.user.id !== user.id)
-				return i.reply({
-					content: replyLang(locale, 'mine#not_your_button'),
-					flags: ['Ephemeral'],
-				});
+	await msg.edit({ embeds: [endEmbed], components: [lootRow] }).catch(() => {});
 
-			let finalEmbed: EmbedBuilder;
+	const lootCollector = msg.createMessageComponentCollector({
+		componentType: ComponentType.Button,
+		time: 20000,
+	});
 
-			if (i.customId === 'keep') {
-				finalEmbed = new EmbedBuilder({
-					title: replyLang(locale, 'mine#loot_saved_title'),
-					description: replyLang(locale, 'mine#loot_saved_desc'),
-					color: 0x2ecc71,
-					footer: { text: `✅ ${replyLang(locale, 'mine#mining_complete')}` },
-				});
-			} else {
-				loot = {};
-				finalEmbed = new EmbedBuilder({
-					title: replyLang(locale, 'mine#loot_burned_title'),
-					description: replyLang(locale, 'mine#loot_burned_desc'),
-					color: 0xe74c3c,
-					footer: { text: `😵 ${replyLang(locale, 'mine#mining_complete')}` },
-				});
-			}
-
-			await msg.edit({ embeds: [finalEmbed], components: [] }).catch(() => { });
-			await i.reply({
-				content: '✅ Ação concluída!',
+	lootCollector.on('collect', async (i) => {
+		if (i.user.id !== user.id)
+			return i.reply({
+				content: replyLang(locale, 'mine#not_your_button'),
 				flags: ['Ephemeral'],
 			});
-			lootCollector.stop();
+
+		let finalEmbed: EmbedBuilder;
+
+		if (i.customId === 'keep') {
+			finalEmbed = new EmbedBuilder({
+				title: replyLang(locale, 'mine#loot_saved_title'),
+				description: replyLang(locale, 'mine#loot_saved_desc'),
+				color: 0x2ecc71,
+				footer: { text: `✅ ${replyLang(locale, 'mine#mining_complete')}` },
+			});
+		} else {
+			// Queimar o loot
+			const updatedBackpack = await UserController.getBackpack(user.id);
+			// Remover apenas os itens do tipo 'ore' que foram minerados agora
+			const filteredBackpack = updatedBackpack.filter((item) => {
+				if (item.type === 'ore') {
+					return !Object.keys(loot).includes(item.name);
+				}
+				return true;
+			});
+
+			await UserController.update(user.id, { backpack: filteredBackpack });
+			loot = {};
+
+			finalEmbed = new EmbedBuilder({
+				title: replyLang(locale, 'mine#loot_burned_title'),
+				description: replyLang(locale, 'mine#loot_burned_desc'),
+				color: 0xe74c3c,
+				footer: { text: `😵 ${replyLang(locale, 'mine#mining_complete')}` },
+			});
+		}
+
+		await msg.edit({ embeds: [finalEmbed], components: [] }).catch(() => {});
+		await i.reply({
+			content: '✅ Ação concluída!',
+			flags: ['Ephemeral'],
 		});
+		lootCollector.stop();
+	});
+
+	lootCollector.on('end', () => {
+		// Se o coletor expirar sem interação, apenas remover os botões
+		msg.edit({ components: [] }).catch(() => {});
 	});
 }

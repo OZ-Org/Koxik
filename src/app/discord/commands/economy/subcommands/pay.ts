@@ -117,8 +117,8 @@ export const paySubCommand = createSubCommand({
 					interaction.locale,
 					replyLang(interaction.locale, 'eco#pay#error#title'),
 					replyLang(interaction.locale, 'user#notFound') +
-					' ' +
-					replyLang(interaction.locale, 'eco#error#createAccount'),
+						' ' +
+						replyLang(interaction.locale, 'eco#error#createAccount'),
 				);
 				await interaction.editReply({ embeds: [embed] });
 				return;

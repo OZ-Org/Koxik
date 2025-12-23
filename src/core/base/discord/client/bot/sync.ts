@@ -92,8 +92,10 @@ export async function syncCommands(
 	const added = [...newNames].filter((n) => !oldNames.has(n));
 
 	logger.info('Command changes:');
-	logger.table(
-		[...removed.map((r) => ['Removed', r]), ...added.map((a) => ['Added', a])],
-		['Action', 'Command'],
-	);
+	if (removed.length > 0) {
+		logger.info(`Removed commands: ${removed.join(', ')}`);
+	}
+	if (added.length > 0) {
+		logger.info(`Added commands: ${added.join(', ')}`);
+	}
 }

@@ -1,3 +1,4 @@
+import { client } from '@base';
 import { replyLang } from '@fx/utils/replyLang.js';
 import {
 	brBuilder,
@@ -17,14 +18,11 @@ import {
 type UserDB = typeof user.$inferSelect;
 
 const { badges } = emotes;
-const KOXIK_ID = '1358116081126084608';
 
-// Calcula XP necessário pro próximo level
 function getTotalXPForNextLevel(level: number): number {
 	return Math.floor(50 * level ** 1.5);
 }
 
-// Cria barra de XP com percentual
 function createXPBar(xp: number, level: number): string {
 	const totalXP = getTotalXPForNextLevel(level);
 	const filledBlocks = Math.floor((xp / totalXP) * 10);
@@ -41,6 +39,7 @@ function createUserBadges(
 ): string[] {
 	const userBadges: string[] = [];
 	type BadgeKeys = keyof typeof badges;
+	const KOXIK_ID = client.solid.user.id;
 
 	if (userDB?.badges) {
 		const dbBadges = userDB.badges as { badge_id: BadgeKeys }[];
@@ -94,9 +93,9 @@ export function createUserInfoEmbed(
 		userDB?.bank != null ? brBuilder('### Banco:', `P$ ${userDB.bank}`) : [],
 		userDB?.miningResources
 			? brBuilder(
-				'### Recursos de mineração:',
-				`\`\`\`json\n${JSON.stringify(userDB.miningResources, null, 2)}\n\`\`\``,
-			)
+					'### Recursos de mineração:',
+					`\`\`\`json\n${JSON.stringify(userDB.miningResources, null, 2)}\n\`\`\``,
+				)
 			: [],
 		...(relationshipField ? [relationshipField] : []),
 	);
@@ -140,12 +139,12 @@ export function createUserInfoEmbed(
 				: []),
 			...(userDB?.miningResources
 				? [
-					{
-						name: 'Recursos de mineração',
-						value: `\`\`\`json\n${JSON.stringify(userDB.miningResources, null, 2)}\n\`\`\``,
-						inline: false,
-					},
-				]
+						{
+							name: 'Recursos de mineração',
+							value: `\`\`\`json\n${JSON.stringify(userDB.miningResources, null, 2)}\n\`\`\``,
+							inline: false,
+						},
+					]
 				: []),
 			/* ...(relationshipField
 				? [

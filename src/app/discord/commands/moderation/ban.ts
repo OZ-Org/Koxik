@@ -98,7 +98,7 @@ export default createCommand({
 
 		if (
 			(executor as GuildMember).roles.highest.position <=
-			targetMember.roles.highest.position &&
+				targetMember.roles.highest.position &&
 			interaction.guild.ownerId !== (executor as GuildMember).id
 		) {
 			return interaction.reply({

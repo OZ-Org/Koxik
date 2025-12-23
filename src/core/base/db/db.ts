@@ -1,11 +1,17 @@
 import { env } from '@env';
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { Client } from 'pg';
+import { Pool } from 'pg';
 import * as schema from './schemas.js';
 
-export const client = new Client({
+export const pool = new Pool({
 	connectionString: env.DATABASE_URL,
+	max: 10,
+	idleTimeoutMillis: 10000,
+	keepAlive: true
 });
 
-// { schema } is used for relational queries
-export const db = drizzle({ client, schema });
+pool.on('error', (err) => {
+	console.error('[DB] conexão morreu aeh:', err);
+});
+
+export const db = drizzle(pool, { schema });

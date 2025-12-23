@@ -55,12 +55,21 @@ export function createBot(options: BotOptions) {
 
 	const commands = new Map<string, Command>();
 
+	const registeredEvents = new Set<string>();
+
 	function createEvent<T extends keyof ClientEvents>(event: Event<T>) {
+		if (registeredEvents.has(event.name)) {
+			logger.warn(`Event already registered → ${event.name}`);
+			return event;
+		}
+
+		registeredEvents.add(event.name);
+
 		const handler = (...args: ClientEvents[T]) => event.run(...args);
 
 		event.once
-			? client.once(event.name, handler)
-			: client.on(event.name, handler);
+			? client.once(event.event, handler)
+			: client.on(event.event, handler);
 
 		return event;
 	}

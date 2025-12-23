@@ -22,6 +22,7 @@
 			"@schemas": ["./core/base/db/schemas.ts"],
 			"@menus/*": ["./app/menus/*"],
 			"@misc/*": ["./app/misc/*"],
+			"@app/*": ["./app/*"],
 			"@basedir/*": ["./core/base/*"]
 		},
 		"allowArbitraryExtensions": true

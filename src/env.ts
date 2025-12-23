@@ -4,7 +4,7 @@ const envSchema = z.object({
 	DISCORD_TOKEN: z.string(),
 	DATABASE_URL: z.string(),
 	NODE_ENV: z.enum(['development', 'production']),
-	LOGS_WEBHOOK_URL: z.url()
+	LOGS_WEBHOOK_URL: z.url(),
 });
 
 const parsed = envSchema.safeParse(process.env);

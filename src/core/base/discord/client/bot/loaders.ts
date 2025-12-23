@@ -1,135 +1,125 @@
-import { readdir } from 'node:fs/promises';
-import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
-import { env } from '@env';
-import { logger } from '@fx/utils/logger.js';
-import type { ClientEvents } from 'discord.js';
-import type { Command, Event } from './types.js';
+import { readdir } from "node:fs/promises";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+import { env } from "@env";
+import { logger } from "@fx/utils/logger.js";
+import type { ClientEvents } from "discord.js";
+import type { Command, Event } from "./types.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const ROOT = path.join(
-	__dirname,
-	'..',
-	'..',
-	'..',
-	'..',
-	'..',
-	'app',
-	'discord',
-);
+/**
+ * Resolve a pasta raiz de forma segura para Bun.
+ * Nada de 5 níveis de ".." igual um labirinto.
+ */
+const ROOT = path.resolve(process.cwd(), "src/app/discord");
 
 export async function loadCommandsFromDisk(
 	commands: Map<string, Command>,
 ): Promise<void> {
-	const commandsPath = path.join(ROOT, 'commands');
+	const commandsPath = path.join(ROOT, "commands");
 
-	logger.divider('Loading Commands');
+	logger.divider("Loading Commands");
 
 	const folders = await readdir(commandsPath, { withFileTypes: true });
 	const commandTable: { Name: string; File: string; Folder: string }[] = [];
 
-	await Promise.all(
-		folders.map(async (folder) => {
-			if (!folder.isDirectory()) return;
+	for (const folder of folders) {
+		if (!folder.isDirectory()) continue;
 
-			const folderPath = path.join(commandsPath, folder.name);
-			const files = await readdir(folderPath);
+		const folderPath = path.join(commandsPath, folder.name);
+		const files = await readdir(folderPath);
 
-			await Promise.all(
-				files.map(async (file) => {
-					if (!file.endsWith('.ts') && !file.endsWith('.js')) return;
+		for (const file of files) {
+			// Bun = sem .js
+			if (!file.endsWith(".ts")) continue;
 
-					try {
-						const filePath = path.join(folderPath, file);
-						const fileUrl = pathToFileURL(filePath).href;
-						const commandModule = await import(fileUrl);
-						const command: Command = commandModule.default;
+			try {
+				const filePath = path.join(folderPath, file);
+				const fileUrl = pathToFileURL(filePath).href;
 
-						if (!command?.data) {
-							return logger.warn(`Invalid command (missing data) → ${file}`);
-						}
+				const commandModule = await import(fileUrl);
+				const command: Command = commandModule.default;
 
-						if (typeof command.run !== 'function') {
-							return logger.warn(`Invalid command (missing run) → ${file}`);
-						}
+				if (!command?.data) {
+					logger.warn(`Invalid command (missing data) → ${file}`);
+					continue;
+				}
 
-						commands.set(command.data.name, command);
+				if (typeof command.run !== "function") {
+					logger.warn(`Invalid command (missing run) → ${file}`);
+					continue;
+				}
 
-						commandTable.push({
-							Name: command.data.name,
-							File: file,
-							Folder: folder.name,
-						});
+				commands.set(command.data.name, command);
 
-						logger.success(`Loaded command → ${command.data.name}`);
-					} catch (err) {
-						logger.error(`Failed to load command ${file}`, err);
-					}
-				}),
-			);
-		}),
-	);
+				commandTable.push({
+					Name: command.data.name,
+					File: file,
+					Folder: folder.name,
+				});
+
+				logger.success(`Loaded command → ${command.data.name}`);
+			} catch (err) {
+				logger.error(`Failed to load command ${file}`, err);
+			}
+		}
+	}
 
 	if (commandTable.length > 0) {
-		if (env.NODE_ENV === 'development') {
-			logger.info('Commands loaded:');
+		if (env.NODE_ENV === "development") {
+			logger.info("Commands loaded:");
 			logger.table(
 				commandTable.map((c) => [c.Name, c.File, c.Folder]),
-				['Name', 'File', 'Folder'],
+				["Name", "File", "Folder"],
 			);
 		}
 	} else {
-		logger.warn('No commands found.');
+		logger.warn("No commands found.");
 	}
 }
 
 export async function loadEventsFromDisk(
 	createEvent: <T extends keyof ClientEvents>(event: Event<T>) => Event<T>,
 ): Promise<void> {
-	const eventsPath = path.join(ROOT, 'events');
+	const eventsPath = path.join(ROOT, "events");
 
-	logger.divider('Loading Events');
+	logger.divider("Loading Events");
 
 	const files = await readdir(eventsPath);
 	const eventTable: { Name: string; File: string }[] = [];
 
-	await Promise.all(
-		files.map(async (file) => {
-			if (!file.endsWith('.ts') && !file.endsWith('.js')) return;
+	for (const file of files) {
+		if (!file.endsWith(".ts")) continue;
 
-			try {
-				const filePath = path.join(eventsPath, file);
-				const fileUrl = pathToFileURL(filePath).href;
-				const eventModule = await import(fileUrl);
+		try {
+			const filePath = path.join(eventsPath, file);
+			const fileUrl = pathToFileURL(filePath).href;
 
-				const event = eventModule.default satisfies Event<keyof ClientEvents>;
+			const eventModule = await import(fileUrl);
+			const event = eventModule.default as Event<keyof ClientEvents> & {
+				__registered?: boolean;
+			};
 
-				if (!event?.name || typeof event.run !== 'function') {
-					return logger.warn(`Invalid event → ${file}`);
-				}
-
-				createEvent(event);
-
-				eventTable.push({ Name: event.name, File: file });
-
-				logger.success(`Loaded event → ${event.name}`);
-			} catch (err) {
-				logger.error(`Failed to load event ${file}`, err);
+			if (!event?.name || typeof event.run !== "function") {
+				logger.warn(`Invalid event → ${file}`);
+				continue;
 			}
-		}),
-	);
 
-	if (eventTable.length > 0) {
-		if (env.NODE_ENV === 'development') {
-			logger.info('Events loaded:');
-			logger.table(
-				eventTable.map((e) => [e.Name, e.File]),
-				['Name', 'File'],
-			);
+			if (!event.__registered) {
+				createEvent(event);
+			}
+
+			eventTable.push({ Name: event.name, File: file });
+			logger.success(`Loaded event → ${event.name}`);
+		} catch (err) {
+			logger.error(`Failed to load event ${file}`, err);
 		}
-	} else {
-		logger.warn('No events found.');
+	}
+
+	if (eventTable.length > 0 && env.NODE_ENV === "development") {
+		logger.info("Events loaded:");
+		logger.table(
+			eventTable.map((e) => [e.Name, e.File]),
+			["Name", "File"],
+		);
 	}
 }
