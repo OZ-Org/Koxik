@@ -20,16 +20,13 @@ import {
 
 export default createCommand({
 	data: new SlashCommandBuilder()
-		.setName('ban')
-		.setDescription(
-			'Drop the hammer and ban someone forever from your server :3',
-		)
+		.setName('kick')
+		.setDescription('Kick a member from the server.')
 		.setDescriptionLocalizations({
-			'pt-BR': 'Bata o martelo e bana pra sempre alguém do seu servidor :3',
-			'es-ES':
-				'Da el martillo y banea a alguien para siempre de tu servidor :3',
+			'pt-BR': 'Expulse um membro do servidor.',
+			'es-ES': 'Expulsa a un miembro del servidor.',
 		})
-		.setDefaultMemberPermissions(PermissionFlagsBits.BanMembers)
+		.setDefaultMemberPermissions(PermissionFlagsBits.KickMembers)
 		.addUserOption((opt) =>
 			opt
 				.setName('member')
@@ -37,10 +34,10 @@ export default createCommand({
 					'pt-BR': 'membro',
 					'es-ES': 'miembro',
 				})
-				.setDescription("Who's getting obliterated today? :3")
+				.setDescription('The member to kick.')
 				.setDescriptionLocalizations({
-					'pt-BR': 'Qual será o morto da vez? :3',
-					'es-ES': '¿Quién será el desafortunado hoy? :3',
+					'pt-BR': 'O membro a ser expulso.',
+					'es-ES': 'El miembro a expulsar.',
 				})
 				.setRequired(true),
 		),
@@ -53,7 +50,7 @@ export default createCommand({
 			const embed = createErrorEmbed(
 				locale,
 				'Error',
-				t(locale, 'ban#responses#error_no_guild'),
+				t(locale, 'kick#responses#error_no_guild'),
 			);
 			return interaction.reply({ embeds: [embed], flags: ['Ephemeral'] });
 		}
@@ -67,7 +64,7 @@ export default createCommand({
 			const embed = createErrorEmbed(
 				locale,
 				'Error',
-				t(locale, 'ban#responses#error_member_not_found', {
+				t(locale, 'kick#responses#error_member_not_found', {
 					user: targetUser.tag,
 				}),
 			);
@@ -78,7 +75,7 @@ export default createCommand({
 			const embed = createErrorEmbed(
 				locale,
 				'Error',
-				t(locale, 'ban#responses#error_cannot_ban_self'),
+				t(locale, 'kick#responses#error_cannot_kick_self'),
 			);
 			return interaction.reply({ embeds: [embed], flags: ['Ephemeral'] });
 		}
@@ -87,7 +84,7 @@ export default createCommand({
 			const embed = createErrorEmbed(
 				locale,
 				'Error',
-				t(locale, 'ban#responses#error_cannot_ban_owner', {
+				t(locale, 'kick#responses#error_cannot_kick_owner', {
 					suspect: emotes.misc.suspect,
 				}),
 			);
@@ -103,7 +100,7 @@ export default createCommand({
 			const embed = createErrorEmbed(
 				locale,
 				'Error',
-				t(locale, 'ban#responses#error_bot_higher_role'),
+				t(locale, 'kick#responses#error_bot_higher_role'),
 			);
 			return interaction.reply({ embeds: [embed], flags: ['Ephemeral'] });
 		}
@@ -116,31 +113,31 @@ export default createCommand({
 			const embed = createErrorEmbed(
 				locale,
 				'Error',
-				t(locale, 'ban#responses#error_higher_role'),
+				t(locale, 'kick#responses#error_higher_role'),
 			);
 			return interaction.reply({ embeds: [embed], flags: ['Ephemeral'] });
 		}
 
-		const confirmId = 'ban_confirm';
-		const cancelId = 'ban_cancel';
+		const confirmId = 'kick_confirm';
+		const cancelId = 'kick_cancel';
 
 		const confirmButton = new ButtonBuilder()
 			.setCustomId(confirmId)
-			.setLabel(t(locale, 'ban#responses#confirm_button'))
+			.setLabel(t(locale, 'kick#responses#confirm_button'))
 			.setStyle(ButtonStyle.Danger)
 			.setEmoji(emotes.utils.checkmark || '✅');
 
 		const cancelButton = new ButtonBuilder()
 			.setCustomId(cancelId)
-			.setLabel(t(locale, 'ban#responses#cancel_button'))
+			.setLabel(t(locale, 'kick#responses#cancel_button'))
 			.setStyle(ButtonStyle.Secondary)
 			.setEmoji(emotes.utils.crossmark || '❌');
 
 		const row = createRow(confirmButton, cancelButton);
 
 		const confirmEmbed = createConfirmationEmbed(locale, {
-			title: 'Ban Confirmation',
-			description: t(locale, 'ban#responses#confirm_prompt', {
+			title: 'Kick Confirmation',
+			description: t(locale, 'kick#responses#confirm_prompt', {
 				user: `${targetUser}`,
 			}),
 			user: interaction.user,
@@ -172,7 +169,7 @@ export default createCommand({
 				const cancelEmbed = createErrorEmbed(
 					locale,
 					'Cancelled',
-					`${t(locale, 'ban#responses#cancelled', {
+					`${t(locale, 'kick#responses#cancelled', {
 						user: `${targetUser.tag}`,
 					})} :3`,
 				).setColor(Colors.Orange);
@@ -189,17 +186,17 @@ export default createCommand({
 				collector.stop('confirmed');
 
 				try {
-					const reason = t(locale, 'ban#responses#reason_template', {
+					const reason = t(locale, 'kick#responses#reason_template', {
 						moderator: interaction.user.tag,
 					});
 
-					await interaction.guild?.members.ban(targetUser.id, { reason });
+					await interaction.guild?.members.kick(targetUser.id, reason);
 
 					const successEmbed = createSuccessEmbed(
 						'Success',
-						`${t(locale, 'ban#responses#success', {
+						`${t(locale, 'kick#responses#success', {
 							user: `${targetUser.tag}`,
-						})} ${emotes.misc.boom} :3`,
+						})} ${emotes.misc.boot} :3`,
 					);
 
 					await interaction.editReply({
@@ -207,11 +204,11 @@ export default createCommand({
 						components: [],
 					});
 				} catch (err) {
-					console.error('Ban error:', err);
+					console.error('Kick error:', err);
 					const errorEmbed = createErrorEmbed(
 						locale,
 						'Error',
-						t(locale, 'ban#responses#error_on_ban'),
+						t(locale, 'kick#responses#error_on_kick'),
 					);
 					await interaction.editReply({
 						embeds: [errorEmbed],
@@ -227,7 +224,7 @@ export default createCommand({
 			const timeoutEmbed = createErrorEmbed(
 				locale,
 				'Timeout',
-				t(locale, 'ban#responses#timeout'),
+				t(locale, 'kick#responses#timeout'),
 			).setColor(Colors.Orange);
 
 			await interaction.editReply({

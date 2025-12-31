@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/complexity/noBannedTypes: ... */
 import {
 	ApplicationCommandOptionType,
 	type InteractionContextType,
@@ -14,8 +15,6 @@ import type {
 	Command,
 	CommandRunOptions,
 } from './types.js';
-
-// ==================== TYPES ====================
 
 export type CommandOptionChoice = {
 	name: string;
@@ -59,7 +58,6 @@ export interface SubCommandGroupConfig {
 	default_member_permissions?: PermissionResolvable[];
 }
 
-// Config format with direct properties (new format)
 export interface CommandConfig {
 	name: string;
 	description: string;
@@ -75,7 +73,6 @@ export interface CommandConfig {
 	cooldown?: number;
 }
 
-// Legacy format with data property (old format)
 export interface LegacyCommandConfig {
 	data:
 		| SlashCommandBuilder
@@ -87,10 +84,7 @@ export interface LegacyCommandConfig {
 	cooldown?: number;
 }
 
-// Union type that accepts both formats
 export type CommandInput = CommandConfig | LegacyCommandConfig;
-
-// ==================== BUILDER HELPER ====================
 
 function buildOptions(builder: any, options?: CommandOption[]) {
 	if (!options) return;
@@ -161,8 +155,6 @@ function buildOptions(builder: any, options?: CommandOption[]) {
 	}
 }
 
-// ==================== CLASS ====================
-
 export class CommandBuilder implements Command {
 	public data:
 		| SlashCommandBuilder
@@ -178,14 +170,11 @@ export class CommandBuilder implements Command {
 	private legacyAutocomplete?: (options: AutocompleteOptions) => Promise<any>;
 
 	constructor(input: CommandInput) {
-		// Check if it's legacy format (has 'data' property)
 		if ('data' in input) {
-			// Legacy format
 			this.data = input.data;
 			this.legacyRun = input.run;
 			this.legacyAutocomplete = input.autocomplete;
 
-			// Create a minimal config for compatibility
 			this.config = {
 				name: this.data.name,
 				description: this.data.description,
@@ -193,7 +182,6 @@ export class CommandBuilder implements Command {
 				cooldown: input.cooldown,
 			};
 		} else {
-			// New format
 			const config = input as CommandConfig;
 			this.config = config;
 			this.data = new SlashCommandBuilder()
@@ -211,7 +199,6 @@ export class CommandBuilder implements Command {
 			if (config.contexts) this.data.setContexts(...config.contexts);
 			if (config.nsfw) this.data.setNSFW(config.nsfw);
 
-			// Se não for baseCommand, adiciona opções normais
 			if (!config.baseCommand && config.options) {
 				buildOptions(this.data, config.options);
 			}
@@ -230,7 +217,6 @@ export class CommandBuilder implements Command {
 				subBuilder.setDescriptionLocalizations(sub.description_localizations);
 
 			buildOptions(subBuilder, sub.options);
-			// Type assertion: when adding subcommands, this.data must be a builder that supports them
 			(
 				this.data as SlashCommandBuilder | SlashCommandSubcommandsOnlyBuilder
 			).addSubcommand(subBuilder);
@@ -281,7 +267,6 @@ export class CommandBuilder implements Command {
 				);
 			}
 		}
-		// Type assertion: when adding subcommand groups, this.data must be a builder that supports them
 		(
 			this.data as SlashCommandBuilder | SlashCommandSubcommandsOnlyBuilder
 		).addSubcommandGroup(groupBuilder);
@@ -324,7 +309,6 @@ export class CommandBuilder implements Command {
 			}
 		}
 
-		// Use legacy run if available, otherwise use config.run
 		if (this.legacyRun) {
 			if (
 				await this.handleCooldown(
@@ -366,7 +350,7 @@ export class CommandBuilder implements Command {
 			const remaining = (expiration - now) / 1000;
 			await interaction.reply({
 				content: `You are on cooldown. Try again in ${remaining.toFixed(1)} seconds.`,
-				ephemeral: true,
+				flags: ['Ephemeral'],
 			});
 			return true;
 		}
@@ -388,7 +372,6 @@ export class CommandBuilder implements Command {
 			if (handler) return handler({ client, interaction });
 		}
 
-		// Use legacy autocomplete if available, otherwise use config.autocomplete
 		if (this.legacyAutocomplete) {
 			return this.legacyAutocomplete({ client, interaction });
 		}
@@ -402,8 +385,6 @@ export class CommandBuilder implements Command {
 		return this.config.cooldown;
 	}
 }
-
-// ==================== EXPORTS ====================
 
 export function createCommand(input: CommandInput) {
 	return new CommandBuilder(input);

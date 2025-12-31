@@ -14,7 +14,7 @@ services:
       - .env
     depends_on:
       - postgres
-    command: bun --env-file=.env src/index.ts
+    command: bun --env-file=.env.dev src/index.ts
 
 volumes:
   pgdata:

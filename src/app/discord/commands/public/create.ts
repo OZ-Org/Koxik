@@ -28,6 +28,7 @@ export default createCommand({
 					'es-ES': 'cuenta',
 				}),
 		),
+	cooldown: 50,
 	run: async ({ interaction }) => {
 		const subcommand = interaction.options.getSubcommand();
 

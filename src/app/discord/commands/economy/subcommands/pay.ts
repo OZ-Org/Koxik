@@ -88,6 +88,7 @@ export const paySubCommand = createSubCommand({
 			],
 		},
 	],
+	cooldown: 20,
 	run: async ({ client, interaction }) => {
 		await interaction.deferReply();
 
@@ -117,8 +118,8 @@ export const paySubCommand = createSubCommand({
 					interaction.locale,
 					replyLang(interaction.locale, 'eco#pay#error#title'),
 					replyLang(interaction.locale, 'user#notFound') +
-						' ' +
-						replyLang(interaction.locale, 'eco#error#createAccount'),
+					' ' +
+					replyLang(interaction.locale, 'eco#error#createAccount'),
 				);
 				await interaction.editReply({ embeds: [embed] });
 				return;
@@ -129,7 +130,8 @@ export const paySubCommand = createSubCommand({
 			const taxRate = method === 'bank' ? 0.1 : 0.025;
 			const robberyChance = method === 'bank' ? 0.01 : 0.4;
 			const tax = Math.floor(amount * taxRate);
-			const totalCost = amount + tax;
+			const amountToSend = amount - tax;
+			const totalCost = amount;
 
 			const infoEmbed = new EmbedPlusBuilder({
 				color: Colors.Blue,
@@ -143,15 +145,15 @@ export const paySubCommand = createSubCommand({
 					{
 						payer: interaction.user.displayName,
 						receiver: userToPay.displayName,
-						amount: amount.toLocaleString(),
+						amount: amountToSend.toLocaleString(),
 						method: replyLang(interaction.locale, `eco#pay#method#${method}`),
 					},
 				),
 				fields: [
 					{
-						name: `📊 ${replyLang(interaction.locale, 'eco#pay#details#title')}`,
+						name: `${emotes.eco.stats} ${replyLang(interaction.locale, 'eco#pay#details#title')}`,
 						value: [
-							`**${replyLang(interaction.locale, 'eco#pay#details#amount')}:** \`${amount.toLocaleString()}\` polens`,
+							`**${replyLang(interaction.locale, 'eco#pay#details#amount')}:** \`${amountToSend.toLocaleString()}\` polens`,
 							`**${replyLang(interaction.locale, 'eco#pay#details#fee')}:** \`${tax.toLocaleString()}\` polens (${(taxRate * 100).toFixed(1)}%)`,
 							`**${replyLang(interaction.locale, 'eco#pay#details#total')}:** \`${totalCost.toLocaleString()}\` polens`,
 							`**${replyLang(interaction.locale, 'eco#pay#details#robbery')}:** ${(robberyChance * 100).toFixed(1)}%`,
@@ -159,7 +161,7 @@ export const paySubCommand = createSubCommand({
 						inline: false,
 					},
 					{
-						name: `💰 ${replyLang(interaction.locale, 'eco#pay#balance#current')}`,
+						name: `${emotes.misc.dollar} ${replyLang(interaction.locale, 'eco#pay#balance#current')}`,
 						value: `\`${sourceBalance.toLocaleString()}\` polens`,
 						inline: false,
 					},
@@ -253,17 +255,17 @@ export const paySubCommand = createSubCommand({
 							),
 							fields: [
 								{
-									name: `📤 ${replyLang(interaction.locale, 'eco#pay#success#sent')}`,
+									name: `${emotes.eco.sent} ${replyLang(interaction.locale, 'eco#pay#success#sent')}`,
 									value: `\`${result.sent.toLocaleString()}\` polens`,
 									inline: true,
 								},
 								{
-									name: `💸 ${replyLang(interaction.locale, 'eco#pay#success#fee')}`,
+									name: `${emotes.eco.fee} ${replyLang(interaction.locale, 'eco#pay#success#fee')}`,
 									value: `\`${result.fee.toLocaleString()}\` polens`,
 									inline: true,
 								},
 								{
-									name: `📥 ${replyLang(interaction.locale, 'eco#pay#success#received')}`,
+									name: `${emotes.eco.received} ${replyLang(interaction.locale, 'eco#pay#success#received')}`,
 									value: `\`${result.received.toLocaleString()}\` polens`,
 									inline: true,
 								},
@@ -276,7 +278,7 @@ export const paySubCommand = createSubCommand({
 
 						if (result.robbed) {
 							successEmbed.addFields({
-								name: `🦹 ${replyLang(interaction.locale, 'eco#pay#success#robbed')}`,
+								name: `${emotes.eco.robber} ${replyLang(interaction.locale, 'eco#pay#success#robbed')}`,
 								value: replyLang(
 									interaction.locale,
 									'eco#pay#success#robbedDescription',

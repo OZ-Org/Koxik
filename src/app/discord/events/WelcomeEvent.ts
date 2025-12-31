@@ -3,16 +3,25 @@ import { db } from '@db';
 import { logger } from '@fx/utils/logger.js';
 import { findChannel } from '@magicyan/discord';
 import { guilds } from '@schemas';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { eq } from 'drizzle-orm';
 
 const processedMembers = new Set();
+
+function createWelcomeButton(guildId: string) {
+	return new ActionRowBuilder<ButtonBuilder>().addComponents(
+		new ButtonBuilder()
+			.setCustomId(`welcome/log/${guildId}`)
+			.setLabel('👋 Welcome!')
+			.setStyle(ButtonStyle.Secondary),
+	);
+}
 
 export default createEvent({
 	name: 'welcome',
 	event: 'guildMemberAdd',
 	run: async (member) => {
 		try {
-
 			const key = `${member.guild.id}-${member.id}`;
 
 			if (processedMembers.has(key)) {
@@ -47,7 +56,10 @@ export default createEvent({
 						.replace('{user}', `<@${userId}>`)
 						.replace('{server.name}', member.guild.name);
 
-					await channel.send(msg);
+					await channel.send({
+						content: msg,
+						components: [createWelcomeButton(member.guild.id)],
+					});
 				}
 			}
 		} catch (err) {

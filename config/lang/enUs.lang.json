@@ -195,31 +195,118 @@
 			"reason_template": "Baned by %moderator% via command."
 		}
 	},
-"mine": {
-    "no_backpack": "❌ You don't have a backpack or tools.",
-    "pickaxe_not_found": "⚒️ You don't have this pickaxe.",
-    "pickaxe_broken": "⚒️ Your pickaxe is broken!",
-    "pickaxe_broken_title": "💥 Pickaxe Broken!",
-    "pickaxe_broken_desc": "Your pickaxe broke during mining! Your ores were saved to your backpack.",
-    "mining_start": "🌍 The adventure begins!",
-    "mining_progress": "⛏️ Mining blocks...",
-    "lava_appears": "🔥 Lava ahead! Click fast!",
-    "lava_jump_success": "💨 You jumped over the lava successfully!",
-    "lava_jump_fail": "🔥 You burned yourself in the lava! (-2 durability)",
-    "mining_complete": "✅ Mining completed",
-    "choose_loot_action": "Choose what to do with your ores:",
-    "keep_loot": "📦 Keep everything",
-    "burn_loot": "🔥 Burn everything",
-    "stop_button": "✋ Stop Mining",
-    "mining_stop": "⛏️ Stopping mining...",
-    "not_your_button": "❌ Not your button!",
-    "durability_field": "Durability",
-    "loot_field": "Ores",
-    "none_yet": "None yet...",
-    "loot_saved_title": "💎 Loot Saved!",
-    "loot_saved_desc": "Your ores were added to your backpack.",
-    "loot_burned_title": "🔥 Loot Burned!",
-    "loot_burned_desc": "You destroyed all your ores... why did you do that?",
-    "progress_footer": "⛏️ Mining..."
-}
+	"mine": {
+		"no_backpack": "❌ You don't have a backpack or tools.",
+		"pickaxe_not_found": "⚒️ You don't have this pickaxe.",
+		"pickaxe_broken": "⚒️ Your pickaxe is broken!",
+		"pickaxe_broken_title": "💥 Pickaxe Broken!",
+		"pickaxe_broken_desc": "Your pickaxe broke during mining! Your ores were saved to your backpack.",
+		"mining_start": "🌍 The adventure begins!",
+		"mining_progress": "⛏️ Mining blocks...",
+		"lava_appears": "🔥 Lava ahead! Click fast!",
+		"lava_jump_success": "💨 You jumped over the lava successfully!",
+		"lava_jump_fail": "🔥 You burned yourself in the lava! (-2 durability)",
+		"mining_complete": "✅ Mining completed",
+		"choose_loot_action": "Choose what to do with your ores:",
+		"keep_loot": "📦 Keep everything",
+		"burn_loot": "🔥 Burn everything",
+		"stop_button": "✋ Stop Mining",
+		"mining_stop": "⛏️ Stopping mining...",
+		"not_your_button": "❌ Not your button!",
+		"durability_field": "Durability",
+		"loot_field": "Ores",
+		"none_yet": "None yet...",
+		"loot_saved_title": "💎 Loot Saved!",
+		"loot_saved_desc": "Your ores were added to your backpack.",
+		"loot_burned_title": "🔥 Loot Burned!",
+		"loot_burned_desc": "You destroyed all your ores... why did you do that?",
+		"progress_footer": "⛏️ Mining..."
+	},
+	"clear": {
+		"responses": {
+			"success": "🧹 Successfully cleared **%count%** messages!",
+			"error": "❌ Failed to clear messages. Make sure they are not older than 14 days.",
+			"invalid_amount": "❌ Please provide a valid amount between 1 and 100.",
+			"no_permission": "❌ You don't have permission to manage messages."
+		}
+	},
+	"lock": {
+		"responses": {
+			"success": "🔒 Channel locked successfully!",
+			"already_locked": "🔒 This channel is already locked!",
+			"error": "❌ Failed to lock the channel.",
+			"no_permission": "❌ You don't have permission to manage channels."
+		}
+	},
+	"unlock": {
+		"responses": {
+			"success": "🔓 Channel unlocked successfully!",
+			"not_locked": "🔓 This channel is not locked!",
+			"error": "❌ Failed to unlock the channel.",
+			"no_permission": "❌ You don't have permission to manage channels."
+		}
+	},
+	"kick": {
+		"responses": {
+			"confirm_prompt": [
+				"Are you sure you want to kick **%user%**?",
+				"This action will remove them from the server."
+			],
+			"confirm_button": "Yes, kick them! 👢",
+			"cancel_button": "No, cancel",
+			"cancelled": "Cancelled, **%user%** is safe for now.",
+			"success": "👢 **%user%** has been kicked.",
+			"error_cannot_kick_self": "You cannot kick yourself.",
+			"error_cannot_kick_owner": "You cannot kick the server owner.",
+			"error_member_not_found": "User **%user%** not found in this server.",
+			"error_bot_higher_role": "I cannot kick this user due to role hierarchy.",
+			"error_higher_role": "You cannot kick this user due to role hierarchy.",
+			"error_no_guild": "This command must be used in a server.",
+			"error_on_kick": "❌ Failed to kick user.",
+			"timeout": "Kick confirmation timed out.",
+			"reason_template": "Kicked by %moderator% via command."
+		}
+	},
+	"invite": {
+		"title": "📨 **Koxik Invite**",
+		"description": "Add Koxik to your server and enjoy the best of moderation and fun!",
+		"button": "📥 Add me"
+	},
+	"koxik": {
+		"info": {
+			"title": "🤖 **Koxik, Your multipurpose bot**",
+			"description": [
+				"Hi! I'm Koxik, an essential bot for you and your server!",
+				"",
+				"### 🌍 Presence",
+				"• Servers: **%guilds%**",
+				"• Users I'm watching hehe: **%members%**",
+				"• Monitored channels: **%channels%**",
+				"",
+				"### ⚙️ System",
+				"• Library: **%library%**",
+				"• Memory usage: **%ram% MB**",
+				"• Version: **v%version%**",
+				"• Hosted on **%host%**",
+				"",
+				"### ⏳ Uptime",
+				"• I've been alive for **<t:%uptime%:R>**",
+				"",
+				"🔑 Developed by: **%owner%**"
+			],
+			"footer": "Koxik Bot • Always online… almost.",
+			"buttons": {
+				"website": "🌐 Website",
+				"invite": "📥 Invite",
+				"support": "💬 Support",
+				"hosted": "Hosted by GatiHost"
+			}
+		}
+	},
+	"mc": {
+		"skin": {
+			"invalid_nick": "This nickname is invalid or forbidden.",
+			"render_error": "Unable to render this skin."
+		}
+	}
 }

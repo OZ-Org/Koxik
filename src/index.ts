@@ -19,9 +19,7 @@ export const {
 				'1426601171455311973',
 				'1399909178495074304',
 			]),
-			RegisterType.Depends.Guild<'production'>('production', [
-				'1445996370551902321',
-			]),
+			RegisterType.Depends.Global<'production'>('production'),
 		],
 	},
 });

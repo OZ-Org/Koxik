@@ -17,6 +17,7 @@ export const dailySubCommand = createSubCommand({
 		'pt-BR': 'Pegue sua recompensa diária',
 		'es-ES': 'Reclama tu recompensa diaria',
 	},
+	cooldown: 50,
 	run: async ({ client, interaction }) => {
 		await interaction.deferReply();
 
