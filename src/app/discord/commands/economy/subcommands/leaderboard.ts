@@ -16,6 +16,7 @@ export const leaderboardSubCommand = createSubCommand({
 		'es-ES': 'Ve los más ricos',
 	},
 
+	cooldown: 10,
 	run: async ({ client, interaction }) => {
 		await interaction.deferReply();
 

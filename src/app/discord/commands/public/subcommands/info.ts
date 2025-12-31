@@ -1,4 +1,5 @@
 import { createSubCommand } from '@base';
+import { replyLang } from '@fx/utils/replyLang.js';
 import { brBuilder, createEmbed } from '@magicyan/discord';
 import {
 	ActionRowBuilder,
@@ -17,67 +18,60 @@ export default createSubCommand({
 
 	run: async ({ interaction, client }) => {
 		const library = 'discord.js';
-		const RAMUsage = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2);
-		const sourceCode = 'https://github.com/KoxikBot/Koxik';
+		const RAMUsage = (process.memoryUsage().rss / 1024 / 1024).toFixed(2);
 		const hostedBy = 'GatiHost';
-		const version = '2.0.0';
+		const version = '2.0.1';
 		const website = 'https://koxik.ozorg.xyz';
 		const invite =
-			'https://discord.com/oauth2/authorize?client_id=1172215616227962624&permissions=8&redirect_uri=https%3A%2F%2Fkoxik.ozorg.xyz%2Fapi%2Fauth%2Fdiscord&response_type=code&scope=identify%20email%20guilds.members.read';
-		const support = 'https://discord.gg/koxik';
+			'https://discord.com/oauth2/authorize?client_id=1172215616227962624&permissions=516403096831&integration_type=0&scope=bot+applications.commands';
+		const support = 'https://discord.gg/AfeQSwBsZV';
 		const owner = 'Oz-Org';
 
 		const members = client.users.cache.size;
 		const guilds = client.guilds.cache.size;
 		const channels = client.channels.cache.size;
 
-		const uptime = client.uptime ?? 143242;
-		const uptimeTimestamp = Math.floor((Date.now() - uptime) / 1000);
+		const uptimeTimestamp = Math.floor(
+			(Date.now() - (client.uptime ?? 0)) / 1000,
+		);
 
 		const embed = createEmbed({
-			title: '🤖 **Koxik — Seu bot multiuso cheio de charme**',
+			title: replyLang(interaction.locale, 'koxik#info#title'),
 			description: brBuilder(
-				'Salve, humano. Eu sou a Koxik — elegante, funcional e sempre pronta pra animar o rolê!',
-				' ',
-				`### 🌍 Presença`,
-				`• Servidores: **${guilds}**`,
-				`• Pessoas interagindo comigo: **${members}**`,
-				`• Canais monitorados: **${channels}**`,
-				' ',
-				`### ⚙️ Sistema`,
-				`• Biblioteca: **${library}**`,
-				`• Memória utilizada: **${RAMUsage} MB**`,
-				`• Versão: **v${version}**`,
-				`• Hospedada na **${hostedBy}**`,
-				' ',
-				`### ⏳ Uptime`,
-				`• Estou viva há **<t:${uptimeTimestamp}:R>**`,
-				' ',
-				`🔑 Desenvolvido por: **${owner}**`,
+				replyLang(interaction.locale, 'koxik#info#description', {
+					guilds,
+					members,
+					channels,
+					library,
+					ram: RAMUsage,
+					version,
+					host: hostedBy,
+					uptime: uptimeTimestamp,
+					owner,
+				}),
 			),
 			color: Colors.Orange,
-			footer: 'Koxik Bot • Sempre online… quase sempre.',
+			footer: replyLang(interaction.locale, 'koxik#info#footer'),
 		});
 
 		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
 			new ButtonBuilder()
-				.setLabel('🌐 Website')
+				.setLabel(replyLang(interaction.locale, 'koxik#info#buttons#website'))
 				.setStyle(ButtonStyle.Link)
 				.setURL(website),
+
 			new ButtonBuilder()
-				.setLabel('📥 Invite')
+				.setLabel(replyLang(interaction.locale, 'koxik#info#buttons#invite'))
 				.setStyle(ButtonStyle.Link)
 				.setURL(invite),
+
 			new ButtonBuilder()
-				.setLabel('💬 Suporte')
+				.setLabel(replyLang(interaction.locale, 'koxik#info#buttons#support'))
 				.setStyle(ButtonStyle.Link)
 				.setURL(support),
+
 			new ButtonBuilder()
-				.setLabel('💻 Código-Fonte')
-				.setStyle(ButtonStyle.Link)
-				.setURL(sourceCode),
-			new ButtonBuilder()
-				.setLabel('Hosted by GatiHost')
+				.setLabel(replyLang(interaction.locale, 'koxik#info#buttons#hosted'))
 				.setEmoji('<:gatihost:1447718834080321598>')
 				.setStyle(ButtonStyle.Link)
 				.setURL('https://www.gatihost.com.br'),

@@ -31,6 +31,7 @@ export const depositSubCommand = createSubCommand({
 			},
 		},
 	],
+	cooldown: 40,
 	run: async ({ interaction }) => {
 		await interaction.deferReply();
 

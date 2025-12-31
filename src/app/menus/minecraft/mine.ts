@@ -1,18 +1,12 @@
 import { randomInt, randomUUID } from 'node:crypto';
 import { replyLang } from '@fx/utils/replyLang.js';
-import type {
-	BackpackItem,
-	BackpackType,
-	OreType,
-	PickaxesTypesIDs,
-} from 'app/shared/types.js'; // Adicione PickaxesTypesIDs
+import { createRow, EmbedPlusBuilder } from '@magicyan/discord';
+import type { BackpackItem, BackpackType, OreType } from 'app/shared/types.js';
 import {
-	ActionRowBuilder,
 	ButtonBuilder,
 	ButtonStyle,
 	type ChatInputCommandInteraction,
 	ComponentType,
-	EmbedBuilder,
 	type Locale,
 } from 'discord.js';
 import { UserController } from '../../jobs/UserController.js';
@@ -45,7 +39,7 @@ async function handleLava(
 	const lavaMsg = await interaction.followUp({
 		content: `🌋 ${replyLang(locale, 'mine#lava_appears')}`,
 		components: [
-			new ActionRowBuilder<ButtonBuilder>().addComponents(
+			createRow(
 				new ButtonBuilder()
 					.setCustomId('jump')
 					.setLabel('🔥 PULAR!')
@@ -131,7 +125,7 @@ export async function mine(interaction: ChatInputCommandInteraction) {
 	// Variável para verificar se a picareta quebrou
 	let pickaxeBroke = false;
 
-	const embed = new EmbedBuilder({
+	const embed = new EmbedPlusBuilder({
 		title: replyLang(locale, 'mine#mining_start'),
 		color: 0x2ecc71,
 		description: replyLang(locale, 'mine#mining_progress'),
@@ -150,7 +144,7 @@ export async function mine(interaction: ChatInputCommandInteraction) {
 		footer: { text: `👤 ${user.username}` },
 	});
 
-	const stopRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+	const stopRow = createRow(
 		new ButtonBuilder()
 			.setCustomId('stop')
 			.setLabel(replyLang(locale, 'mine#stop_button'))
@@ -300,7 +294,7 @@ export async function mine(interaction: ChatInputCommandInteraction) {
 
 	// Verificar se a mineração foi interrompida por quebra da picareta
 	if (pickaxeBroke) {
-		const breakEmbed = new EmbedBuilder({
+		const breakEmbed = new EmbedPlusBuilder({
 			title: `💥 ${replyLang(locale, 'mine#pickaxe_broken_title')}`,
 			description: replyLang(locale, 'mine#pickaxe_broken_desc'),
 			color: 0xe74c3c,
@@ -323,7 +317,7 @@ export async function mine(interaction: ChatInputCommandInteraction) {
 	}
 
 	// Se chegou aqui, a mineração terminou normalmente ou foi interrompida pelo usuário
-	const endEmbed = new EmbedBuilder({
+	const endEmbed = new EmbedPlusBuilder({
 		title: `✅ ${replyLang(locale, 'mine#mining_complete')}`,
 		description: replyLang(locale, 'mine#choose_loot_action'),
 		color: 0x3498db,
@@ -341,7 +335,7 @@ export async function mine(interaction: ChatInputCommandInteraction) {
 		},
 	});
 
-	const lootRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+	const lootRow = createRow(
 		new ButtonBuilder()
 			.setCustomId('keep')
 			.setLabel(replyLang(locale, 'mine#keep_loot'))
@@ -366,10 +360,10 @@ export async function mine(interaction: ChatInputCommandInteraction) {
 				flags: ['Ephemeral'],
 			});
 
-		let finalEmbed: EmbedBuilder;
+		let finalEmbed: EmbedPlusBuilder;
 
 		if (i.customId === 'keep') {
-			finalEmbed = new EmbedBuilder({
+			finalEmbed = new EmbedPlusBuilder({
 				title: replyLang(locale, 'mine#loot_saved_title'),
 				description: replyLang(locale, 'mine#loot_saved_desc'),
 				color: 0x2ecc71,
@@ -389,7 +383,7 @@ export async function mine(interaction: ChatInputCommandInteraction) {
 			await UserController.update(user.id, { backpack: filteredBackpack });
 			loot = {};
 
-			finalEmbed = new EmbedBuilder({
+			finalEmbed = new EmbedPlusBuilder({
 				title: replyLang(locale, 'mine#loot_burned_title'),
 				description: replyLang(locale, 'mine#loot_burned_desc'),
 				color: 0xe74c3c,

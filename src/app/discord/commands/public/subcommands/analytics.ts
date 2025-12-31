@@ -17,6 +17,7 @@ export default createSubCommand({
 		'pt-BR': 'Confira as estatísticas detalhadas de uso do Koxik!',
 		'es-ES': 'Consulta las estadísticas detalladas de uso de Koxik.',
 	},
+	cooldown: 10,
 	run: async ({ interaction, client }) => {
 		await interaction.deferReply({ flags: ['Ephemeral'] });
 		try {

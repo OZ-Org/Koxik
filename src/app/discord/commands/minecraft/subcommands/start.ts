@@ -18,6 +18,7 @@ export default createSubCommand({
 		'es-ES': '¡Comienza tu viaje en Minecraft!',
 		'pt-BR': 'Comece sua jornada Minecraftiana!',
 	},
+	cooldown: 50,
 	run: async ({ interaction }) => {
 		const user = interaction.user;
 

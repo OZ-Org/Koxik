@@ -69,10 +69,10 @@ export interface Command {
 	 * Defines the command name, description, options, and localization.
 	 */
 	data:
-	| SlashCommandBuilder
-	| SlashCommandSubcommandsOnlyBuilder
-	| SlashCommandOptionsOnlyBuilder
-	| Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'>;
+		| SlashCommandBuilder
+		| SlashCommandSubcommandsOnlyBuilder
+		| SlashCommandOptionsOnlyBuilder
+		| Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'>;
 
 	/**
 	 * The main command execution function.
@@ -117,9 +117,7 @@ export interface Command {
  *   },
  * });
  */
-export interface Event<
-	T extends keyof ClientEvents = keyof ClientEvents,
-> {
+export interface Event<T extends keyof ClientEvents = keyof ClientEvents> {
 	/**
 	 * Unique internal name for this event.
 	 * Used for identification, logging and deduplication.
@@ -149,7 +147,6 @@ export interface Event<
 	 */
 	run: (...args: ClientEvents[T]) => Promise<void> | void;
 }
-
 
 /**
  * Defines where Discord slash commands should be registered.

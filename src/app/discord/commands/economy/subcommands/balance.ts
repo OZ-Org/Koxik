@@ -16,6 +16,7 @@ export const balanceSubCommand = createSubCommand({
 		'pt-BR': 'Veja sua bufunfa',
 		'es-ES': 'Ver tu dinero',
 	},
+	cooldown: 10,
 	options: [
 		{
 			name: 'user',

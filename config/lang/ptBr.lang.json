@@ -196,30 +196,117 @@
 		}
 	},
 	"mine": {
-    "no_backpack": "❌ Você não tem uma mochila ou ferramentas.",
-    "pickaxe_not_found": "⚒️ Você não tem esta picareta.",
-    "pickaxe_broken": "⚒️ Sua picareta está quebrada!",
-    "pickaxe_broken_title": "💥 Picareta Quebrada!",
-    "pickaxe_broken_desc": "Sua picareta quebrou durante a mineração! Seus minérios foram salvos na sua mochila.",
-    "mining_start": "🌍 A aventura começa!",
-    "mining_progress": "⛏️ Minerando blocos...",
-    "lava_appears": "🔥 Lava à frente! Clique rápido!",
-    "lava_jump_success": "💨 Você pulou sobre a lava com sucesso!",
-    "lava_jump_fail": "🔥 Você se queimou na lava! (-2 durabilidade)",
-    "mining_complete": "✅ Mineração concluída",
-    "choose_loot_action": "Escolha o que fazer com seus minérios:",
-    "keep_loot": "📦 Manter tudo",
-    "burn_loot": "🔥 Queimar tudo",
-    "stop_button": "✋ Parar Mineração",
-    "mining_stop": "⛏️ Parando mineração...",
-    "not_your_button": "❌ Não é seu botão!",
-    "durability_field": "Durabilidade",
-    "loot_field": "Minérios",
-    "none_yet": "Nenhum ainda...",
-    "loot_saved_title": "💎 Saque Salvo!",
-    "loot_saved_desc": "Seus minérios foram adicionados à sua mochila.",
-    "loot_burned_title": "🔥 Saque Queimado!",
-    "loot_burned_desc": "Você destruiu todos os seus minérios... por que fez isso?",
-    "progress_footer": "⛏️ Minerando..."
-}
+		"no_backpack": "❌ Você não tem uma mochila ou ferramentas.",
+		"pickaxe_not_found": "⚒️ Você não tem esta picareta.",
+		"pickaxe_broken": "⚒️ Sua picareta está quebrada!",
+		"pickaxe_broken_title": "💥 Picareta Quebrada!",
+		"pickaxe_broken_desc": "Sua picareta quebrou durante a mineração! Seus minérios foram salvos na sua mochila.",
+		"mining_start": "🌍 A aventura começa!",
+		"mining_progress": "⛏️ Minerando blocos...",
+		"lava_appears": "🔥 Lava à frente! Clique rápido!",
+		"lava_jump_success": "💨 Você pulou sobre a lava com sucesso!",
+		"lava_jump_fail": "🔥 Você se queimou na lava! (-2 durabilidade)",
+		"mining_complete": "✅ Mineração concluída",
+		"choose_loot_action": "Escolha o que fazer com seus minérios:",
+		"keep_loot": "📦 Manter tudo",
+		"burn_loot": "🔥 Queimar tudo",
+		"stop_button": "✋ Parar Mineração",
+		"mining_stop": "⛏️ Parando mineração...",
+		"not_your_button": "❌ Não é seu botão!",
+		"durability_field": "Durabilidade",
+		"loot_field": "Minérios",
+		"none_yet": "Nenhum ainda...",
+		"loot_saved_title": "💎 Saque Salvo!",
+		"loot_saved_desc": "Seus minérios foram adicionados à sua mochila.",
+		"loot_burned_title": "🔥 Saque Queimado!",
+		"loot_burned_desc": "Você destruiu todos os seus minérios... por que fez isso?",
+		"progress_footer": "⛏️ Minerando..."
+	},
+	"clear": {
+		"responses": {
+			"success": "🧹 Limpei **%count%** mensagens com sucesso!",
+			"error": "❌ Falha ao limpar mensagens. Verifique se elas não são mais antigas que 14 dias.",
+			"invalid_amount": "❌ Por favor, forneça uma quantidade válida entre 1 e 100.",
+			"no_permission": "❌ Você não tem permissão para gerenciar mensagens."
+		}
+	},
+	"lock": {
+		"responses": {
+			"success": "🔒 Canal trancado com sucesso!",
+			"already_locked": "🔒 Este canal já está trancado!",
+			"error": "❌ Falha ao trancar o canal.",
+			"no_permission": "❌ Você não tem permissão para gerenciar canais."
+		}
+	},
+	"unlock": {
+		"responses": {
+			"success": "🔓 Canal destrancado com sucesso!",
+			"not_locked": "🔓 Este canal não está trancado!",
+			"error": "❌ Falha ao destrancar o canal.",
+			"no_permission": "❌ Você não tem permissão para gerenciar canais."
+		}
+	},
+	"kick": {
+		"responses": {
+			"confirm_prompt": [
+				"Tem certeza que quer expulsar **%user%**?",
+				"Essa ação vai remover ele do servidor."
+			],
+			"confirm_button": "Sim, chuta ele! 👢",
+			"cancel_button": "Não, deixa quieto",
+			"cancelled": "Cancelado, **%user%** tá salvo por enquanto.",
+			"success": "👢 **%user%** foi expulso.",
+			"error_cannot_kick_self": "Você não pode se expulsar.",
+			"error_cannot_kick_owner": "Você não pode expulsar o dono do servidor.",
+			"error_member_not_found": "Usuário **%user%** não encontrado neste servidor.",
+			"error_bot_higher_role": "Não posso expulsar esse usuário devido à hierarquia de cargos.",
+			"error_higher_role": "Você não pode expulsar esse usuário devido à hierarquia de cargos.",
+			"error_no_guild": "Este comando deve ser usado em um servidor.",
+			"error_on_kick": "❌ Falha ao expulsar usuário.",
+			"timeout": "Confirmação de expulsão expirou.",
+			"reason_template": "Expulso por %moderator% via comando."
+		}
+	},
+	"invite": {
+		"title": "📨 **Me adicione no seu servidor!**",
+		"description": "Me adicione ao seu servidor e aproveite o melhor da moderação e diversão!",
+		"button": "📥 Me adicione"
+	},
+	"koxik": {
+		"info": {
+			"title": "🤖 **Koxik, Seu bot multiuso**",
+			"description": [
+				"Oie! Eu sou o Koxik, um bot essencial para você e seu servidor!",
+				"",
+				"### 🌍 Presença",
+				"• Servidores: **%guilds%**",
+				"• Pessoas que eu tô vigiando hehe: **%members%**",
+				"• Canais monitorados: **%channels%**",
+				"",
+				"### ⚙️ Sistema",
+				"• Biblioteca: **%library%**",
+				"• Memória utilizada: **%ram% MB**",
+				"• Versão: **v%version%**",
+				"• Hospedada na **%host%**",
+				"",
+				"### ⏳ Uptime",
+				"• Estou viva há **<t:%uptime%:R>**",
+				"",
+				"🔑 Desenvolvido por: **%owner%**"
+			],
+			"footer": "Koxik Bot • Sempre online… quase sempre.",
+			"buttons": {
+				"website": "🌐 Website",
+				"invite": "📥 Convidar",
+				"support": "💬 Suporte",
+				"hosted": "Hosted by GatiHost"
+			}
+		}
+	},
+	"mc": {
+		"skin": {
+			"invalid_nick": "Esse nick é inválido ou proibido.",
+			"render_error": "Não foi possível renderizar essa skin."
+		}
+	}
 }

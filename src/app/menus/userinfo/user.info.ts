@@ -28,7 +28,7 @@ function createXPBar(xp: number, level: number): string {
 	const filledBlocks = Math.floor((xp / totalXP) * 10);
 	const emptyBlocks = 10 - filledBlocks;
 	const percent = Math.floor((xp / totalXP) * 100);
-	return `${xp}/${totalXP} XP (${percent}%)\n${'🟩'.repeat(filledBlocks)}${'⬛'.repeat(emptyBlocks)}`;
+	return `${xp}/${totalXP} XP (${percent}%)\n${emotes.ui.progress_filled.repeat(filledBlocks)}${emotes.ui.progress_empty.repeat(emptyBlocks)}`;
 }
 
 // Badges do usuário
@@ -83,19 +83,19 @@ export function createUserInfoEmbed(
 		resolveColor('#752E2B'),
 		createThumbArea(
 			brBuilder(
-				`# 👤 ${userDiscord.globalName ?? userDiscord.username}`,
+				`# ${emotes.social.user} ${userDiscord.globalName ?? userDiscord.username}`,
 				`### ${replyLang(locale, 'user#info#description')}`,
 			),
 			createThumbnail(userDiscord.displayAvatarURL()),
 		),
 		brBuilder('### Suas badges:', `## ${userBadges.join(' ')}`),
 		...(xpBar ? [brBuilder(xpBar)] : []),
-		userDB?.bank != null ? brBuilder('### Banco:', `P$ ${userDB.bank}`) : [],
+		userDB?.bank != null ? brBuilder('### Banco:', `${emotes.misc.dollar} ${userDB.bank}`) : [],
 		userDB?.miningResources
 			? brBuilder(
-					'### Recursos de mineração:',
-					`\`\`\`json\n${JSON.stringify(userDB.miningResources, null, 2)}\n\`\`\``,
-				)
+				'### Recursos de mineração:',
+				`\`\`\`json\n${JSON.stringify(userDB.miningResources, null, 2)}\n\`\`\``,
+			)
 			: [],
 		...(relationshipField ? [relationshipField] : []),
 	);
@@ -103,7 +103,7 @@ export function createUserInfoEmbed(
 	const embed = new EmbedBuilder()
 		.setColor(0xff7f50)
 		.setAuthor({
-			name: `👤 ${userDiscord.username}`,
+			name: `${emotes.social.user} ${userDiscord.username}`,
 			iconURL: userDiscord.displayAvatarURL(),
 		})
 		.setThumbnail(userDiscord.displayAvatarURL({ size: 256 }))
@@ -131,20 +131,20 @@ export function createUserInfoEmbed(
 			},
 			{
 				name: replyLang(locale, 'user#info#balance'),
-				value: userDB ? `P$ ${userDB.balance}` : '-',
+				value: userDB ? `${emotes.misc.dollar} ${userDB.balance}` : '-',
 				inline: true,
 			},
 			...(userDB?.bank != null
-				? [{ name: 'Banco', value: `P$ ${userDB.bank}`, inline: true }]
+				? [{ name: 'Banco', value: `${emotes.misc.dollar} ${userDB.bank}`, inline: true }]
 				: []),
 			...(userDB?.miningResources
 				? [
-						{
-							name: 'Recursos de mineração',
-							value: `\`\`\`json\n${JSON.stringify(userDB.miningResources, null, 2)}\n\`\`\``,
-							inline: false,
-						},
-					]
+					{
+						name: 'Recursos de mineração',
+						value: `\`\`\`json\n${JSON.stringify(userDB.miningResources, null, 2)}\n\`\`\``,
+						inline: false,
+					},
+				]
 				: []),
 			/* ...(relationshipField
 				? [

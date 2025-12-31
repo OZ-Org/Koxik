@@ -1,13 +1,9 @@
 import { createCommand } from '@base';
-import InfoSubCommand from "./subcommands/user/info.js";
-import AvatarSubCommand from "./subcommands/user/avatar.js";
+import AvatarSubCommand from './subcommands/user/avatar.js';
+import InfoSubCommand from './subcommands/user/info.js';
 
 export default createCommand({
-	name: "user",
-	description: "User commands",
-	baseCommand: true
-})
-	.addSubCommands([
-		InfoSubCommand,
-		AvatarSubCommand
-	]);
+	name: 'user',
+	description: 'User commands',
+	baseCommand: true,
+}).addSubCommands([InfoSubCommand, AvatarSubCommand]);

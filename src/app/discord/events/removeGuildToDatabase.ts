@@ -4,7 +4,7 @@ import { guilds } from '@schemas';
 import { eq } from 'drizzle-orm';
 
 export default createEvent({
-	name: "remove:guild:database",
+	name: 'remove:guild:database',
 	event: 'guildDelete',
 	once: false,
 	run: async (guild) => {
@@ -14,6 +14,6 @@ export default createEvent({
 		await db
 			.delete(guilds)
 			.where(eq(guilds.id, guildID))
-			.catch(() => { });
+			.catch(() => {});
 	},
 });

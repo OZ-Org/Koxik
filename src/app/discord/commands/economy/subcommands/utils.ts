@@ -1,5 +1,6 @@
 import { replyLang } from '@fx/utils/replyLang.js';
-import { Colors, EmbedBuilder, type Locale } from 'discord.js';
+import { EmbedPlusBuilder } from '@magicyan/discord';
+import { Colors, type Locale } from 'discord.js';
 import { UserController } from '../../../../jobs/UserController.js';
 import type {
 	DailyResult,
@@ -16,24 +17,26 @@ export function createErrorEmbed(
 	locale: Locale,
 	title: string,
 	description: string,
-): EmbedBuilder {
-	return new EmbedBuilder()
-		.setColor(Colors.Red)
-		.setTitle(`❌ ${title}`)
-		.setDescription(description)
-		.setTimestamp()
-		.setFooter({ text: replyLang(locale, 'eco#footer#error') });
+): EmbedPlusBuilder {
+	return new EmbedPlusBuilder({
+		color: Colors.Red,
+		title: `❌ ${title}`,
+		description,
+		timestamp: new Date(),
+		footer: { text: replyLang(locale, 'eco#footer#error') },
+	});
 }
 
 export function createSuccessEmbed(
 	title: string,
 	description: string,
-): EmbedBuilder {
-	return new EmbedBuilder()
-		.setColor(Colors.Green)
-		.setTitle(`✅ ${title}`)
-		.setDescription(description)
-		.setTimestamp();
+): EmbedPlusBuilder {
+	return new EmbedPlusBuilder({
+		color: Colors.Green,
+		title: `✅ ${title}`,
+		description,
+		timestamp: new Date(),
+	});
 }
 
 export async function getUserFullData(
@@ -71,7 +74,6 @@ export async function payUser(
 	}
 
 	const payer = await UserController.get(payerId);
-	const receiver = await UserController.get(receiverId);
 
 	const sourceBalance = method === 'bank' ? (payer.bank ?? 0) : payer.balance;
 	const taxRate = method === 'bank' ? 0.1 : 0.025;
@@ -137,60 +139,74 @@ export async function payUser(
 
 export async function claimDaily(
 	discordId: string,
-	dailyAmount: number,
+	baseAmount: number,
 	locale: Locale,
 ): Promise<DailyResult> {
 	const now = new Date();
+
+	const today = new Date(now);
+	today.setHours(0, 0, 0, 0);
+
 	const user = await UserController.get(discordId);
 
 	if (user.lastDaily) {
-		const lastDailyDate = new Date(user.lastDaily);
-		if (now.getTime() - lastDailyDate.getTime() < 86400000) {
-			const nextClaim = new Date(lastDailyDate.getTime() + 86400000);
+		const lastDaily = new Date(user.lastDaily);
+		lastDaily.setHours(0, 0, 0, 0);
+
+		if (lastDaily.getTime() === today.getTime()) {
+			const nextClaim = new Date(today);
+			nextClaim.setDate(nextClaim.getDate() + 1);
 			throw { cooldown: true, nextClaim };
 		}
 	}
 
 	const transactions = (user.transactions as Transaction[]) || [];
+
 	const dailyTransactions = transactions
 		.filter((t) => t.type === 'daily')
-		.slice(0, 10);
+		.sort((a, b) => b.timestamp - a.timestamp);
 
-	let streakDays = 0;
-	let currentDate = now.getTime();
-	const oneDayMs = 86400000;
+	let streakDays = 1;
+	let lastDate = new Date(today);
 
 	for (const transaction of dailyTransactions) {
-		const daysDiff = Math.floor(
-			(currentDate - transaction.timestamp) / oneDayMs,
-		);
-		if (daysDiff === 1) {
+		const txDate = new Date(transaction.timestamp);
+		txDate.setHours(0, 0, 0, 0);
+
+		const diffDays = (lastDate.getTime() - txDate.getTime()) / 86400000;
+
+		if (diffDays === 1) {
 			streakDays++;
-			currentDate = transaction.timestamp;
-		} else {
+			lastDate = txDate;
+		} else if (diffDays > 1) {
 			break;
 		}
 	}
 
-	const bonus = streakDays >= 9 ? Math.floor(dailyAmount * 2) : 0;
-	const totalReward = dailyAmount + bonus;
+	const bonusMultiplier = Math.min(streakDays * 0.1, 1);
+	const bonus = Math.floor(baseAmount * bonusMultiplier);
+	const totalReward = baseAmount + bonus;
 
 	try {
 		await UserController.addBalance(discordId, totalReward);
+
 		const updatedUser = await UserController.update(discordId, {
-			lastDaily: now.toISOString(),
+			lastDaily: today.toISOString(),
 		});
 
 		await UserController.addTransaction(discordId, {
 			id: generateTransactionId(),
 			type: 'daily',
 			amount: totalReward,
-			timestamp: now.getTime(),
-			description:
-				bonus > 0 ? `Daily + ${bonus.toLocaleString()} streak` : 'Daily reward',
+			timestamp: today.getTime(),
+			description: `Daily reward (+${bonus.toLocaleString()} streak bonus)`,
 		});
 
-		return { balance: updatedUser.balance, bonus, streakDays: streakDays + 1 };
+		return {
+			balance: updatedUser.balance,
+			streakDays,
+			bonus,
+		};
 	} catch (error) {
 		console.error('[claimDaily] Error:', error);
 		throw new Error(replyLang(locale, 'eco#daily#error#failed'));

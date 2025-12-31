@@ -4,7 +4,7 @@ import { blacklist, guilds } from '@schemas';
 import { eq } from 'drizzle-orm';
 
 export default createEvent({
-	name: "add:guild:database",
+	name: 'add:guild:database',
 	event: 'guildCreate',
 	once: false,
 	run: async (guild) => {
@@ -18,7 +18,7 @@ export default createEvent({
 			.then((rows) => rows.find((r) => r.type === 'guild'));
 
 		if (guildBlacklisted) {
-			await guild.leave().catch(() => { });
+			await guild.leave().catch(() => {});
 			return;
 		}
 
@@ -29,7 +29,7 @@ export default createEvent({
 			.then((rows) => rows.find((r) => r.type === 'user'));
 
 		if (ownerBlacklisted) {
-			await guild.leave().catch(() => { });
+			await guild.leave().catch(() => {});
 			return;
 		}
 

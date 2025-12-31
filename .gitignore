@@ -5,3 +5,4 @@ dist/
 prisma/migrations
 exclude
 drizzle
+commands.json
