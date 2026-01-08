@@ -8,7 +8,7 @@
 [![Support Server](https://img.shields.io/badge/Discord-Support%20Server-5865F2?logo=discord)](https://discord.gg/84u7UQYXzB)
 [![Bun](https://img.shields.io/badge/Bun-1.3.5-black?logo=bun)](https://bun.sh)
 [![Maintained](https://img.shields.io/badge/Maintained-Yes-brightgreen)](#)
-
+[![wakatime](https://wakatime.com/badge/user/8d7b071b-f3ff-4a46-83c1-f929d6e39e35/project/c42bbce1-cc54-476b-b976-d631b7802641.svg)](https://wakatime.com/badge/user/8d7b071b-f3ff-4a46-83c1-f929d6e39e35/project/c42bbce1-cc54-476b-b976-d631b7802641)
 ---
 
 ## Vote Koxik
