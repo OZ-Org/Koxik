@@ -1,8 +1,8 @@
 import fs from 'node:fs/promises';
 import type { Locale } from 'discord.js';
-import type enUSSchema from '../../../../config/lang/enUs.lang.json';
-import type esESSchema from '../../../../config/lang/esEs.lang.json';
-import type ptBRSchema from '../../../../config/lang/ptBr.lang.json';
+import type enUSSchema from '../../../../config/lang/en-US.lang.json';
+import type esESSchema from '../../../../config/lang/es-ES.lang.json';
+import type ptBRSchema from '../../../../config/lang/pt-BR.lang.json';
 
 // ------------------ TIPOS ------------------
 type Variables = Record<string, string | number | boolean>;
@@ -28,13 +28,13 @@ type Languages = {
 
 const languages: Languages = {
 	'pt-BR': JSON.parse(
-		await fs.readFile('./config/lang/ptBr.lang.json', 'utf-8'),
+		await fs.readFile('./config/lang/pt-BR.lang.json', 'utf-8'),
 	),
 	'en-US': JSON.parse(
-		await fs.readFile('./config/lang/enUs.lang.json', 'utf-8'),
+		await fs.readFile('./config/lang/en-US.lang.json', 'utf-8'),
 	),
 	'es-ES': JSON.parse(
-		await fs.readFile('./config/lang/esEs.lang.json', 'utf-8'),
+		await fs.readFile('./config/lang/es-ES.lang.json', 'utf-8'),
 	),
 };
 

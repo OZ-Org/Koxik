@@ -42,7 +42,7 @@ export default createCommand({
 				.setRequired(true),
 		),
 
-	run: async ({ client, interaction }) => {
+	run: async ({ client, interaction, res }) => {
 		const locale: Locale = interaction.locale;
 		const t = replyLang;
 
@@ -52,7 +52,7 @@ export default createCommand({
 				'Error',
 				t(locale, 'kick#responses#error_no_guild'),
 			);
-			return interaction.reply({ embeds: [embed], flags: ['Ephemeral'] });
+			return res.ephemeral().raw({ embeds: [embed] });
 		}
 
 		const targetUser = interaction.options.getUser('member', true);
@@ -68,7 +68,7 @@ export default createCommand({
 					user: targetUser.tag,
 				}),
 			);
-			return interaction.reply({ embeds: [embed], flags: ['Ephemeral'] });
+			return res.ephemeral().raw({ embeds: [embed] });
 		}
 
 		if (targetUser.id === interaction.user.id) {
@@ -77,7 +77,7 @@ export default createCommand({
 				'Error',
 				t(locale, 'kick#responses#error_cannot_kick_self'),
 			);
-			return interaction.reply({ embeds: [embed], flags: ['Ephemeral'] });
+			return res.ephemeral().raw({ embeds: [embed] });
 		}
 
 		if (targetUser.id === interaction.guild.ownerId) {
@@ -88,7 +88,7 @@ export default createCommand({
 					suspect: emotes.misc.suspect,
 				}),
 			);
-			return interaction.reply({ embeds: [embed], flags: ['Ephemeral'] });
+			return res.ephemeral().raw({ embeds: [embed] });
 		}
 
 		const me =
@@ -102,12 +102,12 @@ export default createCommand({
 				'Error',
 				t(locale, 'kick#responses#error_bot_higher_role'),
 			);
-			return interaction.reply({ embeds: [embed], flags: ['Ephemeral'] });
+			return res.ephemeral().raw({ embeds: [embed] });
 		}
 
 		if (
 			(executor as GuildMember).roles.highest.position <=
-			targetMember.roles.highest.position &&
+				targetMember.roles.highest.position &&
 			interaction.guild.ownerId !== (executor as GuildMember).id
 		) {
 			const embed = createErrorEmbed(
@@ -115,11 +115,11 @@ export default createCommand({
 				'Error',
 				t(locale, 'kick#responses#error_higher_role'),
 			);
-			return interaction.reply({ embeds: [embed], flags: ['Ephemeral'] });
+			return res.ephemeral().raw({ embeds: [embed] });
 		}
 
-		const confirmId = 'kick_confirm';
-		const cancelId = 'kick_cancel';
+		const confirmId = 'kick/confirm';
+		const cancelId = 'kick/cancel';
 
 		const confirmButton = new ButtonBuilder()
 			.setCustomId(confirmId)
@@ -144,10 +144,9 @@ export default createCommand({
 			targetUser: targetUser,
 		});
 
-		await interaction.reply({
+		await res.ephemeral().raw({
 			embeds: [confirmEmbed],
 			components: [row],
-			flags: ['Ephemeral'],
 		});
 
 		const message = await interaction.fetchReply();
@@ -174,7 +173,7 @@ export default createCommand({
 					})} :3`,
 				).setColor(Colors.Orange);
 
-				await interaction.editReply({
+				await res.raw({
 					embeds: [cancelEmbed],
 					components: [],
 				});
@@ -199,7 +198,7 @@ export default createCommand({
 						})} ${emotes.misc.boot} :3`,
 					);
 
-					await interaction.editReply({
+					await res.raw({
 						embeds: [successEmbed],
 						components: [],
 					});
@@ -210,7 +209,7 @@ export default createCommand({
 						'Error',
 						t(locale, 'kick#responses#error_on_kick'),
 					);
-					await interaction.editReply({
+					await res.raw({
 						embeds: [errorEmbed],
 						components: [],
 					});
@@ -227,7 +226,7 @@ export default createCommand({
 				t(locale, 'kick#responses#timeout'),
 			).setColor(Colors.Orange);
 
-			await interaction.editReply({
+			await res.raw({
 				embeds: [timeoutEmbed],
 				components: [],
 			});

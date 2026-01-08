@@ -29,7 +29,7 @@ export default createCommand({
 				}),
 		),
 	cooldown: 50,
-	run: async ({ interaction }) => {
+	run: async ({ interaction, res }) => {
 		const subcommand = interaction.options.getSubcommand();
 
 		if (subcommand === 'account') {
@@ -51,10 +51,7 @@ export default createCommand({
 				});
 			}
 
-			await interaction.reply({
-				flags: ['Ephemeral'],
-				content: reply(),
-			});
+			return res.ephemeral().normal(reply());
 		}
 	},
 });

@@ -54,7 +54,7 @@
 		"deposit": {
 			"success": {
 				"title": "Depósito Realizado",
-				"description": "Você depositou **%amount%** polens no seu banco com sucesso!",
+				"description": "Você depositou **%amount%** pólens no seu banco com sucesso!",
 				"newBalance": "Nova Carteira",
 				"newBank": "Novo Banco"
 			},
@@ -69,7 +69,7 @@
 		"pay": {
 			"confirmation": {
 				"title": "Confirmação de Transferência",
-				"description": "**%payer%** deseja transferir **%amount%** polens para **%receiver%** via **%method%**",
+				"description": "**%payer%** deseja transferir **%amount%** pólens para **%receiver%** via **%method%**",
 				"accept": "Aceitar",
 				"decline": "Recusar"
 			},
@@ -98,14 +98,14 @@
 				"fee": "Taxa Cobrada",
 				"received": "Recebido",
 				"robbed": "Roubo Ocorrido!",
-				"robbedDescription": "Infelizmente, **%stolen%** polens foram roubados durante a transferência! 😱"
+				"robbedDescription": "Infelizmente, **%stolen%** pólens foram roubados durante a transferência! 😱"
 			},
 			"error": {
 				"title": "Erro na Transação",
 				"invalidAmount": "Valor inválido: %amount%",
 				"cannotPayYourself": "Você não pode pagar a si mesmo!",
 				"payerNotFound": "Pagador não encontrado.",
-				"insufficientFunds": "Você não tem fundos suficientes para pagar **%amount%** polens.",
+				"insufficientFunds": "Você não tem fundos suficientes para pagar **%amount%** pólens.",
 				"pending": "%payer% quer pagar %receiver% %amount% via %method%. Aceita?",
 				"notReceiver": "Só o usuário destinatário pode aceitar ou recusar esta transação.",
 				"generic": "Erro ao processar pagamento: %error%",
@@ -130,7 +130,7 @@
 			},
 			"bonus": {
 				"title": "Bônus de Sequência!",
-				"description": "🎉 Você ganhou **%bonus%** polens extras por coletar daily por **%streak%** dias consecutivos!"
+				"description": "🎉 Você ganhou **%bonus%** pólens extras por coletar daily por **%streak%** dias consecutivos!"
 			},
 			"streak": {
 				"title": "Sequência Ativa",
@@ -148,7 +148,7 @@
 		},
 		"leaderboard": {
 			"title": "Ranking dos Mais Ricos",
-			"description": "Os usuários com mais polens no servidor!",
+			"description": "Os usuários com mais pólens no servidor!",
 			"empty": "Nenhum usuário encontrado no ranking.",
 			"ranking": "Classificação"
 		},
@@ -220,7 +220,13 @@
 		"loot_saved_desc": "Seus minérios foram adicionados à sua mochila.",
 		"loot_burned_title": "🔥 Saque Queimado!",
 		"loot_burned_desc": "Você destruiu todos os seus minérios... por que fez isso?",
-		"progress_footer": "⛏️ Minerando..."
+		"progress_footer": "⛏️ Minerando...",
+		"start": {
+			"alreadyStarted": "Você já começou sua jornada e já tem sua picareta inicial!",
+			"starterPickaxeName": "Picareta de Madeira",
+			"starterTransactionDesc": "Iniciou a jornada e recebeu a Picareta de Madeira",
+			"success": "Sua jornada começou! Você recebeu uma **Picareta de Madeira** para minerar!"
+		}
 	},
 	"clear": {
 		"responses": {
@@ -307,6 +313,16 @@
 		"skin": {
 			"invalid_nick": "Esse nick é inválido ou proibido.",
 			"render_error": "Não foi possível renderizar essa skin."
+		}
+	},
+	"profile": {
+		"view": {
+			"noAccount": "O usuário não possui uma conta. Use %command%",
+			"aboutTitle": "Sobre mim",
+			"aboutDefault": "Koxik é um bot maneiro... bla bla bla (/perfil sobremim - Para editar!)",
+			"level": "Level",
+			"currency": "Pólens",
+			"button": "Perfil"
 		}
 	}
 }

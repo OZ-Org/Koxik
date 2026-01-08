@@ -1,4 +1,5 @@
 import { createSubCommand } from '@base';
+import { replyLang } from '@fx/utils/replyLang.js';
 import { UserController } from 'app/jobs/UserController.js';
 import type { Transaction } from 'app/shared/types.js';
 import crypto from 'crypto';
@@ -19,49 +20,47 @@ export default createSubCommand({
 		'pt-BR': 'Comece sua jornada Minecraftiana!',
 	},
 	cooldown: 50,
-	run: async ({ interaction }) => {
-		const user = interaction.user;
+	run: async ({ interaction, res }) => {
+		const locale = interaction.locale;
+		const userId = interaction.user.id;
 
-		// UserController.get creates the user if they don't exist
-		const userDB = await UserController.get(user.id);
+		await res.ephemeral().defer()
 
-		// Inventário atual
+		const userDB = await UserController.find(userId);
+		if (!userDB) {
+			return await res.error(replyLang(locale, 'user#notFound'));
+		}
+
 		const backpack = userDB.backpack || [];
 
-		// Verificar se já tem uma picareta inicial
 		const hasStarter = backpack.some(
 			(i) => i.type === 'pickaxe' && i.starter === true,
 		);
-		if (hasStarter && interaction.user.id !== '878732372626006127') {
-			return interaction.reply({
-				content: '⚠️ Você já começou sua jornada e já tem sua picareta inicial!',
-				flags: ['Ephemeral'],
-			});
+		if (hasStarter && userId !== '878732372626006127') {
+			return await res.error(replyLang(locale, 'mine#start#alreadyStarted'));
 		}
 
-		// Criar a picareta inicial
 		const starterPickaxe = {
-			id: genItemId(6), // id único e curto
-			name: 'Picareta de Madeira',
+			id: genItemId(6),
+			name: replyLang(locale, 'mine#start#starterPickaxeName'),
 			type: 'pickaxe',
 			durability: 50,
+			maxDurability: 50,
 			starter: true,
+			maked: 'PICX_WOODEN',
 		};
 
-		// Criar a transação
 		const newTransaction: Transaction = {
 			id: crypto.randomUUID(),
 			type: 'mine_created',
 			amount: 0,
 			timestamp: Date.now(),
-			description: 'Iniciou a jornada e recebeu a Picareta de Madeira',
+			description: replyLang(locale, 'mine#start#starterTransactionDesc'),
 		};
 
-		await UserController.addItemToBackpack(user.id, starterPickaxe as any);
-		await UserController.addTransaction(user.id, newTransaction);
+		await UserController.addItemToBackpack(userId, starterPickaxe as any);
+		await UserController.addTransaction(userId, newTransaction);
 
-		return interaction.reply(
-			'🌟 Sua jornada começou! Você recebeu uma **Picareta de Madeira** para minerar!',
-		);
+		return await res.success(replyLang(locale, 'mine#start#success'));
 	},
 });

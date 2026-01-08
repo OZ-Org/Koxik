@@ -1,58 +1,66 @@
-# Kokik Bot ✨
+# Koxik Bot ✨
 
-[![License](https://img.shields.io/badge/license-Custom%20Attribution-brightgreen)](./LICENSE.md)
+[![License](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-TS-blue?logo=typescript)](https://www.typescriptlang.org)
 [![Discord.js](https://img.shields.io/badge/discord.js-v14-purple?logo=discord)](https://discord.js.org)
+[![Top.gg](https://img.shields.io/badge/Top.gg-Vote%20for%20us-orange?logo=topdotgg)](https://top.gg/bot/1446227976793493594)
+[![Open Source](https://img.shields.io/badge/Open%20Source-Yes-success?logo=github)](https://github.com)
+[![Support Server](https://img.shields.io/badge/Discord-Support%20Server-5865F2?logo=discord)](https://discord.gg/84u7UQYXzB)
+[![Bun](https://img.shields.io/badge/Bun-1.3.5-black?logo=bun)](https://bun.sh)
+[![Maintained](https://img.shields.io/badge/Maintained-Yes-brightgreen)](#)
+[![wakatime](https://wakatime.com/badge/user/8d7b071b-f3ff-4a46-83c1-f929d6e39e35/project/c42bbce1-cc54-476b-b976-d631b7802641.svg)](https://wakatime.com/badge/user/8d7b071b-f3ff-4a46-83c1-f929d6e39e35/project/c42bbce1-cc54-476b-b976-d631b7802641)
+---
 
-O **Kokik Bot** é um bot Discord **multilíngue** projetado para quebrar barreiras de comunicação em comunidades diversas. Ele oferece uma experiência de usuário fluida e natural, detectando automaticamente a linguagem preferida do usuário e respondendo em **inglês, espanhol ou português brasileiro**.
+## Vote Koxik
+<a href="https://top.gg/bot/1446227976793493594">
+  <img src="https://top.gg/api/widget/1446227976793493594.svg">
+</a>
 
 ---
 
-## 🌟 Recursos Principais
+## Key Features
 
-*   🌐 **Suporte Multilíngue**: Comunicação sem esforço em inglês, espanhol e português brasileiro.
-*   🧠 **Detecção Automática de Idioma**: Identifica inteligentemente a linguagem preferida do usuário para interações personalizadas.
-*   📝 **Interface Intuitiva**: Comandos simples e respostas diretas no idioma apropriado.
-*   🔔 **Interações Limpas**: Respostas concisas que mantêm o chat organizado e sem poluição.
+*   **Multilingual Support**: Communicate in English, Spanish, and Brazilian Portuguese.
+*   **Automatic Language Detection**: Detects the user’s language for smooth interactions.
+*   **Direct Responses**: Concise replies that keep the chat clean and organized.
 
----
+## Tech Stack
 
-## 🚀 Tech Stack
+Built with modern technologies:
 
-Desenvolvido com as seguintes tecnologias modernas:
+*   **Runtime**: [Bun](https://bun.sh)
+*   **Language**: [TypeScript](https://www.typescriptlang.org)
+*   **Discord Framework**: [`discord.js`](https://discord.js.org)
+*   **ORM**: [Drizzle](https://www.drizzle.io)
 
-*   **Runtime**: [Bun](https://bun.sh) (para performance e eficiência)
-*   **Linguagem**: [TypeScript](https://www.typescriptlang.org) (para tipagem segura e escalabilidade)
-*   **Framework Discord**: [`discord.js`](https://discord.js.org) (a biblioteca robusta para interações com o Discord)
-*   **ORM**: [Drizzle](https://www.drizzle.io) (para um gerenciamento de banco de dados eficiente)
-*   **Validação**: [Zod](https://zod.dev) (para validação de esquemas de dados)
-*   **Cliente HTTP**: [Axios](https://axios-http.com) (para requisições HTTP)
-*   **Gerenciamento de Ambiente**: [dotenv](https://www.npmjs.com/package/dotenv) + [dotenv-cli](https://www.npmjs.com/package/dotenv-cli)
-*   **Build & Ferramentas**: [tsup](https://tsup.egoist.dev) + [tsc-alias](https://www.npmjs.com/package/tsc-alias) + [tsx](https://tsx.is)
-*   **Qualidade de Código**: [Biome](https://biomejs.dev) (formatador e linter para manter o código consistente)
+### Database
 
-### 🛠️ Ferramentas Adicionais
+*   **Database**: [PostgreSQL](https://www.postgresql.org)
 
-*   **Migrações de Banco de Dados**: Drizzle Migrate (`migrate:dev`, `migrate`)
+### Migration
+
+*   **Database Migrations**: Drizzle Migrate (`migrate:dev`, `migrate`)
 
 ---
 
-## 🤝 Como Contribuir
+## Contributing
 
-Sua ajuda é muito bem-vinda! Para contribuir com o desenvolvimento do Kokik Bot:
+Your help is welcome! Read our [Contribution Guide](./CONTRIBUTING.md).
 
-1.  Faça um **fork** deste repositório.
-2.  Crie uma nova branch para sua feature ou correção (`git checkout -b minha-feature`).
-3.  Faça suas alterações e commit-as (`git commit -m 'feat: adiciona nova funcionalidade'`).
-4.  Envie suas mudanças para o seu fork (`git push origin minha-feature`).
-5.  Abra um **Pull Request** para o repositório original, descrevendo suas alterações.
+To contribute:
 
-## 📄 Licença
-
-Este projeto é licenciado sob a [Licença do Kokik Bot](./LICENSE.md).
-
-Você tem a liberdade de usar e modificar o bot, desde que sempre atribua o crédito aos autores originais: **Noa Dev** e **ozorg.xyz**.
+1.  **Fork** this repository.
+2.  Create a new branch for your feature or fix (`git checkout -b feature`).
+3.  Make your changes and commit them (`git commit -m 'feat: add explosive coxinhas'`).
+4.  Push your changes to your fork (`git push origin feature`).
+5.  Open a **Pull Request** to the original repository.
 
 ---
 
-💡 *Kokik Bot: um só servidor, várias línguas, nenhuma barreira.*
+## License
+
+This project is licensed under the [MIT License](./LICENSE).
+
+You are free to use and modify the bot as long as you keep the license credits intact.
+
+[This same file, but in portuguese!](./docs/pt-BR/README.md)

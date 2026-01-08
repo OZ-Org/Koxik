@@ -1,8 +1,6 @@
 import { createCommand } from '@base';
 import { replyLang } from '@fx/utils/replyLang.js';
-import { EmbedPlusBuilder } from '@magicyan/discord';
 import {
-	Colors,
 	type Locale,
 	PermissionFlagsBits,
 	SlashCommandBuilder,
@@ -20,7 +18,7 @@ export default createCommand({
 		})
 		.setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
 
-	run: async ({ interaction }) => {
+	run: async ({ interaction, res }) => {
 		const locale: Locale = interaction.locale;
 		const t = replyLang;
 
@@ -28,14 +26,13 @@ export default createCommand({
 
 		const channel = interaction.channel as TextChannel;
 
-		// Check if it's a text channel or similar that supports permission overwrites
 		if (!('permissionOverwrites' in channel)) {
 			const embed = createErrorEmbed(
 				locale,
 				'Error',
 				t(locale, 'lock#responses#error'),
 			);
-			return interaction.reply({ embeds: [embed], flags: ['Ephemeral'] });
+			return res.ephemeral().raw({ embeds: [embed] });
 		}
 
 		try {
@@ -48,7 +45,7 @@ export default createCommand({
 				t(locale, 'lock#responses#success'),
 			);
 
-			await interaction.reply({
+			await res.raw({
 				embeds: [embed],
 			});
 		} catch (error) {
@@ -58,10 +55,7 @@ export default createCommand({
 				'Error',
 				t(locale, 'lock#responses#error'),
 			);
-			await interaction.reply({
-				embeds: [embed],
-				flags: ['Ephemeral'],
-			});
+			return res.ephemeral().raw({ embeds: [embed] });
 		}
 	},
 });

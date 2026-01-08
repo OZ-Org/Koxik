@@ -4,6 +4,8 @@ import { logger } from '@fx/utils/logger.js';
 import type { ChatInputCommandInteraction, Interaction } from 'discord.js';
 import { sql } from 'drizzle-orm';
 import type { KoxikClient } from './CustomClient.js';
+import { ReplyBuilder } from './command-structure.js';
+import { getResponders } from './registry.js';
 import type { Command } from './types.js';
 
 /**
@@ -31,8 +33,8 @@ async function safeExecuteCommand(
 				}
 			}
 		}, 2500);
-
-		await command.run({ client, interaction });
+		const res = new ReplyBuilder(interaction);
+		await command.run({ client, interaction, res });
 		hasResponded = true;
 	} catch (err) {
 		logger.error(`Error in command → ${interaction.commandName}`, err);
@@ -169,4 +171,38 @@ export function setupInteractionHandler(
 			}
 		}
 	});
+}
+
+export async function resolveResponder(interaction: Interaction) {
+	if (
+		!interaction.isButton() &&
+		!interaction.isModalSubmit() &&
+		!interaction.isStringSelectMenu()
+	)
+		return;
+
+	const type = interaction.isButton()
+		? 'button'
+		: interaction.isModalSubmit()
+			? 'modal'
+			: 'stringSelect';
+
+	for (const responder of getResponders()) {
+		if (responder.type !== type) continue;
+		if (!responder.__regex) continue;
+
+		const match = interaction.customId.match(responder.__regex);
+		if (!match) continue;
+
+		const params: Record<string, string> = {};
+
+		responder.__keys?.forEach((key, i) => {
+			params[key] = match[i + 1];
+		});
+
+		return responder.run({
+			interaction: interaction as any,
+			useParams: () => params,
+		});
+	}
 }

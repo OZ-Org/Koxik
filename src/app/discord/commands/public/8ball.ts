@@ -1,6 +1,6 @@
 import { createCommand } from '@base';
 import { replyLang } from '@fx/utils/replyLang.js';
-import { EmbedPlusBuilder } from '@magicyan/discord';
+import { createEmbed } from '@magicyan/discord';
 import { Colors, SlashCommandBuilder } from 'discord.js';
 
 export default createCommand({
@@ -25,7 +25,7 @@ export default createCommand({
 				})
 				.setRequired(true),
 		),
-	run: async ({ interaction }) => {
+	run: async ({ interaction, res }) => {
 		const question = interaction.options.getString('question', true);
 
 		const responsesText = replyLang(interaction.locale, '8ball#responses');
@@ -33,7 +33,7 @@ export default createCommand({
 		const randomResponse =
 			responses[Math.floor(Math.random() * responses.length)];
 
-		const embed = new EmbedPlusBuilder({
+		const embed = createEmbed({
 			color: Colors.Purple,
 			title: `🎱 ${replyLang(interaction.locale, '8ball#title')}`,
 			description: `> ${replyLang(interaction.locale, '8ball#question')}: \`\`\` ${question} \`\`\` \n\n> ${replyLang(interaction.locale, '8ball#answer')}: \`\`\` ${randomResponse} \`\`\` `,
@@ -44,9 +44,8 @@ export default createCommand({
 			},
 		});
 
-		await interaction.reply({
+		return await res.raw({
 			embeds: [embed],
-			content: `${interaction.user}`,
 		});
 	},
 });

@@ -76,7 +76,40 @@ export async function loadCommandsFromDisk(
 		logger.warn('No commands found.');
 	}
 }
+async function walk(dir: string): Promise<string[]> {
+	const entries = await readdir(dir, { withFileTypes: true });
 
+	const files: string[] = [];
+
+	for (const entry of entries) {
+		const fullPath = path.join(dir, entry.name);
+
+		if (entry.isDirectory()) {
+			files.push(...(await walk(fullPath)));
+		} else if (
+			entry.isFile() &&
+			/\.(ts|js)$/.test(entry.name) &&
+			!entry.name.endsWith('.d.ts')
+		) {
+			files.push(fullPath);
+		}
+	}
+
+	return files;
+}
+
+const RESPONDERS_DIR = path.resolve(
+	process.cwd(),
+	'src/app/discord/responders',
+);
+
+export async function loadResponders() {
+	const files = await walk(RESPONDERS_DIR);
+
+	for (const file of files) {
+		await import(pathToFileURL(file).href);
+	}
+}
 export async function loadEventsFromDisk(
 	createEvent: <T extends keyof ClientEvents>(event: Event<T>) => Event<T>,
 ): Promise<void> {

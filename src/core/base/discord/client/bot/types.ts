@@ -1,22 +1,39 @@
 import type {
 	AutocompleteInteraction,
+	ButtonInteraction,
 	ChatInputCommandInteraction,
 	ClientEvents,
+	InteractionReplyOptions,
+	ModalSubmitInteraction,
 	SlashCommandBuilder,
 	SlashCommandOptionsOnlyBuilder,
 	SlashCommandSubcommandsOnlyBuilder,
+	StringSelectMenuInteraction,
 } from 'discord.js';
 import type { KoxikClient } from './CustomClient.js';
+import type { ReplyBuilder } from './command-structure.js';
 
 export interface CommandRunOptions {
 	client: KoxikClient;
 	interaction: ChatInputCommandInteraction;
+	res: ReplyBuilder;
 }
+
+export type ReplyPayload = InteractionReplyOptions;
 
 export interface AutocompleteOptions {
 	client: KoxikClient;
 	interaction: AutocompleteInteraction;
 }
+
+export type MiddlewareContext = {
+	interaction: ChatInputCommandInteraction;
+	command: Command;
+};
+
+export type MiddlewareFn = (ctx: MiddlewareContext) => Promise<boolean | void>;
+
+export type MiddlewaresMap = Record<string, MiddlewareFn>;
 
 /**
  * Interface for creating Discord slash commands.
@@ -90,6 +107,28 @@ export interface Command {
 	 */
 	autocomplete?: (options: AutocompleteOptions) => Promise<any>;
 	cooldown?: number;
+}
+
+export type ResponderInteraction =
+	| ButtonInteraction
+	| ModalSubmitInteraction
+	| StringSelectMenuInteraction;
+
+export type ResponderType = 'button' | 'modal' | 'stringSelect';
+
+export interface ResponderContext<T extends ResponderInteraction> {
+	interaction: T;
+	useParams(): Record<string, string>;
+}
+
+export interface Responder<T extends ResponderInteraction = any> {
+	type: ResponderType;
+	customId: string;
+	run(ctx: ResponderContext<T>): Promise<any> | any;
+
+	// internos
+	__regex?: RegExp;
+	__keys?: string[];
 }
 
 /**
@@ -319,11 +358,4 @@ export interface BotOptions {
 	 * Useful for storing configuration, API keys, or other shared state.
 	 */
 	customVariables?: Record<string, any>;
-
-	/**
-	 * Configuration for registering rules.
-	 */
-	registerRules?: {
-		rules: Rule[];
-	};
 }

@@ -1,14 +1,9 @@
 import { createCommand } from '@base';
 import { replyLang } from '@fx/utils/replyLang.js';
-import { EmbedPlusBuilder } from '@magicyan/discord';
 import {
-	Colors,
 	type Locale,
-	type NewsChannel,
 	PermissionFlagsBits,
 	SlashCommandBuilder,
-	type TextChannel,
-	type ThreadChannel,
 } from 'discord.js';
 import { createErrorEmbed, createSuccessEmbed } from '../utils.js';
 
@@ -38,7 +33,7 @@ export default createCommand({
 				.setRequired(true),
 		),
 	cooldown: 10,
-	run: async ({ interaction }) => {
+	run: async ({ interaction, res }) => {
 		const locale: Locale = interaction.locale;
 		const t = replyLang;
 
@@ -46,7 +41,6 @@ export default createCommand({
 
 		const amount = interaction.options.getInteger('amount', true);
 
-		// Check if channel supports bulkDelete
 		const channel = interaction.channel;
 		if (!('bulkDelete' in channel)) {
 			const embed = createErrorEmbed(
@@ -54,7 +48,7 @@ export default createCommand({
 				'Error',
 				t(locale, 'clear#responses#error'),
 			);
-			return interaction.reply({ embeds: [embed], flags: ['Ephemeral'] });
+			return res.ephemeral().raw({ embeds: [embed] });
 		}
 
 		try {
@@ -65,9 +59,8 @@ export default createCommand({
 				t(locale, 'clear#responses#success', { count: deleted.size }),
 			);
 
-			await interaction.reply({
+			await res.ephemeral().raw({
 				embeds: [embed],
-				flags: ['Ephemeral'],
 			});
 		} catch (error) {
 			console.error('Clear error:', error);
@@ -76,9 +69,8 @@ export default createCommand({
 				'Error',
 				t(locale, 'clear#responses#error'),
 			);
-			await interaction.reply({
+			await res.ephemeral().raw({
 				embeds: [embed],
-				flags: ['Ephemeral'],
 			});
 		}
 	},

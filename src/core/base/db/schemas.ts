@@ -1,4 +1,4 @@
-import type { BackpackType, Transaction } from 'app/shared/types.js';
+import type { BackpackType, BadgeID, Transaction } from 'app/shared/types.js';
 import { sql } from 'drizzle-orm';
 import {
 	integer,
@@ -10,6 +10,15 @@ import {
 	uniqueIndex,
 } from 'drizzle-orm/pg-core';
 
+export interface UserBadge {
+	badge_id: BadgeID;
+	acquiredAt?: Date;
+}
+
+export interface ConfigsData {
+	aboutme: string;
+}
+
 export const user = pgTable(
 	'User',
 	{
@@ -19,8 +28,9 @@ export const user = pgTable(
 		level: integer().default(1).notNull(),
 		xp: integer().default(0).notNull(),
 		achievements: jsonb(),
-		badges: jsonb(),
+		badges: jsonb().$type<UserBadge[]>(),
 		bank: integer(),
+		configs: jsonb('configs').$type<ConfigsData>(),
 		miningResources: jsonb('mining_resources'),
 		createdAt: timestamp({ precision: 3, mode: 'string' })
 			.default(sql`CURRENT_TIMESTAMP`)
@@ -44,7 +54,7 @@ export const commandStat = pgTable(
 		date: timestamp({ precision: 3, mode: 'string' }).notNull(),
 		command: text().notNull(),
 		count: integer().default(0).notNull(),
-		subcommand: text().notNull(), // <- melhor deixar NOT NULL
+		subcommand: text().notNull(),
 		id: serial().primaryKey().notNull(),
 	},
 	(table) => [
@@ -52,10 +62,7 @@ export const commandStat = pgTable(
 			'btree',
 			table.date.asc().nullsLast().op('timestamp_ops'),
 			table.command.asc().nullsLast().op('text_ops'),
-			table.subcommand
-				.asc()
-				.nullsLast()
-				.op('text_ops'), // <-- AQUI, o fix
+			table.subcommand.asc().nullsLast().op('text_ops'),
 		),
 	],
 );
@@ -86,11 +93,11 @@ export const guilds = pgTable('Guild', {
 export const blacklist = pgTable('Blacklist', {
 	id: serial('id').primaryKey().notNull(),
 
-	targetId: text('target_id').notNull(), // pode ser userId ou guildId
-	type: text('type').notNull().$type<'user' | 'guild'>(), // "user" | "guild"
+	targetId: text('target_id').notNull(),
+	type: text('type').notNull().$type<'user' | 'guild'>(),
 
 	reason: text('reason'),
-	addedBy: text('added_by'), // quem colocou na blacklist
+	addedBy: text('added_by'),
 
 	createdAt: timestamp({ precision: 3, mode: 'string' })
 		.default(sql`CURRENT_TIMESTAMP`)

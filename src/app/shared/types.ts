@@ -1,4 +1,13 @@
-// Tipos de IDs para picaretas
+export type BadgeID =
+	| 'developer'
+	| 'bot'
+	| 'small_dev'
+	| 'booster'
+	| 'owner'
+	| 'partner'
+	| 'staff'
+	| 'beta';
+
 export type PickaxesTypesIDs =
 	| 'PICX_WOODEN'
 	| 'PICX_STONE'
@@ -18,19 +27,20 @@ export type OreType =
 // Item da mochila (pode ser uma picareta ou um minério)
 export type BackpackItem =
 	| {
-			id: PickaxesTypesIDs;
+			id: string;
 			type: 'pickaxe';
-			durability: number; // sempre definido em picaretas
+			durability: number;
 			name: string;
 			starter: boolean;
-			ores: OreType[]; // minérios que essa picareta pode minerar
-			rates: Record<OreType, number>; // % de chance para cada minério
+			ores: OreType[];
+			maked: PickaxesTypesIDs;
+			rates: Record<OreType, number>;
 	  }
 	| {
-			id: string; // Ex: "stone_123456"
+			id: string;
 			type: 'ore';
 			name: OreType;
-			amount: number; // quantidade, limitado a 64 por stack
+			amount: number;
 	  };
 
 export interface Transaction {
@@ -69,5 +79,5 @@ export interface DailyResult {
 	bonus: number;
 	streakDays: number;
 }
-// A mochila é apenas um array de itens
+
 export type BackpackType = BackpackItem[];

@@ -10,14 +10,15 @@ export const {
 	createCommand,
 	createSubCommand,
 	createSubCommandGroup,
+	createResponder,
+	registerResponder,
 	client,
 } = createBot({
 	token: env.DISCORD_TOKEN,
 	commands: {
 		registerOn: [
 			RegisterType.Depends.Guild<'development'>('development', [
-				'1426601171455311973',
-				'1399909178495074304',
+				'1064302594366898257',
 			]),
 			RegisterType.Depends.Global<'production'>('production'),
 		],

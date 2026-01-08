@@ -1,5 +1,5 @@
+import { createEvent } from '@base';
 import { ActivityType, type Client } from 'discord.js';
-import { createEvent } from 'index.js';
 
 export default createEvent({
 	name: 'ready:activity',

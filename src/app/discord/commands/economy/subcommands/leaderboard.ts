@@ -45,7 +45,7 @@ export const leaderboardSubCommand = createSubCommand({
 									? '🥉'
 									: `${index + 1}.`;
 
-					return `${medal} <@${user.discord_id}> - \`${user.balance.toLocaleString()}\` polens`;
+					return `${medal} <@${user.discord_id}> - \`${user.balance.toLocaleString()}\` pólens`;
 				})
 				.join('\n');
 

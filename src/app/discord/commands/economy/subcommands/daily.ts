@@ -1,10 +1,10 @@
 import { createSubCommand } from '@base';
 import { replyLang } from '@fx/utils/replyLang.js';
-import { EmbedPlusBuilder } from '@magicyan/discord';
+import { EmbedPlusBuilder, random } from '@magicyan/discord';
 import { Colors, TimestampStyles, time } from 'discord.js';
 import { claimDaily, createErrorEmbed } from './utils.js';
 
-const DAILY_AMOUNT = 1000;
+const DAILY_AMOUNT = random.int(500, 1500);
 
 export const dailySubCommand = createSubCommand({
 	name: 'daily',
@@ -44,7 +44,7 @@ export const dailySubCommand = createSubCommand({
 				fields: [
 					{
 						name: `💰 ${replyLang(interaction.locale, 'eco#daily#success#balance')}`,
-						value: `\`${result.balance.toLocaleString()}\` polens`,
+						value: `\`${result.balance.toLocaleString()}\` pólens`,
 						inline: true,
 					},
 					{
@@ -59,7 +59,6 @@ export const dailySubCommand = createSubCommand({
 				timestamp: new Date(),
 			});
 
-			// bônus de sequência
 			if (result.bonus > 0) {
 				embed.addFields({
 					name: `🎁 ${replyLang(interaction.locale, 'eco#daily#bonus#title')}`,

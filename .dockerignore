@@ -9,3 +9,9 @@ yarn-error.log
 .gitignore
 docker-compose.yml
 Dockerfile
+
+.env.example
+.foxycfg
+exclude
+drizzle
+.nvmrc

@@ -1,7 +1,8 @@
 {
 	"npm.packageManager": "bun",
 	"[typescript]": {
-		"editor.defaultFormatter": "vscode.typescript-language-features"
+		"editor.defaultFormatter": "biomejs.biome"
 	},
-	"workbench.statusBar.visible": true
+	"workbench.statusBar.visible": true,
+	"explorer.compactFolders": false
 }

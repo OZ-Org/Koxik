@@ -1,8 +1,6 @@
 import { createCommand } from '@base';
 import { replyLang } from '@fx/utils/replyLang.js';
-import { EmbedPlusBuilder } from '@magicyan/discord';
 import {
-	Colors,
 	type Locale,
 	PermissionFlagsBits,
 	SlashCommandBuilder,
@@ -20,7 +18,7 @@ export default createCommand({
 		})
 		.setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
 
-	run: async ({ interaction }) => {
+	run: async ({ interaction, res }) => {
 		const locale: Locale = interaction.locale;
 		const t = replyLang;
 
@@ -34,7 +32,7 @@ export default createCommand({
 				'Error',
 				t(locale, 'unlock#responses#error'),
 			);
-			return interaction.reply({ embeds: [embed], flags: ['Ephemeral'] });
+			return res.ephemeral().raw({ embeds: [embed] });
 		}
 
 		try {
@@ -47,7 +45,7 @@ export default createCommand({
 				t(locale, 'unlock#responses#success'),
 			);
 
-			await interaction.reply({
+			await res.raw({
 				embeds: [embed],
 			});
 		} catch (error) {
@@ -57,10 +55,7 @@ export default createCommand({
 				'Error',
 				t(locale, 'unlock#responses#error'),
 			);
-			await interaction.reply({
-				embeds: [embed],
-				flags: ['Ephemeral'],
-			});
+			return res.ephemeral().raw({ embeds: [embed] });
 		}
 	},
 });

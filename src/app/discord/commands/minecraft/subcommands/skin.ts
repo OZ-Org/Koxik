@@ -1,7 +1,7 @@
 import { ApplicationCommandOptionType, createSubCommand } from '@base';
 import { replyLang } from '@fx/utils/replyLang.js';
 import { createRow, EmbedPlusBuilder } from '@magicyan/discord';
-import { ButtonBuilder, ButtonStyle, MessageFlags } from 'discord.js';
+import { ButtonBuilder, ButtonStyle } from 'discord.js';
 import { fetchSkinRender, RenderCrops, RenderTypes } from 'starlightskinapi';
 
 const BLACKLISTED_NICKS = ['pedra'];
@@ -74,17 +74,15 @@ export default createSubCommand({
 		},
 	],
 	cooldown: 3,
-	run: async ({ interaction }) => {
-		await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+	run: async ({ interaction, res }) => {
+		await res.ephemeral().defer();
 
 		const nick = interaction.options.getString('nick', true);
 		const pose = interaction.options.getString('pose');
 		const normalizedNick = nick.toLowerCase();
 
 		if (BLACKLISTED_NICKS.includes(normalizedNick)) {
-			return interaction.editReply(
-				replyLang(interaction.locale, 'mc#skin#invalid_nick'),
-			);
+			return res.error(replyLang(interaction.locale, 'mc#skin#invalid_nick'));
 		}
 
 		const poseType =
@@ -96,9 +94,7 @@ export default createSubCommand({
 		});
 
 		if (!skin.success) {
-			return interaction.editReply(
-				replyLang(interaction.locale, 'mc#skin#invalid_nick'),
-			);
+			return res.error(replyLang(interaction.locale, 'mc#skin#invalid_nick'));
 		}
 
 		const row = createRow(
@@ -110,10 +106,10 @@ export default createSubCommand({
 		);
 
 		const embed = new EmbedPlusBuilder({
-			title: `${nick}`,
+			title: nick,
 		}).setImage(skin.url);
 
-		return interaction.editReply({
+		return res.raw({
 			embeds: [embed],
 			components: [row],
 		});

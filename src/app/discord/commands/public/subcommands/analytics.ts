@@ -18,8 +18,9 @@ export default createSubCommand({
 		'es-ES': 'Consulta las estadísticas detalladas de uso de Koxik.',
 	},
 	cooldown: 10,
-	run: async ({ interaction, client }) => {
-		await interaction.deferReply({ flags: ['Ephemeral'] });
+	run: async ({ interaction, client, res }) => {
+		await res.ephemeral().defer();
+
 		try {
 			const today = new Date();
 			today.setHours(0, 0, 0, 0);
@@ -77,7 +78,7 @@ export default createSubCommand({
 			const embed = new EmbedBuilder()
 				.setAuthor({
 					name: '📊 Koxik Analytics',
-					iconURL: client!.user!.displayAvatarURL(),
+					iconURL: client.solid.user.displayAvatarURL(),
 				})
 				.setDescription(
 					interaction.locale === 'pt-BR'
@@ -89,8 +90,7 @@ export default createSubCommand({
 				.setColor(0x2f3136)
 				.addFields([
 					{
-						name:
-							'🔥 ' + replyLang(interaction.locale, 'botStats#mostUsed#today'),
+						name: `🔥 ${replyLang(interaction.locale, 'botStats#mostUsed#today')}`,
 						value: `${formatCommand(topToday[0])} • **${topToday[0]?.count ?? 0}**`,
 						inline: true,
 					},
@@ -102,19 +102,17 @@ export default createSubCommand({
 						inline: true,
 					},
 					{
-						name:
-							'🏆 ' + replyLang(interaction.locale, 'botStats#mostUsed#year'),
+						name: `🏆 ${replyLang(interaction.locale, 'botStats#mostUsed#year')}`,
 						value: `${formatCommand(topYear[0])} • **${topYear[0]?.count ?? 0}**`,
 						inline: false,
 					},
 					{
-						name: '📈 ' + replyLang(interaction.locale, 'botStats#total#today'),
+						name: `📈 ${replyLang(interaction.locale, 'botStats#total#today')}`,
 						value: `**${totalToday[0]?.count ?? 0}**`,
 						inline: true,
 					},
 					{
-						name:
-							'📉 ' + replyLang(interaction.locale, 'botStats#total#yesterday'),
+						name: `📉 ${replyLang(interaction.locale, 'botStats#total#yesterday')}`,
 						value: `**${totalYesterday[0]?.count ?? 0}**`,
 						inline: true,
 					},
@@ -139,15 +137,15 @@ export default createSubCommand({
 					.setURL('https://koxik.ozorg.com'),
 			);
 
-			await interaction.editReply({
+			return await res.raw({
 				embeds: [embed],
 				components: [row],
 			});
 		} catch (err) {
 			console.error('Erro ao buscar stats:', err);
-			await interaction.editReply({
-				content: replyLang(interaction.locale, 'botStats#errorFetching'),
-			});
+			return await res.error(
+				replyLang(interaction.locale, 'botStats#errorFetching'),
+			);
 		}
 	},
 });
