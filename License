@@ -1,15 +1,21 @@
-Licença de Uso do Kokik Bot
+MIT License
 
-Copyright (C) 2025 Noa Dev e ozorg.xyz
+Copyright (c) 2025 KoxikBot
 
-Por meio desta licença, você pode:
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-- Usar este software par a qualquer finalidade, inclusive comercial.
-- Modificar e criar versões derivadas do software.
-- Distribuir ou sublicenciar o software.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-Condições:
-
-1. Crédito obrigatório: Você deve sempre mencionar que o software foi originalmente criado por Noa Dev e ozorg.xyz em qualquer uso público, redistribuição ou versão derivada.
-2. Sem garantias: Este software é fornecido "como está", sem qualquer garantia expressa ou implícita de funcionamento, comercialização ou adequação a um propósito específico.
-3. Código-fonte: Você não é obrigado a divulgar o código-fonte de suas modificações ou derivações.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

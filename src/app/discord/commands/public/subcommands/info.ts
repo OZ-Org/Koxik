@@ -1,12 +1,7 @@
 import { createSubCommand } from '@base';
 import { replyLang } from '@fx/utils/replyLang.js';
-import { brBuilder, createEmbed } from '@magicyan/discord';
-import {
-	ActionRowBuilder,
-	ButtonBuilder,
-	ButtonStyle,
-	Colors,
-} from 'discord.js';
+import { brBuilder, createContainer, Separator } from '@magicyan/discord';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 
 export default createSubCommand({
 	name: 'info',
@@ -16,14 +11,14 @@ export default createSubCommand({
 		'es-ES': '¡Muestro mi información como un bot!',
 	},
 
-	run: async ({ interaction, client }) => {
+	run: async ({ interaction, client, res }) => {
 		const library = 'discord.js';
 		const RAMUsage = (process.memoryUsage().rss / 1024 / 1024).toFixed(2);
 		const hostedBy = 'GatiHost';
 		const version = '2.0.1';
 		const website = 'https://koxik.ozorg.xyz';
 		const invite =
-			'https://discord.com/oauth2/authorize?client_id=1172215616227962624&permissions=516403096831&integration_type=0&scope=bot+applications.commands';
+			'https://discord.com/oauth2/authorize?client_id=1446227976793493594&permissions=6759076403735799&integration_type=0&scope=bot+applications.commands';
 		const support = 'https://discord.gg/AfeQSwBsZV';
 		const owner = 'Oz-Org';
 
@@ -34,25 +29,6 @@ export default createSubCommand({
 		const uptimeTimestamp = Math.floor(
 			(Date.now() - (client.uptime ?? 0)) / 1000,
 		);
-
-		const embed = createEmbed({
-			title: replyLang(interaction.locale, 'koxik#info#title'),
-			description: brBuilder(
-				replyLang(interaction.locale, 'koxik#info#description', {
-					guilds,
-					members,
-					channels,
-					library,
-					ram: RAMUsage,
-					version,
-					host: hostedBy,
-					uptime: uptimeTimestamp,
-					owner,
-				}),
-			),
-			color: Colors.Orange,
-			footer: replyLang(interaction.locale, 'koxik#info#footer'),
-		});
 
 		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
 			new ButtonBuilder()
@@ -77,10 +53,26 @@ export default createSubCommand({
 				.setURL('https://www.gatihost.com.br'),
 		);
 
-		await interaction.reply({
-			embeds: [embed],
-			components: [row],
-			flags: ['Ephemeral'],
-		});
+		return res.ephemeral().v2([
+			createContainer(
+				'#a7c957',
+				`# ${replyLang(interaction.locale, 'koxik#info#title')}`,
+				brBuilder(
+					replyLang(interaction.locale, 'koxik#info#description', {
+						guilds,
+						members,
+						channels,
+						library,
+						ram: RAMUsage,
+						version,
+						host: hostedBy,
+						uptime: uptimeTimestamp,
+						owner,
+					}),
+				),
+				Separator.Default,
+				row,
+			),
+		]);
 	},
 });

@@ -23,7 +23,7 @@
 	"create_user": {
 		"created": "🚀 %user_mention% ¡Tu cuenta ha sido creada con éxito! Ahora puedes usar los comandos de economía.",
 		"fail": "🚫 %user_mention% No se pudo crear tu cuenta. ¡Inténtalo de nuevo más tarde!",
-		"already": "🚫 %user_mention% ¡Ya tienes una cuenta! Usa el comando ``/balance`` para ver tu saldo."
+		"already": "🚫 %user_mention% ¡Ya tienes una cuenta! Usa el comando ``/create account`` para ver tu saldo."
 	},
 	"botStats": {
 		"title": "📊 Estadísticas del Bot Koxik",
@@ -54,7 +54,7 @@
 		"deposit": {
 			"success": {
 				"title": "Depósito Realizado",
-				"description": "¡Depositaste **%amount%** polens en tu banco con éxito!",
+				"description": "¡Depositaste **%amount%** Pólenes en tu banco con éxito!",
 				"newBalance": "Nueva Billetera",
 				"newBank": "Nuevo Banco"
 			},
@@ -69,7 +69,7 @@
 		"pay": {
 			"confirmation": {
 				"title": "Confirmación de Transferencia",
-				"description": "**%payer%** quiere transferir **%amount%** polens a **%receiver%** vía **%method%**",
+				"description": "**%payer%** quiere transferir **%amount%** Pólenes a **%receiver%** vía **%method%**",
 				"accept": "Aceptar",
 				"decline": "Rechazar"
 			},
@@ -98,14 +98,14 @@
 				"fee": "Tarifa Cobrada",
 				"received": "Recibido",
 				"robbed": "¡Robo Ocurrido!",
-				"robbedDescription": "Desafortunadamente, **%stolen%** polens fueron robados durante la transferencia! 😱"
+				"robbedDescription": "Desafortunadamente, **%stolen%** Pólenes fueron robados durante la transferencia! 😱"
 			},
 			"error": {
 				"title": "Error de Transacción",
 				"invalidAmount": "Cantidad inválida: %amount%",
 				"cannotPayYourself": "¡No puedes pagarte a ti mismo!",
 				"payerNotFound": "Pagador no encontrado.",
-				"insufficientFunds": "No tienes fondos suficientes para pagar **%amount%** polens.",
+				"insufficientFunds": "No tienes fondos suficientes para pagar **%amount%** Pólenes.",
 				"pending": "%payer% quiere pagar a %receiver% %amount% vía %method%. ¿Aceptas?",
 				"notReceiver": "Solo el receptor puede aceptar o rechazar esta transacción.",
 				"generic": "Error al procesar el pago: %error%",
@@ -130,7 +130,7 @@
 			},
 			"bonus": {
 				"title": "¡Bono de Racha!",
-				"description": "🎉 ¡Ganaste **%bonus%** polens extra por reclamar daily por **%streak%** días consecutivos!"
+				"description": "🎉 ¡Ganaste **%bonus%** Pólenes extra por reclamar daily por **%streak%** días consecutivos!"
 			},
 			"streak": {
 				"title": "Racha Activa",
@@ -148,7 +148,7 @@
 		},
 		"leaderboard": {
 			"title": "Ranking de Usuarios Más Ricos",
-			"description": "¡Usuarios con más polens en el servidor!",
+			"description": "¡Usuarios con más Pólenes en el servidor!",
 			"empty": "No se encontraron usuarios en el ranking.",
 			"ranking": "Clasificación"
 		},
@@ -220,7 +220,13 @@
 		"loot_saved_desc": "Tus minerales fueron agregados a tu mochila.",
 		"loot_burned_title": "🔥 ¡Botín Quemado!",
 		"loot_burned_desc": "Destruiste todos tus minerales... ¿por qué hiciste eso?",
-		"progress_footer": "⛏️ Extrayendo..."
+		"progress_footer": "⛏️ Extrayendo...",
+		"start": {
+			"alreadyStarted": "¡Ya comenzaste tu viaje y tienes tu pico inicial!",
+			"starterPickaxeName": "Pico de Madera",
+			"starterTransactionDesc": "Comenzó el viaje y recibió el Pico de Madera",
+			"success": "¡Tu viaje ha comenzado! ¡Recibiste un **Pico de Madera** para minar!"
+		}
 	},
 	"clear": {
 		"responses": {
@@ -307,6 +313,17 @@
 		"skin": {
 			"invalid_nick": "Este apodo no es válido o está prohibido.",
 			"render_error": "No fue posible renderizar esta skin."
+		}
+	},
+	"profile": {
+		"view": {
+			"description": "¡Mira el perfil de alguien!",
+			"noAccount": "El usuario no tiene cuenta. Usa %command%",
+			"aboutTitle": "Sobre mí",
+			"aboutDefault": "Koxik es un bot genial... bla bla bla",
+			"level": "Nivel",
+			"currency": "Pólenes",
+			"button": "Perfil"
 		}
 	}
 }

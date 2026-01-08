@@ -99,7 +99,7 @@ export const paySubCommand = createSubCommand({
 				(interaction.options.getString('method') as 'balance' | 'bank') ??
 				'balance';
 
-			const receiver = await UserController.get(userToPay.id);
+			const receiver = await UserController.find(userToPay.id);
 			if (!receiver) {
 				const embed = createErrorEmbed(
 					interaction.locale,
@@ -118,8 +118,8 @@ export const paySubCommand = createSubCommand({
 					interaction.locale,
 					replyLang(interaction.locale, 'eco#pay#error#title'),
 					replyLang(interaction.locale, 'user#notFound') +
-					' ' +
-					replyLang(interaction.locale, 'eco#error#createAccount'),
+						' ' +
+						replyLang(interaction.locale, 'eco#error#createAccount'),
 				);
 				await interaction.editReply({ embeds: [embed] });
 				return;
@@ -153,16 +153,16 @@ export const paySubCommand = createSubCommand({
 					{
 						name: `${emotes.eco.stats} ${replyLang(interaction.locale, 'eco#pay#details#title')}`,
 						value: [
-							`**${replyLang(interaction.locale, 'eco#pay#details#amount')}:** \`${amountToSend.toLocaleString()}\` polens`,
-							`**${replyLang(interaction.locale, 'eco#pay#details#fee')}:** \`${tax.toLocaleString()}\` polens (${(taxRate * 100).toFixed(1)}%)`,
-							`**${replyLang(interaction.locale, 'eco#pay#details#total')}:** \`${totalCost.toLocaleString()}\` polens`,
+							`**${replyLang(interaction.locale, 'eco#pay#details#amount')}:** \`${amountToSend.toLocaleString()}\` pólens`,
+							`**${replyLang(interaction.locale, 'eco#pay#details#fee')}:** \`${tax.toLocaleString()}\` pólens (${(taxRate * 100).toFixed(1)}%)`,
+							`**${replyLang(interaction.locale, 'eco#pay#details#total')}:** \`${totalCost.toLocaleString()}\` pólens`,
 							`**${replyLang(interaction.locale, 'eco#pay#details#robbery')}:** ${(robberyChance * 100).toFixed(1)}%`,
 						].join('\n'),
 						inline: false,
 					},
 					{
 						name: `${emotes.misc.dollar} ${replyLang(interaction.locale, 'eco#pay#balance#current')}`,
-						value: `\`${sourceBalance.toLocaleString()}\` polens`,
+						value: `\`${sourceBalance.toLocaleString()}\` pólens`,
 						inline: false,
 					},
 				],
@@ -256,17 +256,17 @@ export const paySubCommand = createSubCommand({
 							fields: [
 								{
 									name: `${emotes.eco.sent} ${replyLang(interaction.locale, 'eco#pay#success#sent')}`,
-									value: `\`${result.sent.toLocaleString()}\` polens`,
+									value: `\`${result.sent.toLocaleString()}\` pólens`,
 									inline: true,
 								},
 								{
 									name: `${emotes.eco.fee} ${replyLang(interaction.locale, 'eco#pay#success#fee')}`,
-									value: `\`${result.fee.toLocaleString()}\` polens`,
+									value: `\`${result.fee.toLocaleString()}\` pólens`,
 									inline: true,
 								},
 								{
 									name: `${emotes.eco.received} ${replyLang(interaction.locale, 'eco#pay#success#received')}`,
-									value: `\`${result.received.toLocaleString()}\` polens`,
+									value: `\`${result.received.toLocaleString()}\` pólens`,
 									inline: true,
 								},
 							],

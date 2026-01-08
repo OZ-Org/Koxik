@@ -16,7 +16,7 @@ export default createSubCommand({
 		'es-ES':
 			'¡Extrae minerales de Minecraft, pero ahora en Discord y cámbialos por más cosas!',
 	},
-	cooldown: 120,
+	cooldown: 48,
 	options: [
 		{
 			name: 'pickaxe',

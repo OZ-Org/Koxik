@@ -1,10 +1,10 @@
 import { db } from '@db';
+import { type ConfigsData, user } from '@schemas';
 import type {
 	BackpackItem,
 	BackpackType,
 	Transaction,
 } from 'app/shared/types.js';
-import { user } from 'core/base/db/schemas.js';
 import { eq, sql } from 'drizzle-orm';
 
 export class UserController {
@@ -35,6 +35,12 @@ export class UserController {
 		}
 
 		return userResult;
+	}
+
+	static async find(discordId: string) {
+		return await db.query.user.findFirst({
+			where: eq(user.discordId, discordId),
+		});
 	}
 
 	/**
@@ -245,5 +251,34 @@ export class UserController {
 				balance: true,
 			},
 		});
+	}
+
+	/**
+	 * Get user configs
+	 */
+	static async getConfigs(discordId: string): Promise<ConfigsData> {
+		const userData = await UserController.get(discordId);
+		return (userData.configs as ConfigsData) || { aboutme: '' };
+	}
+
+	/**
+	 * Update user configs
+	 */
+	static async updateConfigs(
+		discordId: string,
+		newConfigs: Partial<ConfigsData>,
+	) {
+		const userData = await UserController.get(discordId);
+		const currentConfigs = (userData.configs as ConfigsData) || {};
+
+		const updatedConfigs = { ...currentConfigs, ...newConfigs };
+
+		const [updatedUser] = await db
+			.update(user)
+			.set({ configs: updatedConfigs })
+			.where(eq(user.discordId, discordId))
+			.returning();
+
+		return updatedUser;
 	}
 }

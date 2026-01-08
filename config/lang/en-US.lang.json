@@ -54,7 +54,7 @@
 		"deposit": {
 			"success": {
 				"title": "Deposit Completed",
-				"description": "You successfully deposited **%amount%** polens to your bank!",
+				"description": "You successfully deposited **%amount%** pollens to your bank!",
 				"newBalance": "New Wallet",
 				"newBank": "New Bank"
 			},
@@ -69,7 +69,7 @@
 		"pay": {
 			"confirmation": {
 				"title": "Transfer Confirmation",
-				"description": "**%payer%** wants to transfer **%amount%** polens to **%receiver%** via **%method%**",
+				"description": "**%payer%** wants to transfer **%amount%** pollens to **%receiver%** via **%method%**",
 				"accept": "Accept",
 				"decline": "Decline"
 			},
@@ -98,14 +98,14 @@
 				"fee": "Fee Charged",
 				"received": "Received",
 				"robbed": "Robbery Occurred!",
-				"robbedDescription": "Unfortunately, **%stolen%** polens were stolen during the transfer! 😱"
+				"robbedDescription": "Unfortunately, **%stolen%** pollens were stolen during the transfer! 😱"
 			},
 			"error": {
 				"title": "Transaction Error",
 				"invalidAmount": "Invalid amount: %amount%",
 				"cannotPayYourself": "You cannot pay yourself!",
 				"payerNotFound": "Payer not found.",
-				"insufficientFunds": "You don't have enough funds to pay **%amount%** polens.",
+				"insufficientFunds": "You don't have enough funds to pay **%amount%** pollens.",
 				"pending": "%payer% wants to pay %receiver% %amount% via %method%. Do you accept?",
 				"notReceiver": "Only the receiver can accept or decline this transaction.",
 				"generic": "Error while processing payment: %error%",
@@ -130,7 +130,7 @@
 			},
 			"bonus": {
 				"title": "Streak Bonus!",
-				"description": "🎉 You earned **%bonus%** extra polens for claiming daily for **%streak%** consecutive days!"
+				"description": "🎉 You earned **%bonus%** extra pollens for claiming daily for **%streak%** consecutive days!"
 			},
 			"streak": {
 				"title": "Active Streak",
@@ -148,7 +148,7 @@
 		},
 		"leaderboard": {
 			"title": "Richest Users Ranking",
-			"description": "Users with the most polens on the server!",
+			"description": "Users with the most pollens on the server!",
 			"empty": "No users found in the ranking.",
 			"ranking": "Classification"
 		},
@@ -220,7 +220,13 @@
 		"loot_saved_desc": "Your ores were added to your backpack.",
 		"loot_burned_title": "🔥 Loot Burned!",
 		"loot_burned_desc": "You destroyed all your ores... why did you do that?",
-		"progress_footer": "⛏️ Mining..."
+		"progress_footer": "⛏️ Mining...",
+		"start": {
+			"alreadyStarted": "You already started your journey and have your starter pickaxe!",
+			"starterPickaxeName": "Wooden Pickaxe",
+			"starterTransactionDesc": "Started the journey and received the Wooden Pickaxe",
+			"success": "Your journey has begun! You received a **Wooden Pickaxe** to start mining!"
+		}
 	},
 	"clear": {
 		"responses": {
@@ -307,6 +313,16 @@
 		"skin": {
 			"invalid_nick": "This nickname is invalid or forbidden.",
 			"render_error": "Unable to render this skin."
+		}
+	},
+	"profile": {
+		"view": {
+			"noAccount": "The user does not have an account. Use %command%",
+			"aboutTitle": "About me",
+			"aboutDefault": "Koxik is a cool bot... bla bla bla (/profile aboutme - To edit!)",
+			"level": "Level",
+			"currency": "Pollens",
+			"button": "Profile"
 		}
 	}
 }

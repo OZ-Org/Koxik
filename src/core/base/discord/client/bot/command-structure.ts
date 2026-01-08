@@ -1,7 +1,12 @@
 /** biome-ignore-all lint/complexity/noBannedTypes: ... */
+/** biome-ignore-all assist/source/organizeImports: ... */
 import {
+	type APIMessageTopLevelComponent,
 	ApplicationCommandOptionType,
+	type ChatInputCommandInteraction,
 	type InteractionContextType,
+	type JSONEncodable,
+	MessageFlags,
 	type PermissionResolvable,
 	PermissionsBitField,
 	SlashCommandBuilder,
@@ -14,7 +19,94 @@ import type {
 	AutocompleteOptions,
 	Command,
 	CommandRunOptions,
+	ReplyPayload,
+	ResponderInteraction,
 } from './types.js';
+import { emotes } from '@misc/emotes.js';
+import type { Responder } from './types.js';
+
+type V2Encodable =
+	| JSONEncodable<APIMessageTopLevelComponent>
+	| APIMessageTopLevelComponent;
+
+export class ReplyBuilder {
+	constructor(
+		private interaction: ChatInputCommandInteraction,
+		private ephemeralMode = false,
+	) {}
+
+	private async dispatch(payload: ReplyPayload) {
+		const flags = [
+			...(Array.isArray(payload.flags) ? payload.flags : []),
+			...(this.ephemeralMode ? [MessageFlags.Ephemeral] : []),
+		] as const;
+
+		const data = {
+			...payload,
+			flags: flags.length ? flags : undefined,
+		};
+
+		if (this.interaction.replied || this.interaction.deferred) {
+			return this.interaction.editReply(data);
+		}
+
+		return this.interaction.reply(data);
+	}
+
+	async defer() {
+		if (!this.interaction.replied && !this.interaction.deferred) {
+			await this.interaction.deferReply({
+				flags: this.ephemeralMode ? [MessageFlags.Ephemeral] : undefined,
+			});
+		}
+		return this;
+	}
+
+	ephemeral() {
+		return new ReplyBuilder(this.interaction, true);
+	}
+
+	success(content: string) {
+		return this.dispatch({
+			content: `${emotes.utils.checkmark} | ${content}`,
+		});
+	}
+
+	error(content: string) {
+		return this.dispatch({
+			content: `${emotes.utils.crossmark} | ${content}`,
+		});
+	}
+
+	info(content: string) {
+		return this.dispatch({
+			content: `${emotes.utils.info} | ${content}`,
+		});
+	}
+
+	normal(content: string) {
+		return this.dispatch({ content });
+	}
+
+	raw(payload: ReplyPayload) {
+		return this.dispatch(payload);
+	}
+
+	followUp(payload: ReplyPayload) {
+		return this.interaction.followUp({
+			...payload,
+			flags: this.ephemeralMode ? [MessageFlags.Ephemeral] : payload.flags,
+		});
+	}
+
+	v2(components: V2Encodable[], payload?: ReplyPayload) {
+		return this.dispatch({
+			...payload,
+			flags: [MessageFlags.IsComponentsV2],
+			components,
+		});
+	}
+}
 
 export type CommandOptionChoice = {
 	name: string;
@@ -281,6 +373,7 @@ export class CommandBuilder implements Command {
 			const key = `${group}.${subcommand}`;
 			const subConfig = this.subcommandConfigs.get(key);
 			const handler = this.runHandlers.get(key);
+
 			if (handler) {
 				if (
 					await this.handleCooldown(
@@ -290,12 +383,16 @@ export class CommandBuilder implements Command {
 					)
 				)
 					return;
+
 				return handler({ client, interaction });
 			}
-		} else if (subcommand) {
+		}
+
+		if (subcommand) {
 			const key = subcommand;
 			const subConfig = this.subcommandConfigs.get(key);
 			const handler = this.runHandlers.get(key);
+
 			if (handler) {
 				if (
 					await this.handleCooldown(
@@ -305,7 +402,12 @@ export class CommandBuilder implements Command {
 					)
 				)
 					return;
-				return handler({ client, interaction });
+
+				return handler({
+					client,
+					interaction,
+					res: new ReplyBuilder(interaction),
+				});
 			}
 		}
 
@@ -314,11 +416,16 @@ export class CommandBuilder implements Command {
 				await this.handleCooldown(
 					interaction,
 					'default',
-					this.config.cooldown || 0,
+					this.config.cooldown ?? 0,
 				)
 			)
 				return;
-			return this.legacyRun({ client, interaction });
+
+			return this.legacyRun({
+				client,
+				interaction,
+				res: new ReplyBuilder(interaction),
+			});
 		}
 
 		if (this.config.run && !this.config.baseCommand) {
@@ -326,11 +433,16 @@ export class CommandBuilder implements Command {
 				await this.handleCooldown(
 					interaction,
 					'default',
-					this.config.cooldown || 0,
+					this.config.cooldown ?? 0,
 				)
 			)
 				return;
-			return this.config.run({ client, interaction });
+
+			return this.config.run({
+				client,
+				interaction,
+				res: new ReplyBuilder(interaction),
+			});
 		}
 	}
 
@@ -399,4 +511,29 @@ export function createSubCommandGroup(
 	subcommands: SubCommand[],
 ) {
 	return { config, subcommands };
+}
+
+function compileCustomId(pattern: string) {
+	const keys: string[] = [];
+
+	const regexStr = pattern.replace(/\{(\w+)\}/g, (_, key) => {
+		keys.push(key);
+		return '([^:]+)';
+	});
+
+	return {
+		regex: new RegExp(`^${regexStr}$`),
+		keys,
+	};
+}
+
+export function createResponder<T extends ResponderInteraction>(
+	responder: Responder<T>,
+) {
+	const { regex, keys } = compileCustomId(responder.customId);
+
+	responder.__regex = regex;
+	responder.__keys = keys;
+
+	return responder;
 }

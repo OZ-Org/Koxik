@@ -52,12 +52,12 @@ export const depositSubCommand = createSubCommand({
 				.addFields(
 					{
 						name: `💰 ${replyLang(interaction.locale, 'eco#deposit#success#newBalance')}`,
-						value: `\`${result.newBalance.toLocaleString()}\` polens`,
+						value: `\`${result.newBalance.toLocaleString()}\` pólens`,
 						inline: true,
 					},
 					{
 						name: `🏦 ${replyLang(interaction.locale, 'eco#deposit#success#newBank')}`,
-						value: `\`${result.newBank.toLocaleString()}\` polens`,
+						value: `\`${result.newBank.toLocaleString()}\` pólens`,
 						inline: true,
 					},
 				)

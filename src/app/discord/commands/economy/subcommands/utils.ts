@@ -43,7 +43,11 @@ export async function getUserFullData(
 	discordId: string,
 ): Promise<UserData | null> {
 	try {
-		const user = await UserController.get(discordId);
+		const user = await UserController.find(discordId);
+
+		if (!user) {
+			return null;
+		}
 
 		return {
 			balance: user.balance,
@@ -73,7 +77,11 @@ export async function payUser(
 		throw new Error(replyLang(locale, 'eco#pay#error#cannotPayYourself'));
 	}
 
-	const payer = await UserController.get(payerId);
+	const payer = await UserController.find(payerId);
+
+	if (!payer) {
+		throw new Error('Payer no have account in Koxik Bot');
+	}
 
 	const sourceBalance = method === 'bank' ? (payer.bank ?? 0) : payer.balance;
 	const taxRate = method === 'bank' ? 0.1 : 0.025;
@@ -147,8 +155,8 @@ export async function claimDaily(
 	const today = new Date(now);
 	today.setHours(0, 0, 0, 0);
 
-	const user = await UserController.get(discordId);
-
+	const user = await UserController.find(discordId);
+	if (!user) throw new Error(replyLang(locale, 'user#notFound'));
 	if (user.lastDaily) {
 		const lastDaily = new Date(user.lastDaily);
 		lastDaily.setHours(0, 0, 0, 0);
@@ -222,7 +230,8 @@ export async function depositMoney(
 		throw new Error(replyLang(locale, 'eco#deposit#error#invalidAmount'));
 	}
 
-	const user = await UserController.get(discordId);
+	const user = await UserController.find(discordId);
+	if (!user) throw new Error(replyLang(locale, 'eco#daily#error#failed'));
 
 	if (user.balance < amount) {
 		throw new Error(replyLang(locale, 'eco#deposit#error#insufficientFunds'));
@@ -239,7 +248,7 @@ export async function depositMoney(
 			type: 'deposit',
 			amount,
 			timestamp: Date.now(),
-			description: `Deposited ${amount.toLocaleString()} polens`,
+			description: `Deposited ${amount.toLocaleString()} pólens`,
 		});
 
 		return {

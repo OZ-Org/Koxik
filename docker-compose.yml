@@ -2,11 +2,13 @@ version: "3.9"
 
 services:
   postgres:
-    image: postgres:15
+    image: postgres:16
     env_file:
       - .env
     volumes:
       - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
 
   koxik-bot:
     build: .
@@ -14,7 +16,8 @@ services:
       - .env
     depends_on:
       - postgres
-    command: bun --env-file=.env.dev src/index.ts
+    command: bun --env-file=.env src/index.ts
+    restart: unless-stopped
 
 volumes:
   pgdata:

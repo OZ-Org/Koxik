@@ -42,7 +42,7 @@ function createUserBadges(
 	const KOXIK_ID = client.solid.user.id;
 
 	if (userDB?.badges) {
-		const dbBadges = userDB.badges as { badge_id: BadgeKeys }[];
+		const dbBadges = userDB.badges as unknown as { badge_id: BadgeKeys }[];
 		for (const b of dbBadges) {
 			if (badges[b.badge_id]) userBadges.push(badges[b.badge_id]);
 		}
@@ -90,12 +90,14 @@ export function createUserInfoEmbed(
 		),
 		brBuilder('### Suas badges:', `## ${userBadges.join(' ')}`),
 		...(xpBar ? [brBuilder(xpBar)] : []),
-		userDB?.bank != null ? brBuilder('### Banco:', `${emotes.misc.dollar} ${userDB.bank}`) : [],
+		userDB?.bank != null
+			? brBuilder('### Banco:', `${emotes.misc.dollar} ${userDB.bank}`)
+			: [],
 		userDB?.miningResources
 			? brBuilder(
-				'### Recursos de mineração:',
-				`\`\`\`json\n${JSON.stringify(userDB.miningResources, null, 2)}\n\`\`\``,
-			)
+					'### Recursos de mineração:',
+					`\`\`\`json\n${JSON.stringify(userDB.miningResources, null, 2)}\n\`\`\``,
+				)
 			: [],
 		...(relationshipField ? [relationshipField] : []),
 	);
@@ -135,16 +137,22 @@ export function createUserInfoEmbed(
 				inline: true,
 			},
 			...(userDB?.bank != null
-				? [{ name: 'Banco', value: `${emotes.misc.dollar} ${userDB.bank}`, inline: true }]
+				? [
+						{
+							name: 'Banco',
+							value: `${emotes.misc.dollar} ${userDB.bank}`,
+							inline: true,
+						},
+					]
 				: []),
 			...(userDB?.miningResources
 				? [
-					{
-						name: 'Recursos de mineração',
-						value: `\`\`\`json\n${JSON.stringify(userDB.miningResources, null, 2)}\n\`\`\``,
-						inline: false,
-					},
-				]
+						{
+							name: 'Recursos de mineração',
+							value: `\`\`\`json\n${JSON.stringify(userDB.miningResources, null, 2)}\n\`\`\``,
+							inline: false,
+						},
+					]
 				: []),
 			/* ...(relationshipField
 				? [

@@ -66,17 +66,17 @@ export const balanceSubCommand = createSubCommand({
 				fields: [
 					{
 						name: `💰 ${replyLang(interaction.locale, 'eco#balance#wallet')}`,
-						value: `\`${userData.balance.toLocaleString()}\` polens`,
+						value: `\`${userData.balance.toLocaleString()}\` pólens`,
 						inline: true,
 					},
 					{
 						name: `🏦 ${replyLang(interaction.locale, 'eco#balance#bank')}`,
-						value: `\`${userData.bank.toLocaleString()}\` polens`,
+						value: `\`${userData.bank.toLocaleString()}\` pólens`,
 						inline: true,
 					},
 					{
 						name: `💎 ${replyLang(interaction.locale, 'eco#balance#total')}`,
-						value: `\`${total.toLocaleString()}\` polens`,
+						value: `\`${total.toLocaleString()}\` pólens`,
 						inline: false,
 					},
 				],

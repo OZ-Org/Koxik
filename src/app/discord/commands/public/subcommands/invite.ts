@@ -1,12 +1,7 @@
 import { createSubCommand } from '@base';
 import { replyLang } from '@fx/utils/replyLang.js';
-import { createEmbed } from '@magicyan/discord';
-import {
-	ActionRowBuilder,
-	ButtonBuilder,
-	ButtonStyle,
-	Colors,
-} from 'discord.js';
+import { createContainer, Separator } from '@magicyan/discord';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 
 export default createSubCommand({
 	name: 'invite',
@@ -15,15 +10,9 @@ export default createSubCommand({
 		'pt-BR': 'Obtenha o link de convite da Koxik!',
 		'es-ES': '¡Obtén el enlace de invitación de Koxik!',
 	},
-	run: async ({ interaction }) => {
+	run: async ({ interaction, res }) => {
 		const invite =
-			'https://discord.com/oauth2/authorize?client_id=1172215616227962624&permissions=8&redirect_uri=https%3A%2F%2Fkoxik.ozorg.xyz%2Fapi%2Fauth%2Fdiscord&response_type=code&scope=identify%20email%20guilds.members.read';
-
-		const embed = createEmbed({
-			title: replyLang(interaction.locale, 'invite#title'),
-			description: replyLang(interaction.locale, 'invite#description'),
-			color: Colors.Orange,
-		});
+			'https://discord.com/oauth2/authorize?client_id=1446227976793493594&permissions=6759076403735799&integration_type=0&scope=bot+applications.commands';
 
 		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
 			new ButtonBuilder()
@@ -32,10 +21,16 @@ export default createSubCommand({
 				.setURL(invite),
 		);
 
-		await interaction.reply({
-			embeds: [embed],
-			components: [row],
-			flags: ['Ephemeral'],
-		});
+		const components = [
+			createContainer(
+				5763719,
+				`## ${replyLang(interaction.locale, 'invite#title')}`,
+				Separator.Default,
+				`### ${replyLang(interaction.locale, 'invite#description')}`,
+				row,
+			),
+		];
+
+		return res.ephemeral().v2(components);
 	},
 });

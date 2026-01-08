@@ -6,11 +6,20 @@ import { type ClientEvents, GatewayIntentBits, Partials } from 'discord.js';
 import { KoxikClient } from './bot/CustomClient.js';
 import {
 	createCommand as createCommandBuilder,
+	createResponder,
 	createSubCommand,
 	createSubCommandGroup,
 } from './bot/command-structure.js';
-import { setupInteractionHandler } from './bot/interactionHandler.js';
-import { loadCommandsFromDisk, loadEventsFromDisk } from './bot/loaders.js';
+import {
+	resolveResponder,
+	setupInteractionHandler,
+} from './bot/interactionHandler.js';
+import {
+	loadCommandsFromDisk,
+	loadEventsFromDisk,
+	loadResponders,
+} from './bot/loaders.js';
+import { registerResponder } from './bot/registry.js';
 import { syncCommands } from './bot/sync.js';
 import type { BotOptions, Command, Event, RegisterType } from './bot/types.js';
 
@@ -76,6 +85,10 @@ export function createBot(options: BotOptions) {
 
 	setupInteractionHandler(client, commands);
 
+	client.on('interactionCreate', async (int) => {
+		await resolveResponder(int);
+	});
+
 	client.once('clientReady', async () => {
 		logger.info(`Connected as ${client.user?.tag ?? 'unknown'}`);
 
@@ -111,6 +124,7 @@ export function createBot(options: BotOptions) {
 
 		await loadCommandsFromDisk(commands);
 		await loadEventsFromDisk(createEvent);
+		await loadResponders();
 
 		await client.login(options.token);
 	})();
@@ -121,5 +135,7 @@ export function createBot(options: BotOptions) {
 		createEvent,
 		createSubCommand,
 		createSubCommandGroup,
+		createResponder,
+		registerResponder,
 	};
 }
