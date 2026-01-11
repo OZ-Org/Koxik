@@ -16,6 +16,7 @@ export default createSubCommand({
 		'pt-BR': 'Bloqueie links de servidores do discord!',
 		'es-ES': 'Bloquear enlaces de servidores de discord!',
 	},
+	default_member_permissions: [PermissionsBitField.Flags.ManageGuild],
 	run: async ({ interaction, res }) => {
 		const guild = interaction.guild;
 		if (!guild) return;

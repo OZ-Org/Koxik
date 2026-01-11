@@ -16,6 +16,7 @@ export default createSubCommand({
 		'pt-BR': 'Bloqueie links!',
 		'es-ES': 'Bloquear enlaces!',
 	},
+	default_member_permissions: [PermissionsBitField.Flags.ManageGuild],
 	run: async ({ interaction, res }) => {
 		const guild = interaction.guild;
 		if (!guild) return;
