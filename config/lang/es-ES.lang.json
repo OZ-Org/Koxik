@@ -324,5 +324,11 @@
 			"currency": "Pólenes",
 			"button": "Perfil"
 		}
+	},
+	"automod": {
+		"disabled": "Automod desativado!",
+		"enabled": "Automod ativado!",
+		"no_permission": "Não tenho permissão para criar regras de automod!\nPreciso da permissão **Gerenciar servidor** para criar regras de automod!",
+		"block_message": "Conteúdo proibido bloqueado por Koxik."
 	}
 }
