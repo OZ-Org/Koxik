@@ -22,7 +22,7 @@ import type {
 	ReplyPayload,
 	ResponderInteraction,
 } from './types.js';
-import { emotes } from '@misc/emotes.js';
+import { emotes, images } from '@misc/emotes.js';
 import type { Responder } from './types.js';
 
 type V2Encodable =
@@ -70,6 +70,24 @@ export class ReplyBuilder {
 		return this.dispatch({
 			content: `${emotes.utils.checkmark} | ${content}`,
 		});
+	}
+
+	crying(content: string, locale: string) {
+		return this.dispatch({
+			embeds: [
+					{
+						title: `${emotes.utils.crossmark} | ${
+							locale === 'pt-BR' ? 
+							'Algo deu errado...' : 
+							locale === 'es-ES' ? 'Algo salió mal...' 
+							: 'Something went wrong...'
+						}`,
+						description: content,
+						thumbnail: { url: images.koxik.cry },
+						color: 0xed4245,
+					},
+				],
+			});
 	}
 
 	error(content: string) {
@@ -148,6 +166,11 @@ export interface SubCommandGroupConfig {
 	name_localizations?: Record<string, string | null>;
 	description_localizations?: Record<string, string | null>;
 	default_member_permissions?: PermissionResolvable[];
+}
+
+export interface SubCommandGroup {
+	config: SubCommandGroupConfig;
+	subcommands: SubCommand[];
 }
 
 export interface CommandConfig {
@@ -322,46 +345,75 @@ export class CommandBuilder implements Command {
 		return this;
 	}
 
+	public addSubCommandGroup(group: SubCommandGroup): this;
+	public addSubCommandGroup(groups: SubCommandGroup[]): this;
 	public addSubCommandGroup(
 		config: SubCommandGroupConfig,
 		subcommands: SubCommand[],
+	): this;
+	public addSubCommandGroup(
+		groupOrConfigOrArray:
+			| SubCommandGroup
+			| SubCommandGroup[]
+			| SubCommandGroupConfig,
+		subcommands?: SubCommand[],
 	) {
-		const groupBuilder = new SlashCommandSubcommandGroupBuilder()
-			.setName(config.name)
-			.setDescription(config.description);
+		const groups: SubCommandGroup[] = [];
 
-		if (config.name_localizations)
-			groupBuilder.setNameLocalizations(config.name_localizations);
-		if (config.description_localizations)
-			groupBuilder.setDescriptionLocalizations(
-				config.description_localizations,
-			);
-
-		for (const sub of subcommands) {
-			const subBuilder = new SlashCommandSubcommandBuilder()
-				.setName(sub.name)
-				.setDescription(sub.description);
-
-			if (sub.name_localizations)
-				subBuilder.setNameLocalizations(sub.name_localizations);
-			if (sub.description_localizations)
-				subBuilder.setDescriptionLocalizations(sub.description_localizations);
-
-			buildOptions(subBuilder, sub.options);
-			groupBuilder.addSubcommand(subBuilder);
-
-			this.runHandlers.set(`${config.name}.${sub.name}`, sub.run);
-			this.subcommandConfigs.set(`${config.name}.${sub.name}`, sub);
-			if (sub.autocomplete) {
-				this.autocompleteHandlers.set(
-					`${config.name}.${sub.name}`,
-					sub.autocomplete,
-				);
-			}
+		if (Array.isArray(groupOrConfigOrArray)) {
+			groups.push(...groupOrConfigOrArray);
+		} else if (
+			'config' in groupOrConfigOrArray &&
+			'subcommands' in groupOrConfigOrArray
+		) {
+			groups.push(groupOrConfigOrArray);
+		} else {
+			groups.push({
+				config: groupOrConfigOrArray as SubCommandGroupConfig,
+				subcommands: subcommands!,
+			});
 		}
-		(
-			this.data as SlashCommandBuilder | SlashCommandSubcommandsOnlyBuilder
-		).addSubcommandGroup(groupBuilder);
+
+		for (const { config, subcommands: subs } of groups) {
+			const groupBuilder = new SlashCommandSubcommandGroupBuilder()
+				.setName(config.name)
+				.setDescription(config.description);
+
+			if (config.name_localizations)
+				groupBuilder.setNameLocalizations(config.name_localizations);
+			if (config.description_localizations)
+				groupBuilder.setDescriptionLocalizations(
+					config.description_localizations,
+				);
+
+			for (const sub of subs) {
+				const subBuilder = new SlashCommandSubcommandBuilder()
+					.setName(sub.name)
+					.setDescription(sub.description);
+
+				if (sub.name_localizations)
+					subBuilder.setNameLocalizations(sub.name_localizations);
+				if (sub.description_localizations)
+					subBuilder.setDescriptionLocalizations(
+						sub.description_localizations,
+					);
+
+				buildOptions(subBuilder, sub.options);
+				groupBuilder.addSubcommand(subBuilder);
+
+				this.runHandlers.set(`${config.name}.${sub.name}`, sub.run);
+				this.subcommandConfigs.set(`${config.name}.${sub.name}`, sub);
+				if (sub.autocomplete) {
+					this.autocompleteHandlers.set(
+						`${config.name}.${sub.name}`,
+						sub.autocomplete,
+					);
+				}
+			}
+			(
+				this.data as SlashCommandBuilder | SlashCommandSubcommandsOnlyBuilder
+			).addSubcommandGroup(groupBuilder);
+		}
 		return this;
 	}
 
@@ -384,7 +436,11 @@ export class CommandBuilder implements Command {
 				)
 					return;
 
-				return handler({ client, interaction });
+				return handler({
+					client,
+					interaction,
+					res: new ReplyBuilder(interaction),
+				});
 			}
 		}
 
@@ -509,7 +565,7 @@ export function createSubCommand(config: SubCommand) {
 export function createSubCommandGroup(
 	config: SubCommandGroupConfig,
 	subcommands: SubCommand[],
-) {
+): SubCommandGroup {
 	return { config, subcommands };
 }
 

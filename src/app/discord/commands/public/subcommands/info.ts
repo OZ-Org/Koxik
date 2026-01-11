@@ -22,7 +22,11 @@ export default createSubCommand({
 		const support = 'https://discord.gg/AfeQSwBsZV';
 		const owner = 'Oz-Org';
 
-		const members = client.users.cache.size;
+		const members = client.guilds.cache.reduce(
+			(total, guild) => total + guild.memberCount,
+			0,
+		);
+
 		const guilds = client.guilds.cache.size;
 		const channels = client.channels.cache.size;
 

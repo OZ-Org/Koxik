@@ -66,3 +66,9 @@ export const emotes = {
 		robber: '🦹',
 	},
 };
+
+export const images = {
+	koxik: {
+		cry: "https://i.ibb.co/6JLjTDnQ/koxik-cry.png"
+	}
+}

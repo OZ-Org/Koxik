@@ -324,5 +324,11 @@
 			"currency": "Pollens",
 			"button": "Profile"
 		}
+	},
+	"automod": {
+		"disabled": "Automod disabled!",
+		"enabled": "Automod enabled!",
+		"no_permission": "I don't have permission to create automod rules!\nI need the **Manage Server** permission to create automod rules.",
+		"block_message": "Forbidden content blocked by Koxik."
 	}
 }
