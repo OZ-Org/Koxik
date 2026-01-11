@@ -36,8 +36,8 @@ Project maintainers have the right and responsibility to remove, edit, or reject
 
 ### Reporting Bugs
 
--   **Ensure the bug was not already reported** by searching on GitHub under [Issues](https://github.com/KoxikBot/Koxik/issues).
--   If you're unable to find an open issue addressing the problem, [open a new one](https://github.com/KoxikBot/Koxik/issues/new). Be sure to include a title and clear description, as much relevant information as possible, and a code sample or an executable test case demonstrating the expected behavior that is not occurring.
+-   **Ensure the bug was not already reported** by searching on GitHub under [Issues](https://github.com/Oz-Org/Koxik/issues).
+-   If you're unable to find an open issue addressing the problem, [open a new one](https://github.com/Oz-Org/Koxik/issues/new). Be sure to include a title and clear description, as much relevant information as possible, and a code sample or an executable test case demonstrating the expected behavior that is not occurring.
 
 ### Suggesting Enhancements
 
@@ -54,7 +54,7 @@ Project maintainers have the right and responsibility to remove, edit, or reject
 
 ## Development Setup
 
-1.  **Clone the repo**: `git clone https://github.com/KoxikBot/Koxik.git`
+1.  **Clone the repo**: `git clone https://github.com/Oz-Org/Koxik.git`
 2.  **Install dependencies**: `bun install`
 3.  **Setup Environment**: `cp .env.example .env` and configure your credentials.
 4.  **Database**: Run `docker-compose up -d` to start the Postgres database.
