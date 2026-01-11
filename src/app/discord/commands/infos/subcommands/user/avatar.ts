@@ -20,16 +20,13 @@ export default createSubCommand({
 			type: ApplicationCommandOptionType.User,
 		},
 	],
-	async run({ interaction }) {
+	async run({ interaction, res }) {
 		const user = interaction.options.getUser('user', false) ?? interaction.user;
 
 		const userAvatar = user.avatarURL({ size: 2048 });
 
 		if (!userAvatar)
-			return interaction.reply({
-				content: 'This user does not have an avatar!',
-				flags: [MessageFlags.Ephemeral],
-			});
+			return res.ephemeral().normal('This user does not have an avatar!');
 
 		const embed = new EmbedBuilder({
 			title: user.username,
@@ -38,9 +35,6 @@ export default createSubCommand({
 			},
 		});
 
-		return interaction.reply({
-			embeds: [embed],
-			flags: [MessageFlags.Ephemeral],
-		});
+		return res.ephemeral().raw({ embeds: [embed] });
 	},
 });

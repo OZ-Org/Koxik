@@ -18,7 +18,7 @@ export const {
 	commands: {
 		registerOn: [
 			RegisterType.Depends.Guild<'development'>('development', [
-				'1064302594366898257',
+				'1399909178495074304',
 			]),
 			RegisterType.Depends.Global<'production'>('production'),
 		],
