@@ -326,9 +326,9 @@
 		}
 	},
 	"automod": {
-		"disabled": "Automod desativado!",
-		"enabled": "Automod ativado!",
-		"no_permission": "Não tenho permissão para criar regras de automod!\nPreciso da permissão **Gerenciar servidor** para criar regras de automod!",
-		"block_message": "Conteúdo proibido bloqueado por Koxik."
+		"disabled": "Automod disabled!",
+		"enabled": "Automod enabled!",
+		"no_permission": "I don't have permission to create automod rules!\nI need the **Manage Server** permission to create automod rules.",
+		"block_message": "Forbidden content blocked by Koxik."
 	}
 }
