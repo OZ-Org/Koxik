@@ -1,5 +1,8 @@
 import { createEvent } from '@base';
 import { ActivityType, type Client } from 'discord.js';
+import { env } from '@env';
+import { AutoPoster } from 'topgg-autoposter'
+import { logger } from '@fx/utils/logger.js';
 
 export default createEvent({
 	name: 'ready:activity',
@@ -45,5 +48,9 @@ export default createEvent({
 
 			index++;
 		}, 60_000); // troca a cada 30s
+
+		AutoPoster(env.TOPGG_TOKEN, client).on("posted", () => {
+			logger.success("Posted stats on top.gg!")
+		})
 	},
 });
