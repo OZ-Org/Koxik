@@ -120,7 +120,7 @@ export async function drawBadges(
 	ctx: CanvasRenderingContext2D,
 	config: DrawBadgesOptions,
 	badges?: BadgeInput[] | null,
-	isBot?: boolean
+	isBot?: boolean,
 ) {
 	if (!badges?.length) return;
 

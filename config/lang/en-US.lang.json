@@ -1,4 +1,18 @@
 {
+	"common": {
+		"errors": {
+			"missing_permission": {
+				"bot": {
+					"title": "I don't have permission to %action%!",
+					"description": "I need the **%permission%** permission to continue."
+				},
+				"user": {
+					"title": "You don't have permission to %action%!",
+					"description": "You need the **%permission%** permission to use this command."
+				}
+			}
+		}
+	},
 	"ping": [
 		"📡 My current latency is ``%ping%``",
 		"⏱️ Ping response time: ``%ping_response%``"
@@ -192,7 +206,8 @@
 			"error_no_guild": "Command must used in server. (╯°□°）╯",
 			"error_on_ban": "Oops, something wrong ban, try again later. (;﹏;)",
 			"timeout": "Time out. If changed mind, run command again :3",
-			"reason_template": "Baned by %moderator% via command."
+			"reason_template": "Baned by %moderator% via command.",
+			"action": "to ban members"
 		}
 	},
 	"mine": {
@@ -330,5 +345,58 @@
 		"enabled": "Automod enabled!",
 		"no_permission": "I don't have permission to create automod rules!\nI need the **Manage Server** permission to create automod rules.",
 		"block_message": "Forbidden content blocked by Koxik."
+	},
+	"shop": {
+		"main": {
+			"title": "# Bot Shop!",
+			"description": "The bot shop offers various items for you (within the bot), just make a selection using the select menu below to select an item category!",
+			"select_option": "Select an option...",
+			"home_page": "Home page",
+			"minecraft_items": "Minecraft items",
+			"roleplay_items": "Roleplay items"
+		},
+		"select": {
+			"ring_to_married": "Wedding ring",
+			"ring_description": "A common wedding ring!",
+			"roleplay_title": "# Roleplay Items | Bot Shop!",
+			"roleplay_description": "Here you can buy (with bot coins) items for the roleplay (or fictional life) category commands by clicking the select menu below!",
+			"not_found_hint": "### Hmmmm, still didn't find what you wanted?",
+			"not_found_hint2": "If you didn't find what you wanted, try looking in another category, maybe you'll find it!",
+			"select_option": "Select an option...",
+			"home_page": "Home page",
+			"minecraft_items": "Minecraft items",
+			"roleplay_items": "Roleplay items",
+			"you_are_here": "You are here now!"
+		}
+	},
+	"buy": {
+		"error": {
+			"no_account_title": "Account not found",
+			"no_account_description": "You don't have an account in the bot! Use %command% to create your account first.",
+			"item_not_found_title": "Item not found",
+			"item_not_found_description": "This item is not currently available in the shop.",
+			"insufficient_funds_title": "Insufficient balance",
+			"insufficient_funds_description": "You don't have enough Pollens to buy **%item_name%**!\n\n💰 **Price:** %item_price% Pollens\n💳 **Your balance:** %current_balance% Pollens\n💸 **Missing:** %missing% Pollens",
+			"generic_error_title": "Purchase error",
+			"generic_error_description": "An error occurred while processing your purchase. Try again later.",
+			"transaction_failed_title": "Transaction failed",
+			"transaction_failed_description": "Your purchase could not be completed. Your balance was not debited. Try again!"
+		},
+		"confirmation": {
+			"title": "🛍️ Confirm purchase",
+			"description": "You are about to buy:\n\n**%item_name%**\n%item_description%\n\n💰 **Price:** %item_price% Pollens\n💳 **Current balance:** %current_balance% Pollens\n💸 **New balance:** %new_balance% Pollens\n\nAre you sure you want to continue?"
+		},
+		"buttons": {
+			"confirm": "Confirm purchase",
+			"cancel": "Cancel"
+		},
+		"success": {
+			"title": "Purchase completed successfully!",
+			"description": "You bought **%item_name%** for %item_price% Pollens!\n\n💳 **New balance:** %new_balance% Pollens\n\nThanks for your purchase! 💖"
+		},
+		"cancelled": {
+			"title": "Purchase cancelled",
+			"description": "Your purchase was cancelled. Your Pollens were not debited."
+		}
 	}
 }

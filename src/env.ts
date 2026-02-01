@@ -5,7 +5,7 @@ const envSchema = z.object({
 	DATABASE_URL: z.string(),
 	NODE_ENV: z.enum(['development', 'production']),
 	LOGS_WEBHOOK_URL: z.url(),
-	TOPGG_TOKEN: z.string()
+	TOPGG_TOKEN: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

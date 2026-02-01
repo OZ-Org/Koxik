@@ -1,7 +1,6 @@
 import { createCommand } from 'index.js';
 import AnalyticsSubCommand from './subcommands/analytics.js';
 import InfoSubCommand from './subcommands/info.js';
-
 import InviteSubCommand from './subcommands/invite.js';
 
 export default createCommand({

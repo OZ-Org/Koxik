@@ -7,6 +7,39 @@ type RegisterTargets = {
 	guilds: Set<string>;
 };
 
+interface RateLimitConfig {
+	requests: number;
+	window: number; // in milliseconds
+}
+
+class RateLimiter {
+	private requests: number[] = [];
+	private config: RateLimitConfig;
+
+	constructor(config: RateLimitConfig) {
+		this.config = config;
+	}
+
+	async waitForSlot(): Promise<void> {
+		const now = Date.now();
+		this.requests = this.requests.filter(
+			(time) => now - time < this.config.window,
+		);
+
+		if (this.requests.length >= this.config.requests) {
+			const oldestRequest = this.requests[0];
+			const waitTime = this.config.window - (now - oldestRequest);
+
+			if (waitTime > 0) {
+				logger.debug(`Rate limit reached, waiting ${waitTime}ms`);
+				await new Promise((resolve) => setTimeout(resolve, waitTime));
+			}
+		}
+
+		this.requests.push(now);
+	}
+}
+
 function resolveRegisterTargets(
 	registerOn: RegisterType | RegisterType[],
 ): RegisterTargets {
@@ -65,6 +98,14 @@ async function cleanupGuild(
 	await rest.put(Routes.applicationGuildCommands(appId, guildId), { body: [] });
 }
 
+async function executeWithRateLimit<T>(
+	rateLimiter: RateLimiter,
+	operation: () => Promise<T>,
+): Promise<T> {
+	await rateLimiter.waitForSlot();
+	return operation();
+}
+
 export async function syncCommands(
 	client: Client,
 	commandMap: Map<string, Command>,
@@ -86,19 +127,33 @@ export async function syncCommands(
 
 	const targets = resolveRegisterTargets(commands.registerOn);
 
+	// Configure rate limiting: 5 requests per 10 seconds
+	const rateLimiter = new RateLimiter({
+		requests: 5,
+		window: 1000,
+	});
+
 	logger.divider('Slash Command Sync');
 
-	await cleanupGlobal(rest, client.user.id, targets.global);
+	const clientId = client.user.id;
+
+	await executeWithRateLimit(rateLimiter, () =>
+		cleanupGlobal(rest, clientId, targets.global),
+	);
 
 	for (const [guildId] of client.guilds.cache) {
 		const allowed = targets.guilds.has(guildId);
-		await cleanupGuild(rest, client.user.id, guildId, allowed);
+		await executeWithRateLimit(rateLimiter, () =>
+			cleanupGuild(rest, clientId, guildId, allowed),
+		);
 	}
 
 	if (targets.global) {
 		logger.info('Registering global commands');
 
-		await rest.put(Routes.applicationCommands(client.user.id), { body });
+		await executeWithRateLimit(rateLimiter, () =>
+			rest.put(Routes.applicationCommands(clientId), { body }),
+		);
 
 		logger.success('Global commands synchronized');
 	}
@@ -106,9 +161,33 @@ export async function syncCommands(
 	for (const guildId of targets.guilds) {
 		logger.info(`Registering commands in guild → ${guildId}`);
 
-		await rest.put(Routes.applicationGuildCommands(client.user.id, guildId), {
-			body,
-		});
+		await executeWithRateLimit(rateLimiter, () =>
+			rest.put(Routes.applicationGuildCommands(clientId, guildId), {
+				body,
+			}),
+		);
+
+		logger.success(`Commands synchronized in guild → ${guildId}`);
+	}
+
+	if (targets.global) {
+		logger.info('Registering global commands');
+
+		await executeWithRateLimit(rateLimiter, () =>
+			rest.put(Routes.applicationCommands(clientId), { body }),
+		);
+
+		logger.success('Global commands synchronized');
+	}
+
+	for (const guildId of targets.guilds) {
+		logger.info(`Registering commands in guild → ${guildId}`);
+
+		await executeWithRateLimit(rateLimiter, () =>
+			rest.put(Routes.applicationGuildCommands(clientId, guildId), {
+				body,
+			}),
+		);
 
 		logger.success(`Commands synchronized in guild → ${guildId}`);
 	}

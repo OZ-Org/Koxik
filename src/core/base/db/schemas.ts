@@ -1,4 +1,4 @@
-import type { BackpackType, BadgeID, Transaction } from 'app/shared/types.js';
+import type { BackpackType, Transaction } from 'app/shared/types.js';
 import { sql } from 'drizzle-orm';
 import {
 	integer,
@@ -9,15 +9,40 @@ import {
 	timestamp,
 	uniqueIndex,
 } from 'drizzle-orm/pg-core';
+import { z } from 'zod';
 
-export interface UserBadge {
-	badge_id: BadgeID;
-	acquiredAt?: Date;
-}
+export const UserBadgeSchema = z.object({
+	badge_id: z.string(),
+	acquiredAt: z.date().optional(),
+});
 
-export interface ConfigsData {
-	aboutme: string;
-}
+export const ConfigsDataSchema = z.object({
+	aboutme: z.string().max(500),
+});
+
+export const GuildConfigsSchema = z.object({
+	movementLogs: z
+		.object({
+			welcome: z
+				.object({
+					enable: z.boolean(),
+					channelId: z.string(),
+					message: z.string(),
+				})
+				.optional(),
+			leave: z
+				.object({
+					enable: z.boolean(),
+					channelId: z.string(),
+					message: z.string(),
+				})
+				.optional(),
+		})
+		.optional(),
+});
+
+export interface UserBadge extends z.infer<typeof UserBadgeSchema> {}
+export interface ConfigsData extends z.infer<typeof ConfigsDataSchema> {}
 
 export const user = pgTable(
 	'User',
@@ -74,27 +99,27 @@ export const guilds = pgTable('Guild', {
 	inputsOn: timestamp({ precision: 3, mode: 'string' })
 		.default(sql`CURRENT_TIMESTAMP`)
 		.notNull(),
-	configs: jsonb().notNull().default({}).$type<{
-		movementLogs?: {
-			welcome?: {
-				enable: boolean;
-				channelId: string;
-				message: string;
-			};
-			leave?: {
-				enable: boolean;
-				channelId: string;
-				message: string;
-			};
-		};
-	}>(),
+	configs: jsonb()
+		.notNull()
+		.default({})
+		.$type<z.infer<typeof GuildConfigsSchema>>(),
+});
+
+export const BlacklistTypeSchema = z.enum(['user', 'guild']);
+export type BlacklistType = z.infer<typeof BlacklistTypeSchema>;
+
+export const BlacklistSchema = z.object({
+	targetId: z.string(),
+	type: BlacklistTypeSchema,
+	reason: z.string().optional(),
+	addedBy: z.string().optional(),
 });
 
 export const blacklist = pgTable('Blacklist', {
 	id: serial('id').primaryKey().notNull(),
 
 	targetId: text('target_id').notNull(),
-	type: text('type').notNull().$type<'user' | 'guild'>(),
+	type: text('type').notNull().$type<BlacklistType>(),
 
 	reason: text('reason'),
 	addedBy: text('added_by'),

@@ -225,7 +225,7 @@ export const paySubCommand = createSubCommand({
 						'',
 						replyLang(interaction.locale, 'eco#pay#error#notReceiver'),
 					);
-					await i.reply({ embeds: [errorEmbed], flags: ['Ephemeral'] });
+					await i.update({ embeds: [errorEmbed], flags: ['Ephemeral'] });
 					return;
 				}
 

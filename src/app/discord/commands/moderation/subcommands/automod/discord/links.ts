@@ -1,13 +1,13 @@
 // all-regex is from https://github.com/kedyjs/discord-advanced-regex
 
 import { createSubCommand } from '@base';
+import { replyLang } from '@fx/utils/replyLang.js';
 import {
 	AutoModerationActionType,
 	AutoModerationRuleEventType,
 	AutoModerationRuleTriggerType,
 	PermissionsBitField,
 } from 'discord.js';
-import { replyLang } from '@fx/utils/replyLang.js';
 
 export default createSubCommand({
 	name: 'links',
