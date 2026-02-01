@@ -1,4 +1,18 @@
 {
+	"common": {
+		"errors": {
+			"missing_permission": {
+				"bot": {
+					"title": "Não tenho permissão %action%!",
+					"description": "Preciso da permissão **%permission%** pra continuar."
+				},
+				"user": {
+					"title": "Você não tem permissão %action%!",
+					"description": "Você precisa da permissão **%permission%** pra usar este comando."
+				}
+			}
+		}
+	},
 	"ping": [
 		"📡 My current latency is ``%ping%``",
 		"⏱️ Ping response time: ``%ping_response%``"
@@ -192,7 +206,8 @@
 			"error_no_guild": "Command must used in server. (╯°□°）╯",
 			"error_on_ban": "Oops, something wrong ban, try again later. (;﹏;)",
 			"timeout": "Time out. If changed mind, run command again :3",
-			"reason_template": "Baned by %moderator% via command."
+			"reason_template": "Baned by %moderator% via command.",
+			"action": "para banir membros"
 		}
 	},
 	"mine": {
@@ -326,9 +341,62 @@
 		}
 	},
 	"automod": {
-		"disabled": "Automod disabled!",
-		"enabled": "Automod enabled!",
-		"no_permission": "I don't have permission to create automod rules!\nI need the **Manage Server** permission to create automod rules.",
-		"block_message": "Forbidden content blocked by Koxik."
+		"disabled": "Automod desativado!",
+		"enabled": "Automod ativado!",
+		"no_permission": "Não tenho permissão para criar regras de automod!\nPreciso da permissão **Gerenciar servidor** para criar regras de automod!",
+		"block_message": "Conteúdo proibido bloqueado por Koxik."
+	},
+	"shop": {
+		"main": {
+			"title": "# Lojinha do bot!",
+			"description": "A lojinha do bot oferece vários itens pra você (dentro do bot), basta fazer uma seleção usando o select menu abaixo para selecionar uma categoria de item!",
+			"select_option": "Selecione uma opção...",
+			"home_page": "Página inicial",
+			"minecraft_items": "Itens do minecraft",
+			"roleplay_items": "Itens de roleplay"
+		},
+		"select": {
+			"ring_to_married": "Anel de casamento",
+			"ring_description": "Um anel de casamento comum!",
+			"roleplay_title": "# Itens de Roleplay | Lojinha do bot!",
+			"roleplay_description": "Aqui você pode comprar (com moedas do bot) itens para os comandos de categoria roleplay (ou vida ficticia) clicando no select menu abaixo!",
+			"not_found_hint": "### Hummm, ainda não achou o que queria?",
+			"not_found_hint2": "Se não achou o que queria tente ver por outra categoria vai que você ache!",
+			"select_option": "Selecione uma opção...",
+			"home_page": "Página inicial",
+			"minecraft_items": "Itens do minecraft",
+			"roleplay_items": "Itens de roleplay",
+			"you_are_here": "Você está aqui agora!"
+		},
+		"buy": {
+			"error": {
+				"no_account_title": "Conta não encontrada",
+				"no_account_description": "Você não tem uma conta no bot! Use %command% para criar sua conta primeiro.",
+				"item_not_found_title": "Item não encontrado",
+				"item_not_found_description": "Este item não está disponível na loja no momento.",
+				"insufficient_funds_title": "Saldo insuficiente",
+				"insufficient_funds_description": "Você não tem pólens suficientes para comprar **%item_name%**!\n\n💰 **Preço:** %item_price% pólens\n💳 **Seu saldo:** %current_balance% pólens\n💸 **Faltam:** %missing% pólens",
+				"generic_error_title": "Erro na compra",
+				"generic_error_description": "Ocorreu um erro ao processar sua compra. Tente novamente mais tarde.",
+				"transaction_failed_title": "Falha na transação",
+				"transaction_failed_description": "Não foi possível completar sua compra. Seu saldo não foi debitado. Tente novamente!"
+			},
+			"confirmation": {
+				"title": "🛍️ Confirmar compra",
+				"description": "Você está prestes a comprar:\n\n**%item_name%**\n%item_description%\n\n💰 **Preço:** %item_price% pólens\n💳 **Saldo atual:** %current_balance% pólens\n💸 **Novo saldo:** %new_balance% pólens\n\nTem certeza que deseja continuar?"
+			},
+			"buttons": {
+				"confirm": "Confirmar compra",
+				"cancel": "Cancelar"
+			},
+			"success": {
+				"title": "Compra realizada com sucesso!",
+				"description": "Você comprou **%item_name%** por %item_price% pólens!\n\n💳 **Novo saldo:** %new_balance% pólens\n\nObrigado pela compra! 💖"
+			},
+			"cancelled": {
+				"title": "Compra cancelada",
+				"description": "Sua compra foi cancelada. Seus pólens não foram debitados."
+			}
+		}
 	}
 }
