@@ -4,10 +4,8 @@ import type enUSSchema from '../../../../config/lang/en-US.lang.json';
 import type esESSchema from '../../../../config/lang/es-ES.lang.json';
 import type ptBRSchema from '../../../../config/lang/pt-BR.lang.json';
 
-// ------------------ TIPOS ------------------
 type Variables = Record<string, string | number | boolean>;
 
-// Cria paths infinitas para intellisense
 type Join<K, P> = K extends string | number
 	? P extends string | number
 		? `${K}#${P}`
@@ -19,7 +17,7 @@ type NestedKeys<T> = T extends object
 			[K in keyof T]: T[K] extends object ? K | Join<K, NestedKeys<T[K]>> : K;
 		}[keyof T]
 	: never;
-// ------------------ CARREGA LANGS UMA VEZ ------------------
+
 type Languages = {
 	'pt-BR': typeof ptBRSchema;
 	'en-US': typeof enUSSchema;
@@ -44,7 +42,6 @@ const localeMap: Partial<Record<Locale, keyof Languages>> = {
 	'es-ES': 'es-ES',
 };
 
-// ------------------ GET NESTED SEGURO ------------------
 function getNestedSafe<TObj extends object, TPath extends string>(
 	obj: TObj,
 	path: TPath,
@@ -58,10 +55,9 @@ function getNestedSafe<TObj extends object, TPath extends string>(
 
 	if (typeof value === 'string' || Array.isArray(value)) return value;
 	if (value === undefined) return undefined;
-	return JSON.stringify(value); // Se for objeto, transforma em string
+	return JSON.stringify(value);
 }
 
-// ------------------ PLACEHOLDERS ------------------
 function replacePlaceholders(text: string, variables?: Variables): string {
 	if (!variables) return text;
 	return text.replace(/%(\w+)%/g, (_, key) =>
@@ -69,15 +65,16 @@ function replacePlaceholders(text: string, variables?: Variables): string {
 	);
 }
 
-// ------------------ FUNÇÃO PRINCIPAL ------------------
-export function replyLang<T extends typeof ptBRSchema, K extends NestedKeys<T>>(
+export type LangKey = NestedKeys<typeof ptBRSchema>;
+
+export function replyLang(
 	locale: Locale,
-	key: K,
+	key: LangKey,
 	variables?: Variables,
 ): string {
 	const mappedLocale = localeMap[locale] ?? 'en-US';
+
 	const rawText =
-		// @ts-expect-error is correct
 		getNestedSafe(languages[mappedLocale], key) ??
 		getNestedSafe(languages['en-US'], key);
 

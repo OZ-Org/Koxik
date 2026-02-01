@@ -145,7 +145,7 @@ export default createSubCommand({
 				maxPerRow: 8,
 			},
 			userData.badges,
-			isABot
+			isABot,
 		);
 
 		const avatar = await loadImage(

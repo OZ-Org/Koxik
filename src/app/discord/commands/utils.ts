@@ -1,5 +1,6 @@
 import { replyLang } from '@fx/utils/replyLang.js';
 import { EmbedPlusBuilder } from '@magicyan/discord';
+import { images } from '@misc/emotes.js';
 import { Colors, type Locale, type User } from 'discord.js';
 
 export function createErrorEmbed(
@@ -11,6 +12,7 @@ export function createErrorEmbed(
 		color: Colors.Red,
 		title: `❌ ${title}`,
 		description,
+		thumbnail: images.koxik.cry,
 		timestamp: new Date(),
 		footer: { text: replyLang(locale, 'eco#footer#error') },
 	});

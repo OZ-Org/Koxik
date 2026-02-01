@@ -12,6 +12,7 @@ export const emotes = {
 	misc: {
 		suspect: '<:breadsus:1422770743451844668>',
 		dollar: '<:dollar:1455382683344568550>',
+		mineDirt: '<a:mine_dirt:1464197289256947820>',
 		party: '🎉',
 		sparkles: '✨',
 		fire: '🔥',
@@ -69,6 +70,6 @@ export const emotes = {
 
 export const images = {
 	koxik: {
-		cry: "https://i.ibb.co/6JLjTDnQ/koxik-cry.png"
-	}
-}
+		cry: 'https://i.ibb.co/6JLjTDnQ/koxik-cry.png',
+	},
+};

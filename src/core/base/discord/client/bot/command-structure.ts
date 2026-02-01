@@ -1,12 +1,8 @@
 /** biome-ignore-all lint/complexity/noBannedTypes: ... */
 /** biome-ignore-all assist/source/organizeImports: ... */
 import {
-	type APIMessageTopLevelComponent,
 	ApplicationCommandOptionType,
-	type ChatInputCommandInteraction,
 	type InteractionContextType,
-	type JSONEncodable,
-	MessageFlags,
 	type PermissionResolvable,
 	PermissionsBitField,
 	SlashCommandBuilder,
@@ -19,112 +15,10 @@ import type {
 	AutocompleteOptions,
 	Command,
 	CommandRunOptions,
-	ReplyPayload,
 	ResponderInteraction,
 } from './types.js';
-import { emotes, images } from '@misc/emotes.js';
 import type { Responder } from './types.js';
-
-type V2Encodable =
-	| JSONEncodable<APIMessageTopLevelComponent>
-	| APIMessageTopLevelComponent;
-
-export class ReplyBuilder {
-	constructor(
-		private interaction: ChatInputCommandInteraction,
-		private ephemeralMode = false,
-	) {}
-
-	private async dispatch(payload: ReplyPayload) {
-		const flags = [
-			...(Array.isArray(payload.flags) ? payload.flags : []),
-			...(this.ephemeralMode ? [MessageFlags.Ephemeral] : []),
-		] as const;
-
-		const data = {
-			...payload,
-			flags: flags.length ? flags : undefined,
-		};
-
-		if (this.interaction.replied || this.interaction.deferred) {
-			return this.interaction.editReply(data);
-		}
-
-		return this.interaction.reply(data);
-	}
-
-	async defer() {
-		if (!this.interaction.replied && !this.interaction.deferred) {
-			await this.interaction.deferReply({
-				flags: this.ephemeralMode ? [MessageFlags.Ephemeral] : undefined,
-			});
-		}
-		return this;
-	}
-
-	ephemeral() {
-		return new ReplyBuilder(this.interaction, true);
-	}
-
-	success(content: string) {
-		return this.dispatch({
-			content: `${emotes.utils.checkmark} | ${content}`,
-		});
-	}
-
-	crying(content: string, locale: string) {
-		return this.dispatch({
-			embeds: [
-					{
-						title: `${emotes.utils.crossmark} | ${
-							locale === 'pt-BR' ? 
-							'Algo deu errado...' : 
-							locale === 'es-ES' ? 'Algo salió mal...' 
-							: 'Something went wrong...'
-						}`,
-						description: content,
-						thumbnail: { url: images.koxik.cry },
-						color: 0xed4245,
-					},
-				],
-			});
-	}
-
-	error(content: string) {
-		return this.dispatch({
-			content: `${emotes.utils.crossmark} | ${content}`,
-		});
-	}
-
-	info(content: string) {
-		return this.dispatch({
-			content: `${emotes.utils.info} | ${content}`,
-		});
-	}
-
-	normal(content: string) {
-		return this.dispatch({ content });
-	}
-
-	raw(payload: ReplyPayload) {
-		return this.dispatch(payload);
-	}
-
-	followUp(payload: ReplyPayload) {
-		return this.interaction.followUp({
-			...payload,
-			flags: this.ephemeralMode ? [MessageFlags.Ephemeral] : payload.flags,
-		});
-	}
-
-	v2(components: V2Encodable[], payload?: ReplyPayload) {
-		return this.dispatch({
-			...payload,
-			flags: [MessageFlags.IsComponentsV2],
-			components,
-		});
-	}
-}
+import { ReplyBuilder } from './ReplyBuilder.js';
 
 export type CommandOptionChoice = {
 	name: string;
@@ -394,9 +288,7 @@ export class CommandBuilder implements Command {
 				if (sub.name_localizations)
 					subBuilder.setNameLocalizations(sub.name_localizations);
 				if (sub.description_localizations)
-					subBuilder.setDescriptionLocalizations(
-						sub.description_localizations,
-					);
+					subBuilder.setDescriptionLocalizations(sub.description_localizations);
 
 				buildOptions(subBuilder, sub.options);
 				groupBuilder.addSubcommand(subBuilder);

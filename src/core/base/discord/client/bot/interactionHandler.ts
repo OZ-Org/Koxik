@@ -4,9 +4,9 @@ import { logger } from '@fx/utils/logger.js';
 import type { ChatInputCommandInteraction, Interaction } from 'discord.js';
 import { sql } from 'drizzle-orm';
 import type { KoxikClient } from './CustomClient.js';
-import { ReplyBuilder } from './command-structure.js';
+import { ReplyBuilder } from './ReplyBuilder.js';
 import { getResponders } from './registry.js';
-import type { Command } from './types.js';
+import type { Command, ComponentInteraction, InteractionMap } from './types.js';
 
 /**
  * Safely handles interaction responses with timeout protection
@@ -77,15 +77,26 @@ export function setupInteractionHandler(
 			if (!command) return;
 
 			try {
-				const userBlacklisted = await db
+				const blacklisted = await db
 					.select()
 					.from(blacklist)
 					.where(
-						sql`${blacklist.targetId} = ${interaction.user.id} AND ${blacklist.type} = 'user'`,
+						sql`(${blacklist.targetId} = ${interaction.user.id} AND ${blacklist.type} = 'user') OR 
+						  (${blacklist.targetId} = ${interaction.guildId} AND ${blacklist.type} = 'guild')`,
 					)
-					.limit(1);
+					.limit(2);
 
-				if (userBlacklisted.length > 0) {
+				const userBlacklisted = blacklisted.some(
+					(entry) =>
+						entry.targetId === interaction.user.id && entry.type === 'user',
+				);
+
+				const guildBlacklisted = blacklisted.some(
+					(entry) =>
+						entry.targetId === interaction.guildId && entry.type === 'guild',
+				);
+
+				if (userBlacklisted) {
 					await interaction
 						.reply({
 							content: '🚫 You are banned from KoxikBot.',
@@ -95,15 +106,7 @@ export function setupInteractionHandler(
 					return;
 				}
 
-				const guildBlacklisted = await db
-					.select()
-					.from(blacklist)
-					.where(
-						sql`${blacklist.targetId} = ${interaction.guildId} AND ${blacklist.type} = 'guild'`,
-					)
-					.limit(1);
-
-				if (guildBlacklisted.length > 0) {
+				if (guildBlacklisted) {
 					await interaction
 						.reply({
 							content: '🚫 This server is banned from KoxikBot.',
@@ -173,19 +176,16 @@ export function setupInteractionHandler(
 	});
 }
 
-export async function resolveResponder(interaction: Interaction) {
-	if (
-		!interaction.isButton() &&
-		!interaction.isModalSubmit() &&
-		!interaction.isStringSelectMenu()
-	)
-		return;
-
+export async function resolveResponder(interaction: ComponentInteraction) {
 	const type = interaction.isButton()
 		? 'button'
 		: interaction.isModalSubmit()
 			? 'modal'
-			: 'stringSelect';
+			: interaction.isStringSelectMenu()
+				? 'stringSelect'
+				: null;
+
+	if (!type) return;
 
 	for (const responder of getResponders()) {
 		if (responder.type !== type) continue;
@@ -195,14 +195,15 @@ export async function resolveResponder(interaction: Interaction) {
 		if (!match) continue;
 
 		const params: Record<string, string> = {};
-
 		responder.__keys?.forEach((key, i) => {
 			params[key] = match[i + 1];
 		});
 
+		// ✨ aqui acontece a alquimia
 		return responder.run({
-			interaction: interaction as any,
+			interaction: interaction as InteractionMap[typeof type],
 			useParams: () => params,
+			res: new ReplyBuilder(interaction),
 		});
 	}
 }

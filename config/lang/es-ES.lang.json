@@ -1,4 +1,18 @@
 {
+	"common": {
+		"errors": {
+			"missing_permission": {
+				"bot": {
+					"title": "¡No tengo permiso para %action%!",
+					"description": "Necesito el permiso **%permission%** para continuar."
+				},
+				"user": {
+					"title": "¡No tienes permiso para %action%!",
+					"description": "Necesitas el permiso **%permission%** para usar este comando."
+				}
+			}
+		}
+	},
 	"ping": [
 		"📡 Mi latencia actual es ``%ping%``",
 		"⏱️ Tiempo de respuesta del ping: ``%ping_response%``"
@@ -192,7 +206,8 @@
 			"error_no_guild": "Este comando debe usarse dentro de un servidor. (╯°□°）╯",
 			"error_on_ban": "Algo fallo al banear, intenta luego. (;﹏;)",
 			"timeout": "Tiempo agotado. Si cambiaste de idea, ejecuta el comando otra vez :3",
-			"reason_template": "Baneado por %moderator% via comando."
+			"reason_template": "Baneado por %moderator% via comando.",
+			"action": "para banear miembros"
 		}
 	},
 	"mine": {
@@ -330,5 +345,58 @@
 		"enabled": "¡Automod activado!",
 		"no_permission": "¡No tengo permiso para crear reglas de automod!\nNecesito el permiso **Administrar servidor** para crear reglas de automod.",
 		"block_message": "Contenido prohibido bloqueado por Koxik."
+	},
+	"shop": {
+		"main": {
+			"title": "# ¡Tienda del bot!",
+			"description": "¡La tienda del bot ofrece varios ítems para ti (dentro del bot), solo haz una selección usando el menú select abajo para seleccionar una categoría de ítem!",
+			"select_option": "Selecciona una opción...",
+			"home_page": "Página de inicio",
+			"minecraft_items": "Ítems de minecraft",
+			"roleplay_items": "Ítems de roleplay"
+		},
+		"select": {
+			"ring_to_married": "Anillo de matrimonio",
+			"ring_description": "¡Un anillo de matrimonio común!",
+			"roleplay_title": "# Ítems de Roleplay | Tienda del bot!",
+			"roleplay_description": "¡Aquí puedes comprar (con monedas del bot) ítems para los comandos de la categoría roleplay (o vida ficticia) haciendo clic en el menú select abajo!",
+			"not_found_hint": "### ¿Hmmmm, todavía no encontraste lo que querías?",
+			"not_found_hint2": "¡Si no encontraste lo que querías intenta ver por otra categoría, quizás lo encuentres!",
+			"select_option": "Selecciona una opción...",
+			"home_page": "Página de inicio",
+			"minecraft_items": "Ítems de minecraft",
+			"roleplay_items": "Ítems de roleplay",
+			"you_are_here": "¡Estás aquí ahora!"
+		},
+		"buy": {
+			"error": {
+				"no_account_title": "Cuenta no encontrada",
+				"no_account_description": "¡No tienes una cuenta en el bot! Usa %command% para crear tu cuenta primero.",
+				"item_not_found_title": "Ítem no encontrado",
+				"item_not_found_description": "Este ítem no está disponible en la tienda actualmente.",
+				"insufficient_funds_title": "Saldo insuficiente",
+				"insufficient_funds_description": "¡No tienes Pólenes suficientes para comprar **%item_name%**!\n\n💰 **Precio:** %item_price% Pólenes\n💳 **Tu saldo:** %current_balance% Pólenes\n💸 **Faltan:** %missing% Pólenes",
+				"generic_error_title": "Error en la compra",
+				"generic_error_description": "Ocurrió un error al procesar tu compra. Intenta más tarde.",
+				"transaction_failed_title": "Transacción fallida",
+				"transaction_failed_description": "No se pudo completar tu compra. Tu saldo no fue debitado. ¡Intenta de nuevo!"
+			},
+			"confirmation": {
+				"title": "🛍️ Confirmar compra",
+				"description": "Estás a punto de comprar:\n\n**%item_name%**\n%item_description%\n\n💰 **Precio:** %item_price% Pólenes\n💳 **Saldo actual:** %current_balance% Pólenes\n💸 **Nuevo saldo:** %new_balance% Pólenes\n\n¿Estás seguro que deseas continuar?"
+			},
+			"buttons": {
+				"confirm": "Confirmar compra",
+				"cancel": "Cancelar"
+			},
+			"success": {
+				"title": "¡Compra realizada con éxito!",
+				"description": "¡Compraste **%item_name%** por %item_price% Pólenes!\n\n💳 **Nuevo saldo:** %new_balance% Pólenes\n\n¡Gracias por tu compra! 💖"
+			},
+			"cancelled": {
+				"title": "Compra cancelada",
+				"description": "Tu compra fue cancelada. Tus Pólenes no fueron debitados."
+			}
+		}
 	}
 }

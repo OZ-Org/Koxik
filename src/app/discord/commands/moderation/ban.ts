@@ -1,4 +1,5 @@
 import { createCommand } from '@base';
+import { createMissingPermissionEmbed } from '@fx/helpers/createNoPermission.js';
 import { replyLang } from '@fx/utils/replyLang.js';
 import { createRow } from '@magicyan/discord';
 import { emotes } from '@misc/emotes.js';
@@ -106,6 +107,28 @@ export default createCommand({
 				t(locale, 'ban#responses#error_bot_higher_role'),
 			);
 			return res.ephemeral().raw({ embeds: [embed] });
+		}
+
+		if (!me.permissions.has(PermissionFlagsBits.BanMembers)) {
+			return await createMissingPermissionEmbed({
+				interaction,
+				res,
+				permission: PermissionFlagsBits.BanMembers,
+				actionKey: 'ban#responses#action',
+				target: 'bot',
+			});
+		}
+
+		if (
+			!(executor as GuildMember).permissions.has(PermissionFlagsBits.BanMembers)
+		) {
+			return await createMissingPermissionEmbed({
+				interaction,
+				res,
+				permission: PermissionFlagsBits.BanMembers,
+				actionKey: 'ban#responses#action',
+				target: 'user',
+			});
 		}
 
 		if (

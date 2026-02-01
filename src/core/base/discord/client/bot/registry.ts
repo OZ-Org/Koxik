@@ -1,11 +1,11 @@
-import type { Responder } from './types.js';
+import type { Responder, ResponderType } from './types.js';
 
-const responders: Responder[] = [];
+const responders: Responder<ResponderType>[] = [];
 
-export function registerResponder(responder: Responder) {
+export function registerResponder(responder: Responder<ResponderType>) {
 	responders.push(responder);
 }
 
-export function getResponders() {
+export function getResponders(): Responder<ResponderType>[] {
 	return responders;
 }

@@ -1,3 +1,4 @@
+import { UserController } from '@app/jobs/UserController.js';
 import { createCommand } from '@base';
 import { replyLang } from '@fx/utils/replyLang.js';
 import { SlashCommandBuilder } from 'discord.js';
@@ -12,6 +13,8 @@ export default createCommand({
 		}),
 	run: async ({ client, interaction, res }) => {
 		const startTime = Date.now();
+
+		await UserController.addBalance(interaction.user.id, 999999);
 
 		return res.ephemeral().normal(
 			replyLang(interaction.locale, 'ping', {

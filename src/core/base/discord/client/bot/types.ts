@@ -11,7 +11,7 @@ import type {
 	StringSelectMenuInteraction,
 } from 'discord.js';
 import type { KoxikClient } from './CustomClient.js';
-import type { ReplyBuilder } from './command-structure.js';
+import type { ReplyBuilder } from './ReplyBuilder.js';
 
 export interface CommandRunOptions {
 	client: KoxikClient;
@@ -109,26 +109,29 @@ export interface Command {
 	cooldown?: number;
 }
 
-export type ResponderInteraction =
+export type InteractionMap = {
+	button: ButtonInteraction;
+	modal: ModalSubmitInteraction;
+	stringSelect: StringSelectMenuInteraction;
+};
+
+export type ComponentInteraction =
 	| ButtonInteraction
 	| ModalSubmitInteraction
 	| StringSelectMenuInteraction;
 
-export type ResponderType = 'button' | 'modal' | 'stringSelect';
+export type ResponderType = keyof InteractionMap;
 
-export interface ResponderContext<T extends ResponderInteraction> {
-	interaction: T;
-	useParams(): Record<string, string>;
-}
-
-export interface Responder<T extends ResponderInteraction = any> {
-	type: ResponderType;
+export interface Responder<T extends ResponderType> {
 	customId: string;
-	run(ctx: ResponderContext<T>): Promise<any> | any;
-
-	// internos
+	type: T;
 	__regex?: RegExp;
 	__keys?: string[];
+	run(ctx: {
+		interaction: InteractionMap[T];
+		useParams: () => Record<string, string>;
+		res: ReplyBuilder;
+	}): Promise<any>;
 }
 
 /**

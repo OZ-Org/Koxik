@@ -24,7 +24,7 @@ export default createSubCommand({
 		const locale = interaction.locale;
 		const userId = interaction.user.id;
 
-		await res.ephemeral().defer()
+		await res.ephemeral().defer();
 
 		const userDB = await UserController.find(userId);
 		if (!userDB) {

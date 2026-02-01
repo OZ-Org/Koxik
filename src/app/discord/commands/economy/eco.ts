@@ -4,6 +4,7 @@ import { dailySubCommand } from './subcommands/daily.js';
 import { depositSubCommand } from './subcommands/deposit.js';
 import { leaderboardSubCommand } from './subcommands/leaderboard.js';
 import { paySubCommand } from './subcommands/pay.js';
+import { shopSubCommand } from './subcommands/shop.js';
 
 export default createCommand({
 	name: 'eco',
@@ -19,4 +20,5 @@ export default createCommand({
 	paySubCommand,
 	dailySubCommand,
 	leaderboardSubCommand,
+	shopSubCommand,
 ]);
