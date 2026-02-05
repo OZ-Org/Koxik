@@ -1,5 +1,9 @@
 ## 🤍 Special Thanks To:
 
+---
+
+### 🧠 Core
+
 <div align="center">
 
 <table>
@@ -13,6 +17,28 @@
       <br />
       <a href="https://github.com/noadevbr">GitHub</a>
     </td>
+    <td align="center">
+      <img src="https://github.com/bryansmithsantos.png" width="120" style="border-radius: 50%;" />
+      <br />
+      <strong>Bryan — Leref</strong>
+      <br />
+      <sub>Developer • Sub-creator</sub>
+      <br />
+      <a href="https://github.com/bryansmithsantos">GitHub</a>
+    </td>
+  </tr>
+</table>
+
+</div>
+
+---
+
+### 🤝 Support & Collaboration
+
+<div align="center">
+
+<table>
+  <tr>
     <td align="center">
       <img src="https://github.com/gatifulaa.png" width="120" style="border-radius: 50%;" />
       <br />
@@ -32,16 +58,18 @@
       <a href="https://github.com/op3ny">GitHub</a>
     </td>
   </tr>
+</table>
+
+</div>
+
+---
+
+### 🎨 Artwork
+
+<div align="center">
+
+<table>
   <tr>
-    <td align="center">
-      <img src="https://github.com/bryansmithsantos.png" width="120" style="border-radius: 50%;" />
-      <br />
-      <strong>Bryan — Leref</strong>
-      <br />
-      <sub>Developer • Sub-creator</sub>
-      <br />
-      <a href="https://github.com/bryansmithsantos">GitHub</a>
-    </td>
     <td align="center">
       <img src="assets/Kukie.jpg" width="120" />
       <br />
