@@ -43,7 +43,7 @@
       <a href="https://github.com/bryansmithsantos">GitHub</a>
     </td>
     <td align="center">
-      <img src="assets/Kukie.png" width="120" />
+      <img src="assets/Kukie.jpg" width="120" />
       <br />
       <strong>Matheus — Kukie</strong>
       <br />
