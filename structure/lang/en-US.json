@@ -1,0 +1,28 @@
+{
+    "bet": {
+        "notEnoughBalance": "You don't have enough balance to make this bet.",
+        "win": "Congratulations! You won {amount} coins! Your new balance is {balance}.",
+        "lose": "Unfortunately! You lost {amount} coins. Your new balance is {balance}."
+    },
+    "shop": {
+        "shopTitle": "Shop",
+        "chooseCategory": "Choose a category",
+        "chooseItem": "Choose an item",
+        "purchaseSuccess": "You purchased {itemName} for {itemPrice} coins!",
+        "noBalance": "You do not have enough coins!",
+        "timeout": "You took too long to make a selection."
+    },
+    "mine": {
+        "noPickaxe": "You need a pickaxe to mine.",
+        "miningTitle": "Mining...",
+        "miningDescription": "You are mining... {emoji}",
+        "miningProgressTitle": "Mining Progress",
+        "miningProgressDescription": "Time remaining: {time} minutes",
+        "miningCompleteTitle": "Mining Complete",
+        "miningCompleteDescription": "You completed mining and obtained the following resources:",
+        "saveSuccess": "Minerals saved successfully!",
+        "transferSuccess": "Minerals transferred successfully! You received {totalValue} balance.",
+        "timeoutMessage": "Time limit reached. Minerals saved automatically.",
+        "durabilityRemaining": "Remaining Durability"
+    }
+}

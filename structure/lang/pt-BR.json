@@ -1,0 +1,28 @@
+{
+    "mine": {
+        "noPickaxe": "Você precisa ter uma picareta para minerar.",
+        "miningTitle": "Minerando...",
+        "miningDescription": "Você está minerando... {emoji}",
+        "miningProgressTitle": "Progresso da Mineração",
+        "miningProgressDescription": "Tempo restante: {time} minutos",
+        "miningCompleteTitle": "Mineração Concluída",
+        "miningCompleteDescription": "Você concluiu a mineração e obteve os seguintes recursos:",
+        "saveSuccess": "Minérios salvos com sucesso!",
+        "transferSuccess": "Minérios transferidos com sucesso! Você recebeu {totalValue} de saldo.",
+        "timeoutMessage": "Tempo limite atingido. Minérios salvos automaticamente.",
+        "durabilityRemaining": "Durabilidade Restante"
+    },
+    "bet": {
+        "notEnoughBalance": "Você não tem saldo suficiente para fazer essa aposta.",
+        "win": "Parabéns! Você ganhou {amount} moedas! Seu novo saldo é {balance}.",
+        "lose": "Que pena! Você perdeu {amount} moedas. Seu novo saldo é {balance}."
+    },
+    "shop": {
+        "shopTitle": "Loja",
+        "chooseCategory": "Escolha uma categoria",
+        "chooseItem": "Escolha um item",
+        "purchaseSuccess": "Você comprou {itemName} por {itemPrice} moedas!",
+        "noBalance": "Você não tem moedas suficientes!",
+        "timeout": "Você demorou muito para fazer uma seleção."
+    }
+}
