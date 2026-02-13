@@ -79,15 +79,15 @@ registerResponder(
 									)
 									.setValue('page/home')
 									.setEmoji(emotes.ui.home),
-								new StringSelectMenuOptionBuilder()
-									.setLabel(
-										replyLang(
-											interaction.locale,
-											'shop#select#minecraft_items',
-										),
-									)
-									.setValue('page/minecraft')
-									.setEmoji(emotes.misc.mineDirt),
+								// new StringSelectMenuOptionBuilder()
+								// 	.setLabel(
+								// 		replyLang(
+								// 			interaction.locale,
+								// 			'shop#select#minecraft_items',
+								// 		),
+								// 	)
+								// 	.setValue('page/minecraft')
+								// 	.setEmoji(emotes.misc.mineDirt),
 								new StringSelectMenuOptionBuilder()
 									.setLabel(
 										replyLang(interaction.locale, 'shop#select#roleplay_items'),

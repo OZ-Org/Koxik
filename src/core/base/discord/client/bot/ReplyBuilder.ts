@@ -2,6 +2,7 @@ import { emotes, images } from '@misc/emotes.js';
 import {
 	type APIMessageTopLevelComponent,
 	type ButtonInteraction,
+	type ChannelSelectMenuInteraction,
 	type ChatInputCommandInteraction,
 	type JSONEncodable,
 	MessageFlags,
@@ -20,6 +21,7 @@ export class ReplyBuilder {
 			| ChatInputCommandInteraction
 			| ButtonInteraction
 			| StringSelectMenuInteraction
+			| ChannelSelectMenuInteraction
 			| ModalSubmitInteraction,
 		private ephemeralMode = false,
 		private updateMode = false,
@@ -42,7 +44,9 @@ export class ReplyBuilder {
 
 		if (
 			this.updateMode &&
-			(this.interaction.isButton() || this.interaction.isStringSelectMenu())
+			(this.interaction.isButton() ||
+				this.interaction.isStringSelectMenu() ||
+				this.interaction.isChannelSelectMenu())
 		) {
 			return this.interaction.update(data);
 		}

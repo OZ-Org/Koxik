@@ -15,7 +15,6 @@ export type PickaxesTypesIDs =
 	| 'PICX_DIAMOND'
 	| 'PICX_NETHERITE';
 
-// Tipos de minérios disponíveis
 export type OreType =
 	| 'stone'
 	| 'coal'
@@ -24,7 +23,6 @@ export type OreType =
 	| 'netherite'
 	| 'wood';
 
-// Item da mochila (pode ser uma picareta ou um minério)
 export type BackpackItem =
 	| {
 			id: string;

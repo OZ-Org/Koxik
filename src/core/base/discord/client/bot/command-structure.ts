@@ -215,6 +215,7 @@ export class CommandBuilder implements Command {
 	}
 
 	public addSubCommands(subcommands: SubCommand[]) {
+		if (!subcommands) return this;
 		for (const sub of subcommands) {
 			const subBuilder = new SlashCommandSubcommandBuilder()
 				.setName(sub.name)
@@ -280,26 +281,30 @@ export class CommandBuilder implements Command {
 					config.description_localizations,
 				);
 
-			for (const sub of subs) {
-				const subBuilder = new SlashCommandSubcommandBuilder()
-					.setName(sub.name)
-					.setDescription(sub.description);
+			if (subs) {
+				for (const sub of subs) {
+					const subBuilder = new SlashCommandSubcommandBuilder()
+						.setName(sub.name)
+						.setDescription(sub.description);
 
-				if (sub.name_localizations)
-					subBuilder.setNameLocalizations(sub.name_localizations);
-				if (sub.description_localizations)
-					subBuilder.setDescriptionLocalizations(sub.description_localizations);
+					if (sub.name_localizations)
+						subBuilder.setNameLocalizations(sub.name_localizations);
+					if (sub.description_localizations)
+						subBuilder.setDescriptionLocalizations(
+							sub.description_localizations,
+						);
 
-				buildOptions(subBuilder, sub.options);
-				groupBuilder.addSubcommand(subBuilder);
+					buildOptions(subBuilder, sub.options);
+					groupBuilder.addSubcommand(subBuilder);
 
-				this.runHandlers.set(`${config.name}.${sub.name}`, sub.run);
-				this.subcommandConfigs.set(`${config.name}.${sub.name}`, sub);
-				if (sub.autocomplete) {
-					this.autocompleteHandlers.set(
-						`${config.name}.${sub.name}`,
-						sub.autocomplete,
-					);
+					this.runHandlers.set(`${config.name}.${sub.name}`, sub.run);
+					this.subcommandConfigs.set(`${config.name}.${sub.name}`, sub);
+					if (sub.autocomplete) {
+						this.autocompleteHandlers.set(
+							`${config.name}.${sub.name}`,
+							sub.autocomplete,
+						);
+					}
 				}
 			}
 			(
@@ -466,7 +471,7 @@ function compileCustomId(pattern: string) {
 
 	const regexStr = pattern.replace(/\{(\w+)\}/g, (_, key) => {
 		keys.push(key);
-		return '([^:]+)';
+		return '([^/]+)';
 	});
 
 	return {

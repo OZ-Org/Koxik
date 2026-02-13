@@ -1,6 +1,7 @@
 import type {
 	AutocompleteInteraction,
 	ButtonInteraction,
+	ChannelSelectMenuInteraction,
 	ChatInputCommandInteraction,
 	ClientEvents,
 	InteractionReplyOptions,
@@ -113,12 +114,14 @@ export type InteractionMap = {
 	button: ButtonInteraction;
 	modal: ModalSubmitInteraction;
 	stringSelect: StringSelectMenuInteraction;
+	channelSelect: ChannelSelectMenuInteraction;
 };
 
 export type ComponentInteraction =
 	| ButtonInteraction
 	| ModalSubmitInteraction
-	| StringSelectMenuInteraction;
+	| StringSelectMenuInteraction
+	| ChannelSelectMenuInteraction;
 
 export type ResponderType = keyof InteractionMap;
 

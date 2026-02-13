@@ -85,10 +85,6 @@ export function createBot(options: BotOptions) {
 
 	setupInteractionHandler(client, commands);
 
-	client.on('interactionCreate', async (int) => {
-		await resolveResponder(int);
-	});
-
 	client.once('clientReady', async () => {
 		logger.info(`Connected as ${client.user?.tag ?? 'unknown'}`);
 

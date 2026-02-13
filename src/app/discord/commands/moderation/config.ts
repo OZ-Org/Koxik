@@ -1,11 +1,10 @@
 import { createCommand } from '@base';
 import { PermissionsBitField } from 'discord.js';
-import discord from './subcommands/automod/discord.js';
+import WelcomeSubcommand from './subcommands/config/welcome.js';
 
 export default createCommand({
-	name: 'automod',
-	description: 'Manage automod settings',
-	cooldown: 3,
-	baseCommand: true,
+	name: 'config',
+	description: 'Config subcommands',
 	default_member_permissions: [PermissionsBitField.Flags.ManageGuild],
-}).addSubCommandGroup([discord]);
+	baseCommand: true,
+}).addSubCommands([WelcomeSubcommand]);

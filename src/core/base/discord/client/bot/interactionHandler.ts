@@ -160,6 +160,7 @@ export function setupInteractionHandler(
 
 			// Safe execution
 			await safeExecuteCommand(command, client, interaction);
+			return;
 		}
 
 		// Autocomplete
@@ -172,6 +173,18 @@ export function setupInteractionHandler(
 			} catch (err) {
 				logger.error(`Autocomplete error → ${interaction.commandName}`, err);
 			}
+			return;
+		}
+
+		// Button, Modal, and Select Menu Interactions
+		if (
+			interaction.isButton() ||
+			interaction.isModalSubmit() ||
+			interaction.isStringSelectMenu() ||
+			interaction.isChannelSelectMenu()
+		) {
+			await resolveResponder(interaction);
+			return;
 		}
 	});
 }
@@ -183,27 +196,52 @@ export async function resolveResponder(interaction: ComponentInteraction) {
 			? 'modal'
 			: interaction.isStringSelectMenu()
 				? 'stringSelect'
-				: null;
+				: interaction.isChannelSelectMenu()
+					? 'channelSelect'
+					: null;
 
 	if (!type) return;
 
-	for (const responder of getResponders()) {
-		if (responder.type !== type) continue;
-		if (!responder.__regex) continue;
+	try {
+		for (const responder of getResponders()) {
+			if (responder.type !== type) continue;
+			if (!responder.__regex) continue;
 
-		const match = interaction.customId.match(responder.__regex);
-		if (!match) continue;
+			const match = interaction.customId.match(responder.__regex);
+			if (!match) continue;
 
-		const params: Record<string, string> = {};
-		responder.__keys?.forEach((key, i) => {
-			params[key] = match[i + 1];
-		});
+			const params: Record<string, string> = {};
+			responder.__keys?.forEach((key, i) => {
+				params[key] = match[i + 1];
+			});
 
-		// ✨ aqui acontece a alquimia
-		return responder.run({
-			interaction: interaction as InteractionMap[typeof type],
-			useParams: () => params,
-			res: new ReplyBuilder(interaction),
-		});
+			return await responder.run({
+				interaction: interaction as InteractionMap[typeof type],
+				useParams: () => params,
+				res: new ReplyBuilder(interaction),
+			});
+		}
+		if (!interaction.replied && !interaction.deferred) {
+		}
+	} catch (error) {
+		logger.error(
+			`Error in ${type} responder (${interaction.customId}):`,
+			error,
+		);
+
+		if (!interaction.replied && !interaction.deferred) {
+			await interaction
+				.reply({
+					content: '❌ An error occurred while processing this interaction.',
+					flags: ['Ephemeral'],
+				})
+				.catch(() => {});
+		} else if (interaction.deferred) {
+			await interaction
+				.editReply({
+					content: '❌ An error occurred while processing this interaction.',
+				})
+				.catch(() => {});
+		}
 	}
 }

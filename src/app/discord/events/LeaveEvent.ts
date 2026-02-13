@@ -5,10 +5,8 @@ import { findChannel } from '@magicyan/discord';
 import {
 	type Guild,
 	type GuildTextBasedChannel,
-	Locale,
 	PermissionsBitField,
 } from 'discord.js';
-import { getDefaultMessage } from '../responders/movement/welcome.utils.js';
 
 const processedMembers = new Set();
 
@@ -34,8 +32,8 @@ async function canSendToChannel(
 }
 
 export default createEvent({
-	name: 'welcome',
-	event: 'guildMemberAdd',
+	name: 'leave',
+	event: 'guildMemberRemove',
 	run: async (member) => {
 		try {
 			const key = `${member.guild.id}-${member.id}`;
@@ -53,40 +51,30 @@ export default createEvent({
 			const guildId = member.guild.id;
 			const userId = member.id;
 
-			const config = await GuildController.getWelcomeConfig(guildId);
+			const config = await GuildController.getLeaveConfig(guildId);
 
-			if (!config?.enable) {
-				return;
+			if (config?.enable && config.channelId) {
+				const canSend = await canSendToChannel(config.channelId, member.guild);
+				if (!canSend) {
+					return;
+				}
+
+				const channel = findChannel(member.guild).byId(config.channelId);
+
+				if (channel) {
+					const msg = GuildController.formatMessage(
+						config.message,
+						userId,
+						member.guild.name,
+					);
+
+					await channel.send({
+						content: msg,
+					});
+				}
 			}
-
-			if (!config.channelId) {
-				return;
-			}
-
-			const canSend = await canSendToChannel(config.channelId, member.guild);
-			if (!canSend) {
-				return;
-			}
-
-			const channel = findChannel(member.guild).byId(config.channelId);
-
-			if (!channel) {
-				return;
-			}
-
-			const message =
-				config.message || getDefaultMessage(Locale.PortugueseBR, 'welcome');
-			const msg = GuildController.formatMessage(
-				message,
-				userId,
-				member.guild.name,
-			);
-
-			await channel.send({
-				content: msg,
-			});
 		} catch (err) {
-			logger.error('Erro no guildMemberAdd:', err);
+			logger.error('Erro no guildMemberRemove:', err);
 		}
 	},
 });
