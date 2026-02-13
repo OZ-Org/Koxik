@@ -172,7 +172,7 @@
 			"createAccount": "Create an account using </create account:1419159279935688795>"
 		},
 		"footer": {
-			"error": "Economy System • Something went wrong :/"
+			"error": "Something went wrong :/"
 		}
 	},
 	"user": {
@@ -397,6 +397,92 @@
 		"cancelled": {
 			"title": "Purchase cancelled",
 			"description": "Your purchase was cancelled. Your Pollens were not debited."
+		}
+	},
+	"lootbox": {
+		"common": "Common Lootbox",
+		"rare": "Rare Lootbox",
+		"epic": "Epic Lootbox",
+
+		"emoji": {
+			"common": "📦",
+			"rare": "🎁",
+			"epic": "💎"
+		},
+
+		"description": {
+			"common": "A simple lootbox with basic rewards.",
+			"rare": "A rare lootbox containing valuable items.",
+			"epic": "An epic lootbox filled with powerful rewards."
+		}
+	},
+	"welcome": {
+		"config": {
+			"title": "Welcome & Leave System",
+			"welcomeEnabled": "%emote% | Welcome system: Enabled",
+			"welcomeDisabled": "%emote% | Welcome system: Disabled",
+			"leaveEnabled": "%emote% | Leave system: Enabled",
+			"leaveDisabled": "%emote% | Leave system: Disabled",
+			"welcomeButton": "Manage welcome system",
+			"leaveButton": "Manage leave system"
+		},
+		"panel": {
+			"title": "Manage welcome system",
+			"channel": "Channel: %channel%",
+			"noChannel": "Channel: No channel set",
+			"instruction": "Use the buttons below to configure.",
+			"enable": "Enable",
+			"disable": "Disable",
+			"setChannel": "Set channel",
+			"editMessage": "Edit message",
+			"back": "Back"
+		},
+		"channel": {
+			"placeholder": "Select welcome channel",
+			"content": "📢 Choose the channel for welcome messages:",
+			"selectTitle": "Select Channel"
+		},
+		"message": {
+			"title": "Edit welcome message",
+			"label": "Message",
+			"success": "Welcome message updated successfully.",
+			"defaultWelcome": "Welcome {user} to {server.name}!",
+			"defaultLeave": "{user} left {server.name}."
+		},
+		"toggle": {
+			"enabled": "**Enabled**",
+			"disabled": "**Disabled**"
+		},
+		"errors": {
+			"invalidGuild": "Invalid guild.",
+			"saveChannel": "Error saving channel. Is the server in the database?",
+			"updatePanel": "Error updating panel.",
+			"saveMessage": "Error saving message. Is the server in the database?",
+			"toggle": "Error updating. Is the server in the database?",
+			"noPermission": "I don't have permission to view or send messages in this channel. Please select another channel or grant me the necessary permissions."
+		},
+		"leave": {
+			"panel": {
+				"title": "Manage leave system",
+				"channel": "📢 Channel: %channel%",
+				"noChannel": "📢 Channel: No channel set",
+				"instruction": "Use the buttons below to configure.",
+				"enable": "Enable",
+				"disable": "Disable",
+				"setChannel": "Set channel",
+				"editMessage": "Edit message",
+				"back": "Back"
+			},
+			"channel": {
+				"placeholder": "Select leave channel",
+				"content": "📢 Choose the channel for leave messages:",
+				"selectTitle": "Select Channel"
+			},
+			"message": {
+				"title": "Edit leave message",
+				"label": "Message",
+				"success": "Leave message updated successfully."
+			}
 		}
 	}
 }

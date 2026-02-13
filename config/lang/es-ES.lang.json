@@ -172,7 +172,7 @@
 			"createAccount": "Crea una cuenta usando </create account:1419159279935688795>"
 		},
 		"footer": {
-			"error": "Sistema de Economía • Algo falló :/"
+			"error": "Algo falló :/"
 		}
 	},
 	"user": {
@@ -397,6 +397,92 @@
 			"cancelled": {
 				"title": "Compra cancelada",
 				"description": "Tu compra fue cancelada. Tus Pólenes no fueron debitados."
+			}
+		}
+	},
+	"lootbox": {
+		"common": "Caja Común",
+		"rare": "Caja Rara",
+		"epic": "Caja Épica",
+
+		"emoji": {
+			"common": "📦",
+			"rare": "🎁",
+			"epic": "💎"
+		},
+
+		"description": {
+			"common": "Una caja simple con recompensas básicas.",
+			"rare": "Una caja rara que contiene objetos valiosos.",
+			"epic": "Una caja épica llena de recompensas poderosas."
+		}
+	},
+	"welcome": {
+		"config": {
+			"title": "Sistema de bienvenida y salida",
+			"welcomeEnabled": "%emote% | Sistema de bienvenida: Activado",
+			"welcomeDisabled": "%emote% | Sistema de bienvenida: Desactivado",
+			"leaveEnabled": "%emote% | Sistema de salida: Activado",
+			"leaveDisabled": "%emote% | Sistema de salida: Desactivado",
+			"welcomeButton": "Gestionar sistema de bienvenida",
+			"leaveButton": "Gestionar sistema de salida"
+		},
+		"panel": {
+			"title": "Gestionar sistema de bienvenida",
+			"channel": "Canal: %channel%",
+			"noChannel": "Canal: Sin canal definido",
+			"instruction": "Usa los botones de abajo para configurar.",
+			"enable": "Activar",
+			"disable": "Desactivar",
+			"setChannel": "Establecer canal",
+			"editMessage": "Editar mensaje",
+			"back": "Volver"
+		},
+		"channel": {
+			"placeholder": "Selecciona el canal de bienvenida",
+			"content": "📢 Elige el canal para los mensajes de bienvenida:",
+			"selectTitle": "Seleccionar Canal"
+		},
+		"message": {
+			"title": "Editar mensaje de bienvenida",
+			"label": "Mensaje",
+			"success": "Mensaje de bienvenida actualizado con éxito.",
+			"defaultWelcome": "¡Bienvenido {user} a {server.name}!",
+			"defaultLeave": "{user} salió de {server.name}."
+		},
+		"toggle": {
+			"enabled": "**Activado**",
+			"disabled": "**Desactivado**"
+		},
+		"errors": {
+			"invalidGuild": "Guild inválida.",
+			"saveChannel": "Error al guardar el canal. ¿Está el servidor en la base de datos?",
+			"updatePanel": "Error al actualizar el panel.",
+			"saveMessage": "Error al guardar el mensaje. ¿Está el servidor en la base de datos?",
+			"toggle": "Error al actualizar. ¿Está el servidor en la base de datos?",
+			"noPermission": "No tengo permiso para ver o enviar mensajes en este canal. Por favor, selecciona otro canal o concédeme los permisos necesarios."
+		},
+		"leave": {
+			"panel": {
+				"title": "Gestionar sistema de salida",
+				"channel": "📢 Canal: %channel%",
+				"noChannel": "📢 Canal: Sin canal definido",
+				"instruction": "Usa los botones de abajo para configurar.",
+				"enable": "Activar",
+				"disable": "Desactivar",
+				"setChannel": "Establecer canal",
+				"editMessage": "Editar mensaje",
+				"back": "Volver"
+			},
+			"channel": {
+				"placeholder": "Selecciona el canal de salida",
+				"content": "📢 Elige el canal para los mensajes de salida:",
+				"selectTitle": "Seleccionar Canal"
+			},
+			"message": {
+				"title": "Editar mensaje de salida",
+				"label": "Mensaje",
+				"success": "Mensaje de salida actualizado con éxito."
 			}
 		}
 	}

@@ -32,12 +32,12 @@ const shopSubCommand = createSubCommand({
 							.setDefault(true)
 							.setValue('page/home')
 							.setEmoji(emotes.ui.home),
-						new StringSelectMenuOptionBuilder()
-							.setLabel(
-								replyLang(interaction.locale, 'shop#main#minecraft_items'),
-							)
-							.setValue('page/minecraft')
-							.setEmoji(emotes.misc.mineDirt),
+						// new StringSelectMenuOptionBuilder()
+						// 	.setLabel(
+						// 		replyLang(interaction.locale, 'shop#main#minecraft_items'),
+						// 	)
+						// 	.setValue('page/minecraft')
+						// 	.setEmoji(emotes.misc.mineDirt),
 						new StringSelectMenuOptionBuilder()
 							.setLabel(
 								replyLang(interaction.locale, 'shop#main#roleplay_items'),

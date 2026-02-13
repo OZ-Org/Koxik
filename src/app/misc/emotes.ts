@@ -40,6 +40,7 @@ export const emotes = {
 		unlock: '<:unlocked:1458541187848994866>',
 		search: '<:search:1458543028531630334>',
 		settings: '<:settings:1458543025323114651>',
+		channel: '<:channel_hashtag:1471670026829561886>',
 		home: '🏠',
 		progress_filled: '🟩',
 		progress_empty: '⬛',
@@ -54,10 +55,8 @@ export const emotes = {
 		ring: '💍',
 	},
 	status: {
-		online: '🟢',
-		offline: '⚫',
-		idle: '🌙',
-		dnd: '⛔',
+		online: '<:online:1470221448802074647> ',
+		offline: '<:offline:1470221372721463310>',
 	},
 	eco: {
 		stats: '📊',
