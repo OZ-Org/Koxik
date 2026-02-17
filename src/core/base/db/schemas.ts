@@ -1,4 +1,9 @@
-import type { BackpackType, Transaction } from 'app/shared/types.js';
+import type {
+	Achievement,
+	BackpackType,
+	MiningResources,
+	Transaction,
+} from 'app/shared/types.js';
 import { sql } from 'drizzle-orm';
 import {
 	integer,
@@ -52,11 +57,11 @@ export const user = pgTable(
 		backpack: jsonb().$type<BackpackType>(),
 		level: integer().default(1).notNull(),
 		xp: integer().default(0).notNull(),
-		achievements: jsonb(),
+		achievements: jsonb().$type<Achievement[]>(),
 		badges: jsonb().$type<UserBadge[]>(),
 		bank: integer(),
 		configs: jsonb('configs').$type<ConfigsData>(),
-		miningResources: jsonb('mining_resources'),
+		miningResources: jsonb('mining_resources').$type<MiningResources>(),
 		createdAt: timestamp({ precision: 3, mode: 'string' })
 			.default(sql`CURRENT_TIMESTAMP`)
 			.notNull(),
