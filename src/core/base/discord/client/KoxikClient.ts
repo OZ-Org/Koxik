@@ -80,6 +80,8 @@ export function createBot(options: BotOptions) {
 			? client.once(event.event, handler)
 			: client.on(event.event, handler);
 
+		(event as Event<T> & { __registered?: boolean }).__registered = true;
+
 		return event;
 	}
 
@@ -115,7 +117,7 @@ export function createBot(options: BotOptions) {
 			.then(() => logger.info('Connected to DB'))
 			.catch(() => {
 				logger.error('Could not connect to DB');
-				process.exit(0);
+				process.exit(1);
 			});
 
 		await loadCommandsFromDisk(commands);

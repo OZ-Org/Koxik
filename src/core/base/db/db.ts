@@ -25,8 +25,8 @@ export class DatabaseQueryError extends Error {
 
 export const pool = new Pool({
 	connectionString: env.DATABASE_URL,
-	max: 10,
-	idleTimeoutMillis: 10000,
+	max: env.DB_POOL_MAX,
+	idleTimeoutMillis: env.DB_POOL_IDLE_TIMEOUT,
 	keepAlive: true,
 });
 

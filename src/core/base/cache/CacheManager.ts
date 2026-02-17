@@ -13,16 +13,22 @@ export interface CacheStats {
 export class CacheManager {
 	private cache = new Map<string, CacheEntry<any>>();
 	private stats = { hits: 0, misses: 0 };
-	private cleanupInterval!: NodeJS.Timeout;
+	private cleanupInterval!: ReturnType<typeof setInterval>;
 
 	constructor(
 		private defaultTTL?: number,
-		private cleanupIntervalMs = 60000, // 1 minute
+		private cleanupIntervalMs = 60000,
+		private maxSize = 10000,
 	) {
 		this.startCleanup();
 	}
 
 	set<T>(key: string, value: T, ttl?: number): void {
+		if (this.cache.size >= this.maxSize && !this.cache.has(key)) {
+			const firstKey = this.cache.keys().next().value;
+			if (firstKey) this.cache.delete(firstKey);
+		}
+
 		const expiresAt =
 			ttl || this.defaultTTL
 				? Date.now() + (ttl || this.defaultTTL!)
@@ -127,76 +133,72 @@ export class CacheManager {
 }
 
 // Specialized cache instances
-export class UserCache extends CacheManager {
+export class UserCache<T = unknown> extends CacheManager {
 	constructor(ttl = 300000) {
-		// 5 minutes
 		super(ttl);
 	}
 
-	getUser(discordId: string) {
-		return this.get(`user:${discordId}`);
+	getUser(discordId: string): T | null {
+		return this.get<T>(`user:${discordId}`);
 	}
 
-	setUser(discordId: string, userData: any, ttl?: number) {
+	setUser(discordId: string, userData: T, ttl?: number) {
 		return this.set(`user:${discordId}`, userData, ttl);
 	}
 
-	getUserStats(discordId: string) {
-		return this.get(`user_stats:${discordId}`);
+	getUserStats(discordId: string): T | null {
+		return this.get<T>(`user_stats:${discordId}`);
 	}
 
-	setUserStats(discordId: string, stats: any, ttl?: number) {
+	setUserStats(discordId: string, stats: T, ttl?: number) {
 		return this.set(`user_stats:${discordId}`, stats, ttl);
 	}
 }
 
-export class GuildCache extends CacheManager {
+export class GuildCache<T = unknown> extends CacheManager {
 	constructor(ttl = 600000) {
-		// 10 minutes
 		super(ttl);
 	}
 
-	getConfig(guildId: string) {
-		return this.get(`guild_config:${guildId}`);
+	getConfig(guildId: string): T | null {
+		return this.get<T>(`guild_config:${guildId}`);
 	}
 
-	setConfig(guildId: string, config: any, ttl?: number) {
+	setConfig(guildId: string, config: T, ttl?: number) {
 		return this.set(`guild_config:${guildId}`, config, ttl);
 	}
 
-	getSettings(guildId: string) {
-		return this.get(`guild_settings:${guildId}`);
+	getSettings(guildId: string): T | null {
+		return this.get<T>(`guild_settings:${guildId}`);
 	}
 
-	setSettings(guildId: string, settings: any, ttl?: number) {
+	setSettings(guildId: string, settings: T, ttl?: number) {
 		return this.set(`guild_settings:${guildId}`, settings, ttl);
 	}
 }
 
-export class CommandCache extends CacheManager {
+export class CommandCache<T = unknown> extends CacheManager {
 	constructor(ttl = 60000) {
-		// 1 minute
 		super(ttl);
 	}
 
-	getCooldown(commandName: string, userId: string) {
-		return this.get(`cooldown:${commandName}:${userId}`);
+	getCooldown(commandName: string, userId: string): T | null {
+		return this.get<T>(`cooldown:${commandName}:${userId}`);
 	}
 
 	setCooldown(commandName: string, userId: string, ttl?: number) {
-		return this.set(`cooldown:${commandName}:${userId}`, true, ttl);
+		return this.set(
+			`cooldown:${commandName}:${userId}`,
+			true as unknown as T,
+			ttl,
+		);
 	}
 
-	getPermission(userId: string, guildId: string) {
-		return this.get(`permission:${userId}:${guildId}`);
+	getPermission(userId: string, guildId: string): T | null {
+		return this.get<T>(`permission:${userId}:${guildId}`);
 	}
 
-	setPermission(
-		userId: string,
-		guildId: string,
-		permissions: any,
-		ttl?: number,
-	) {
+	setPermission(userId: string, guildId: string, permissions: T, ttl?: number) {
 		return this.set(`permission:${userId}:${guildId}`, permissions, ttl);
 	}
 }

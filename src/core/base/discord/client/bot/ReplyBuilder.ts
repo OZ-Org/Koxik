@@ -15,14 +15,16 @@ type V2Encodable =
 	| JSONEncodable<APIMessageTopLevelComponent>
 	| APIMessageTopLevelComponent;
 
+export type SupportedInteraction =
+	| ChatInputCommandInteraction
+	| ButtonInteraction
+	| StringSelectMenuInteraction
+	| ChannelSelectMenuInteraction
+	| ModalSubmitInteraction;
+
 export class ReplyBuilder {
 	constructor(
-		private interaction:
-			| ChatInputCommandInteraction
-			| ButtonInteraction
-			| StringSelectMenuInteraction
-			| ChannelSelectMenuInteraction
-			| ModalSubmitInteraction,
+		private interaction: SupportedInteraction,
 		private ephemeralMode = false,
 		private updateMode = false,
 	) {}

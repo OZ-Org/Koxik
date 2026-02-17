@@ -79,3 +79,20 @@ export interface DailyResult {
 }
 
 export type BackpackType = BackpackItem[];
+
+export interface Achievement {
+	id: string;
+	name: string;
+	description: string;
+	icon: string;
+	completedAt?: number;
+}
+
+export interface MiningResources {
+	stone: number;
+	coal: number;
+	iron: number;
+	diamond: number;
+	netherite: number;
+	wood: number;
+}

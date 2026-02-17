@@ -6,11 +6,8 @@ import { logger } from '@fx/utils/logger.js';
 import type { ClientEvents } from 'discord.js';
 import type { Command, Event } from './types.js';
 
-/**
- * Resolve a pasta raiz de forma segura para Bun.
- * Nada de 5 níveis de ".." igual um labirinto.
- */
-const ROOT = path.resolve(process.cwd(), 'src/app/discord');
+const __dirname = path.dirname(path.resolve(import.meta.filename));
+const ROOT = path.join(__dirname, '../../../../../app/discord');
 
 export async function loadCommandsFromDisk(
 	commands: Map<string, Command>,
@@ -37,9 +34,14 @@ export async function loadCommandsFromDisk(
 				const fileUrl = pathToFileURL(filePath).href;
 
 				const commandModule = await import(fileUrl);
-				const command: Command = commandModule.default;
+				const command = commandModule.default;
 
-				if (!command?.data) {
+				if (!command) {
+					logger.warn(`Invalid command (missing export) → ${file}`);
+					continue;
+				}
+
+				if (!command.data) {
 					logger.warn(`Invalid command (missing data) → ${file}`);
 					continue;
 				}
@@ -98,9 +100,9 @@ async function walk(dir: string): Promise<string[]> {
 	return files;
 }
 
-const RESPONDERS_DIR = path.resolve(
-	process.cwd(),
-	'src/app/discord/responders',
+const RESPONDERS_DIR = path.join(
+	__dirname,
+	'../../../../../app/discord/responders',
 );
 
 export async function loadResponders() {
@@ -139,6 +141,7 @@ export async function loadEventsFromDisk(
 
 			if (!event.__registered) {
 				createEvent(event);
+				event.__registered = true;
 			}
 
 			eventTable.push({ Name: event.name, File: file });

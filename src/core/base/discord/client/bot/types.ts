@@ -106,7 +106,7 @@ export interface Command {
 	 *
 	 * @param options - The autocomplete options
 	 */
-	autocomplete?: (options: AutocompleteOptions) => Promise<any>;
+	autocomplete?: (options: AutocompleteOptions) => Promise<unknown>;
 	cooldown?: number;
 }
 
