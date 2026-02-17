@@ -19,6 +19,8 @@ export async function loadCommandsFromDisk(
 	const folders = await readdir(commandsPath, { withFileTypes: true });
 	const commandTable: { Name: string; File: string; Folder: string }[] = [];
 
+	const commandFiles: { filePath: string; file: string; folder: string }[] = [];
+
 	for (const folder of folders) {
 		if (!folder.isDirectory()) continue;
 
@@ -26,29 +28,36 @@ export async function loadCommandsFromDisk(
 		const files = await readdir(folderPath);
 
 		for (const file of files) {
-			// Bun = sem .js
 			if (!file.endsWith('.ts')) continue;
 
-			try {
-				const filePath = path.join(folderPath, file);
-				const fileUrl = pathToFileURL(filePath).href;
+			commandFiles.push({
+				filePath: path.join(folderPath, file),
+				file,
+				folder: folder.name,
+			});
+		}
+	}
 
+	await Promise.all(
+		commandFiles.map(async ({ filePath, file, folder }) => {
+			try {
+				const fileUrl = pathToFileURL(filePath).href;
 				const commandModule = await import(fileUrl);
 				const command = commandModule.default;
 
 				if (!command) {
 					logger.warn(`Invalid command (missing export) → ${file}`);
-					continue;
+					return;
 				}
 
 				if (!command.data) {
 					logger.warn(`Invalid command (missing data) → ${file}`);
-					continue;
+					return;
 				}
 
 				if (typeof command.run !== 'function') {
 					logger.warn(`Invalid command (missing run) → ${file}`);
-					continue;
+					return;
 				}
 
 				commands.set(command.data.name, command);
@@ -56,15 +65,15 @@ export async function loadCommandsFromDisk(
 				commandTable.push({
 					Name: command.data.name,
 					File: file,
-					Folder: folder.name,
+					Folder: folder,
 				});
 
 				logger.success(`Loaded command → ${command.data.name}`);
 			} catch (err) {
 				logger.error(`Failed to load command ${file}`, err);
 			}
-		}
-	}
+		}),
+	);
 
 	if (commandTable.length > 0) {
 		if (env.NODE_ENV === 'development') {
@@ -122,34 +131,36 @@ export async function loadEventsFromDisk(
 	const files = await readdir(eventsPath);
 	const eventTable: { Name: string; File: string }[] = [];
 
-	for (const file of files) {
-		if (!file.endsWith('.ts')) continue;
+	const eventFiles = files.filter((f) => f.endsWith('.ts'));
 
-		try {
-			const filePath = path.join(eventsPath, file);
-			const fileUrl = pathToFileURL(filePath).href;
+	await Promise.all(
+		eventFiles.map(async (file) => {
+			try {
+				const filePath = path.join(eventsPath, file);
+				const fileUrl = pathToFileURL(filePath).href;
 
-			const eventModule = await import(fileUrl);
-			const event = eventModule.default as Event<keyof ClientEvents> & {
-				__registered?: boolean;
-			};
+				const eventModule = await import(fileUrl);
+				const event = eventModule.default as Event<keyof ClientEvents> & {
+					__registered?: boolean;
+				};
 
-			if (!event?.name || typeof event.run !== 'function') {
-				logger.warn(`Invalid event → ${file}`);
-				continue;
+				if (!event?.name || typeof event.run !== 'function') {
+					logger.warn(`Invalid event → ${file}`);
+					return;
+				}
+
+				if (!event.__registered) {
+					createEvent(event);
+					event.__registered = true;
+				}
+
+				eventTable.push({ Name: event.name, File: file });
+				logger.success(`Loaded event → ${event.name}`);
+			} catch (err) {
+				logger.error(`Failed to load event ${file}`, err);
 			}
-
-			if (!event.__registered) {
-				createEvent(event);
-				event.__registered = true;
-			}
-
-			eventTable.push({ Name: event.name, File: file });
-			logger.success(`Loaded event → ${event.name}`);
-		} catch (err) {
-			logger.error(`Failed to load event ${file}`, err);
-		}
-	}
+		}),
+	);
 
 	if (eventTable.length > 0 && env.NODE_ENV === 'development') {
 		logger.info('Events loaded:');
