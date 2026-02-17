@@ -13,6 +13,8 @@ export interface CacheStats {
 export class CacheManager {
 	private cache = new Map<string, CacheEntry<any>>();
 	private stats = { hits: 0, misses: 0 };
+	private cachedStats: CacheStats | null = null;
+	private statsDirty = false;
 	private cleanupInterval!: ReturnType<typeof setInterval>;
 
 	constructor(
@@ -42,16 +44,19 @@ export class CacheManager {
 
 		if (!entry) {
 			this.stats.misses++;
+			this.statsDirty = true;
 			return null;
 		}
 
 		if (entry.expiresAt && Date.now() > entry.expiresAt) {
 			this.cache.delete(key);
 			this.stats.misses++;
+			this.statsDirty = true;
 			return null;
 		}
 
 		this.stats.hits++;
+		this.statsDirty = true;
 		return entry.value;
 	}
 
@@ -96,15 +101,22 @@ export class CacheManager {
 	}
 
 	getStats(): CacheStats {
+		if (this.cachedStats && !this.statsDirty) {
+			return this.cachedStats;
+		}
+
 		const total = this.stats.hits + this.stats.misses;
 		const hitRate = total > 0 ? (this.stats.hits / total) * 100 : 0;
 
-		return {
+		this.cachedStats = {
 			hits: this.stats.hits,
 			misses: this.stats.misses,
 			size: this.cache.size,
 			hitRate: Math.round(hitRate * 100) / 100,
 		};
+		this.statsDirty = false;
+
+		return this.cachedStats;
 	}
 
 	private startCleanup(): void {

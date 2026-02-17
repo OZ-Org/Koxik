@@ -103,29 +103,36 @@ export function createBot(options: BotOptions) {
 		await syncCommands(client, commands, options);
 	});
 
-	(async () => {
-		process.on('unhandledRejection', (err) =>
-			logger.error('Unhandled Rejection', err),
-		);
+	process.on('unhandledRejection', (err) =>
+		logger.error('Unhandled Rejection', err),
+	);
 
-		process.on('uncaughtException', (err) =>
-			logger.error('Uncaught Exception', err),
-		);
+	process.on('uncaughtException', (err) =>
+		logger.error('Uncaught Exception', err),
+	);
 
-		await db.$client
-			.connect()
-			.then(() => logger.info('Connected to DB'))
-			.catch(() => {
-				logger.error('Could not connect to DB');
-				process.exit(1);
-			});
+	async function startBot(): Promise<void> {
+		try {
+			await db.$client
+				.connect()
+				.then(() => logger.info('Connected to DB'))
+				.catch(() => {
+					logger.error('Could not connect to DB');
+					process.exit(1);
+				});
 
-		await loadCommandsFromDisk(commands);
-		await loadEventsFromDisk(createEvent);
-		await loadResponders();
+			await loadCommandsFromDisk(commands);
+			await loadEventsFromDisk(createEvent);
+			await loadResponders();
 
-		await client.login(options.token);
-	})();
+			await client.login(options.token);
+		} catch (err) {
+			logger.error('Failed to start bot:', err);
+			process.exit(1);
+		}
+	}
+
+	startBot();
 
 	return {
 		client,

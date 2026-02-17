@@ -1,9 +1,10 @@
 import { db } from '@basedir/db/db.js';
-import { blacklist, commandStat } from '@basedir/db/schemas.js';
+import { commandStat } from '@basedir/db/schemas.js';
 import { logger } from '@fx/utils/logger.js';
 import type { ChatInputCommandInteraction, Interaction } from 'discord.js';
 import { sql } from 'drizzle-orm';
 import type { KoxikClient } from './CustomClient.js';
+import { MiddlewareManager } from './middleware.js';
 import { ReplyBuilder } from './ReplyBuilder.js';
 import { getResponders } from './registry.js';
 import type { Command, ComponentInteraction, InteractionMap } from './types.js';
@@ -70,53 +71,37 @@ export function setupInteractionHandler(
 	client: KoxikClient,
 	commands: Map<string, Command>,
 ) {
+	const middlewareManager = new MiddlewareManager();
+
 	client.on('interactionCreate', async (interaction: Interaction) => {
-		// Slash Commands
 		if (interaction.isChatInputCommand()) {
 			const command = commands.get(interaction.commandName);
 			if (!command) return;
 
-			try {
-				const blacklisted = await db
-					.select()
-					.from(blacklist)
-					.where(
-						sql`(${blacklist.targetId} = ${interaction.user.id} AND ${blacklist.type} = 'user') OR 
-						  (${blacklist.targetId} = ${interaction.guildId} AND ${blacklist.type} = 'guild')`,
-					)
-					.limit(2);
+			const middlewareResult = await middlewareManager.executeMiddlewares({
+				client,
+				interaction,
+				command,
+			});
 
-				const userBlacklisted = blacklisted.some(
-					(entry) =>
-						entry.targetId === interaction.user.id && entry.type === 'user',
-				);
+			if (!middlewareResult.success) {
+				await interaction
+					.reply({
+						content: '❌ An error occurred while processing this command.',
+						flags: ['Ephemeral'],
+					})
+					.catch(() => {});
+				return;
+			}
 
-				const guildBlacklisted = blacklisted.some(
-					(entry) =>
-						entry.targetId === interaction.guildId && entry.type === 'guild',
-				);
-
-				if (userBlacklisted) {
-					await interaction
-						.reply({
-							content: '🚫 You are banned from KoxikBot.',
-							flags: ['Ephemeral'],
-						})
-						.catch(() => {});
-					return;
-				}
-
-				if (guildBlacklisted) {
-					await interaction
-						.reply({
-							content: '🚫 This server is banned from KoxikBot.',
-							flags: ['Ephemeral'],
-						})
-						.catch(() => {});
-					return;
-				}
-			} catch (err) {
-				logger.error('Blacklist check failed:', err);
+			if (middlewareResult.response) {
+				await interaction
+					.reply({
+						content: middlewareResult.response,
+						flags: ['Ephemeral'],
+					})
+					.catch(() => {});
+				return;
 			}
 
 			let subcommand: string | null = null;
@@ -215,13 +200,12 @@ export async function resolveResponder(interaction: ComponentInteraction) {
 				params[key] = match[i + 1];
 			});
 
-			return await responder.run({
+			await responder.run({
 				interaction: interaction as InteractionMap[typeof type],
 				useParams: () => params,
 				res: new ReplyBuilder(interaction),
 			});
-		}
-		if (!interaction.replied && !interaction.deferred) {
+			break;
 		}
 	} catch (error) {
 		logger.error(

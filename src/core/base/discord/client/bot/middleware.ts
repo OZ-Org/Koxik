@@ -6,6 +6,12 @@ import { sql } from 'drizzle-orm';
 import type { KoxikClient } from './CustomClient.js';
 import type { Command } from './types.js';
 
+const blacklistCache = new Map<
+	string,
+	{ data: { targetId: string; type: string }[]; expiresAt: number }
+>();
+const BLACKLIST_CACHE_TTL = 60000;
+
 export interface MiddlewareContext {
 	client: KoxikClient;
 	interaction: ChatInputCommandInteraction;
@@ -28,28 +34,37 @@ export class BlacklistMiddleware extends CommandMiddleware {
 	name = 'blacklist';
 	priority = 100;
 
+	private async getBlacklist(): Promise<{ targetId: string; type: string }[]> {
+		const cacheKey = 'global_blacklist';
+		const cached = blacklistCache.get(cacheKey);
+
+		if (cached && Date.now() < cached.expiresAt) {
+			return cached.data;
+		}
+
+		const result = await db.select().from(blacklist);
+		blacklistCache.set(cacheKey, {
+			data: result,
+			expiresAt: Date.now() + BLACKLIST_CACHE_TTL,
+		});
+		return result;
+	}
+
 	async execute(context: MiddlewareContext): Promise<MiddlewareResult> {
 		try {
-			const blacklisted = await db
-				.select()
-				.from(blacklist)
-				.where(
-					sql`(${blacklist.targetId} = ${context.interaction.user.id} AND ${blacklist.type} = 'user') OR 
-					  (${blacklist.targetId} = ${context.interaction.guildId} AND ${blacklist.type} = 'guild')`,
-				)
-				.limit(2);
+			const allBlacklist = await this.getBlacklist();
+			const userId = context.interaction.user.id;
+			const guildId = context.interaction.guildId;
 
-			const userBlacklisted = blacklisted.some(
-				(entry) =>
-					entry.targetId === context.interaction.user.id &&
-					entry.type === 'user',
+			const userBlacklisted = allBlacklist.some(
+				(entry) => entry.targetId === userId && entry.type === 'user',
 			);
 
-			const guildBlacklisted = blacklisted.some(
-				(entry) =>
-					entry.targetId === context.interaction.guildId &&
-					entry.type === 'guild',
-			);
+			const guildBlacklisted =
+				guildId &&
+				allBlacklist.some(
+					(entry) => entry.targetId === guildId && entry.type === 'guild',
+				);
 
 			if (userBlacklisted) {
 				return {
@@ -77,13 +92,32 @@ export class BlacklistMiddleware extends CommandMiddleware {
 
 export class CooldownMiddleware extends CommandMiddleware {
 	private cooldowns = new Map<string, Map<string, number>>();
+	private cleanupInterval?: ReturnType<typeof setInterval>;
 	name = 'cooldown';
 	priority = 90;
+
+	constructor() {
+		super();
+		this.startCleanup();
+	}
+
+	private startCleanup(): void {
+		this.cleanupInterval = setInterval(() => {
+			const now = Date.now();
+			for (const [, userMap] of this.cooldowns) {
+				for (const [userId, timestamp] of userMap) {
+					if (now - timestamp > 300000) {
+						userMap.delete(userId);
+					}
+				}
+			}
+		}, 60000);
+	}
 
 	async execute(context: MiddlewareContext): Promise<MiddlewareResult> {
 		const commandName = context.command.data.name;
 		const userId = context.interaction.user.id;
-		const cooldownTime = context.command.cooldown || 3000; // 3 seconds default
+		const cooldownTime = context.command.cooldown || 3000;
 
 		if (!this.cooldowns.has(commandName)) {
 			this.cooldowns.set(commandName, new Map());
@@ -103,12 +137,6 @@ export class CooldownMiddleware extends CommandMiddleware {
 		}
 
 		commandCooldowns.set(userId, now);
-
-		// Clean up old entries
-		setTimeout(() => {
-			commandCooldowns.delete(userId);
-		}, cooldownTime);
-
 		return { success: true, continue: true };
 	}
 }
