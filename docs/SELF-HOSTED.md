@@ -1,80 +1,112 @@
-# Koxik Bot - Self-Hosted 🚀
+# Koxik Bot Self-Hosted
 
-If you want to run **Koxik** on your own using Docker, follow this guide.
-
----
-
-## General Steps
-
-1. Clone the repository
-2. Configure the environment
-3. Start the bot via Docker
+Run your own instance of **Koxik** using Docker in minutes.
 
 ---
 
 ## Prerequisites
 
-- [Docker](https://www.docker.com/) installed
-- A text editor to configure the `.env` file
+- Docker >= 24
+- Docker Compose v2
+- Git
 
 ---
 
 ## Installation
 
-### Clone the repository
-```bash
-git clone https://github.com/KoxikBot/Koxik.git
-cd Koxik
-```
+### 1️⃣ Clone the repository
 
-### Configure the environment
+```bash
+git clone https://github.com/OZ-Org/Koxik.git
+cd Koxik
+````
+
+---
+
+### 2️⃣ Configure environment variables
+
+Copy the example file:
 
 ```bash
 cp .env.example .env
 ```
 
-Open the `.env` file and fill in your credentials (bot token, database URL, etc).
+Open `.env` and configure the required variables:
 
-### Start the bot with Docker
+```env
+DISCORD_TOKEN=your_discord_bot_token
+DATABASE_URL=postgres://user:password@postgres:5432/koxik
+NODE_ENV=production
+LOGS_WEBHOOK_URL=https://discord.com/api/webhooks/...
+TOPGG_TOKEN=your_topgg_token_optional
 
-```bash
-docker-compose up -d
+DB_POOL_MAX=10
+DB_POOL_IDLE_TIMEOUT=10000
 ```
 
-> This will:
->
-> * Create and start the Postgres container
-> * Build the Koxik Bot image (with Bun and dependencies installed)
-> * Automatically start the bot
+### Required variables
+
+* `DISCORD_TOKEN`
+* `DATABASE_URL`
+* `NODE_ENV`
+* `LOGS_WEBHOOK_URL`
 
 ---
 
-## Extra Tips
-
-* To view the bot logs in real time:
+### 3️⃣ Start with Docker
 
 ```bash
-docker-compose logs -f koxik-bot
+docker compose up -d
 ```
 
-* To update the bot:
+This will:
+
+* Create and start the PostgreSQL container
+* Build the Koxik image (Bun + dependencies)
+* Automatically start the bot
+
+---
+
+## Logs
+
+View logs in real time:
+
+```bash
+docker compose logs -f koxik-bot
+```
+
+---
+
+## Updating
 
 ```bash
 git pull
-docker-compose up -d --build
+docker compose up -d --build
 ```
 
-* To stop all services:
+---
+
+## Stopping services
 
 ```bash
-docker-compose down
+docker compose down
 ```
+
+---
+
+## Production Notes
+
+* Never commit your `.env` file
+* Keep your `DISCORD_TOKEN` private
+* Use a strong database password
+* Consider running behind a reverse proxy if exposing services
 
 ---
 
 ## Support
 
-If you run into any issues, join the [Koxik Support Server](https://discord.gg/84u7UQYXzB).
+If you encounter issues, join the Support Server: [KSS - Koxik Support Server](https://discord.gg/84u7UQYXzB)
 
 ---
-[This same file, but in portuguese!](./pt-BR/SELF-HOSTED.md)
+
+[This same file, but in Portuguese](./pt-BR/SELF-HOSTED.md)

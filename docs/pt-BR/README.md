@@ -1,58 +1,89 @@
 # Koxik Bot ✨
-
 [![License](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-TS-blue?logo=typescript)](https://www.typescriptlang.org)
-[![Discord.js](https://img.shields.io/badge/discord.js-v14-purple?logo=discord)](https://discord.js.org)
-[![Top.gg](https://img.shields.io/badge/Top.gg-Vote%20for%20us-orange?logo=topdotgg)](https://top.gg/bot/1446227976793493594)
-[![Open Source](https://img.shields.io/badge/Open%20Source-Yes-success?logo=github)](https://github.com)
-[![Support Server](https://img.shields.io/badge/Discord-Support%20Server-5865F2?logo=discord)](https://discord.gg/84u7UQYXzB)
-[![Bun](https://img.shields.io/badge/Bun-1.3.5-black?logo=bun)](https://bun.sh)
+[![discord.js](https://img.shields.io/badge/discord.js-v14-purple?logo=discord)](https://discord.js.org)
+[![Bun](https://img.shields.io/badge/Bun-1.3.9-black?logo=bun)](https://bun.sh)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-blue?logo=postgresql)](https://www.postgresql.org)
 [![Maintained](https://img.shields.io/badge/Maintained-Yes-brightgreen)](#)
+[![Open Source](https://img.shields.io/badge/Open%20Source-Yes-success?logo=github)](https://github.com)
+
+Koxik é um bot moderno e multilíngue para Discord, desenvolvido com foco em performance, arquitetura limpa e interações fluídas.
 
 ---
-## Vote Koxik
+
+## Adicione ao seu servidor
+
+Convide o Koxik e tenha uma experiência limpa e multilíngue no seu servidor.
+
 <a href="https://top.gg/bot/1446227976793493594">
-  <img src="https://top.gg/api/widget/1446227976793493594.svg">
+  <img src="https://top.gg/api/widget/1446227976793493594.svg" />
 </a>
 
+---
 
-## Recursos Principais
+## Por que Koxik?
 
-*   **Suporte Multilíngue**: Comunicação em inglês, espanhol e português brasileiro.
-*   **Detecção Automática de Idioma**: Identifica a linguagem do usuário para interações.
-*   **Respostas Diretas**: Respostas concisas e sem poluição.
+Koxik foi projetado com princípios de desenvolvimento:
+
+- ⚡ Runtime de alta performance com Bun  
+- 🌍 Detecção automática de idioma por usuário  
+- 🧩 Arquitetura modular e escalável  
+- 🧠 Design de interação limpo e direto  
+
+---
+
+## Principais Recursos
+
+- **Suporte Multilíngue** (Inglês, Espanhol e Português Brasileiro)
+- **Detecção Automática de Idioma**
+- **Respostas Diretas e Organizadas**
+- **Sistema Modular de Comandos**
+- **Persistência com Banco de Dados**
+
+---
 
 ## Tech Stack
 
-Desenvolvido com as seguintes tecnologias modernas:
+### Runtime
+- [Bun](https://bun.sh)
 
-*   **Runtime**: [Bun](https://bun.sh)
-*   **Linguagem**: [TypeScript](https://www.typescriptlang.org)
-*   **Framework Discord**: [`discord.js`](https://discord.js.org)
-*   **ORM**: [Drizzle](https://www.drizzle.io)
+### Linguagem
+- [TypeScript](https://www.typescriptlang.org)
 
-### Database
+### Framework Discord
+- [discord.js](https://discord.js.org)
 
-*   **Banco de Dados**: [PostgreSQL](https://www.postgresql.org)
+### ORM
+- [Drizzle ORM](https://www.drizzle.io)
 
-### Migration
+### Banco de Dados
+- [PostgreSQL](https://www.postgresql.org)
 
-*   **Migrações de Banco de Dados**: Drizzle Migrate (`migrate:dev`, `migrate`)
+---
 
-## Como Contribuir
+A arquitetura segue o princípio de separação de responsabilidades, mantendo o bot escalável e de fácil manutenção.
 
-Sua ajuda é bem-vinda para o projeto! Leia nosso [Guia de Contribuição](./CONTRIBUTING.md).
+---
 
-Para contribuir:
+## Começando
 
-1.  Faça um **fork** deste repositório.
-2.  Crie uma nova branch para sua feature ou correção (`git checkout -b feature`).
-3.  Faça suas alterações e commit-as (`git commit -m 'feat: adiciona coxinhas explosivos'`).
-4.  Envie suas mudanças para o seu fork (`git push origin feature`).
-5.  Abra um **Pull Request** para o repositório original.
+Você pode aprender como hospedar o bot por conta própria no [Guia de Self-Hosted](./docs/SELF-HOSTED.md).
+
+---
+
+## Contribuindo
+
+Contribuições são bem-vindas. Leia o [CONTRIBUTING.md](./CONTRIBUTING.md) para entender como contribuir com o projeto e revise o [Código de Conduta](./CODE_OF_CONDUCT.md) antes de participar.
+
+---
 
 ## Licença
 
-Este projeto é licenciado sob a [MIT License](./LICENSE).
+Este projeto é licenciado sob a MIT License.
 
-Você tem a liberdade de usar e modificar o bot, desde que mantenha os créditos da licença.
+Você pode usar e modificar livremente, desde que mantenha os créditos da licença.
+
+---
+
+# English Version
+> 🇺🇸 | [Read this README in English](../../README.md)
