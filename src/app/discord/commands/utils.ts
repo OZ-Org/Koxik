@@ -31,7 +31,7 @@ export function createSuccessEmbed(
 }
 
 export function createConfirmationEmbed(
-	locale: Locale,
+	_locale: Locale,
 	options: {
 		title: string;
 		description: string;

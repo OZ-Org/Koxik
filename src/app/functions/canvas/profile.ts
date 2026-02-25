@@ -1,174 +1,173 @@
-import fs from "node:fs"
-import path from "node:path"
-import { fileURLToPath } from "node:url"
-import {
-  createCanvas,
-  loadImage,
-  type SKRSContext2D
-} from "@napi-rs/canvas"
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { createCanvas, loadImage, type SKRSContext2D } from '@napi-rs/canvas';
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-const BADGES_DIR = path.resolve(__dirname, "../../../../public/badges")
+const BADGES_DIR = path.resolve(__dirname, '../../../../public/badges');
 
-export type CanvasCtx = SKRSContext2D
+export type CanvasCtx = SKRSContext2D;
 
 export function createCtx(width: number, height: number) {
-  const canvas = createCanvas(width, height)
-  const ctx = canvas.getContext("2d")
-  return { canvas, ctx }
+	const canvas = createCanvas(width, height);
+	const ctx = canvas.getContext('2d');
+	return { canvas, ctx };
 }
 
 export function sanitizeText(text: string): string {
-  return text.replace(/\r?\n|\r/g, " ").replace(/\s+/g, " ").trim()
+	return text
+		.replace(/\r?\n|\r/g, ' ')
+		.replace(/\s+/g, ' ')
+		.trim();
 }
 
 export function clampText(text: string, maxChars: number): string {
-  if (text.length <= maxChars) return text
-  return text.slice(0, maxChars - 3) + "..."
+	if (text.length <= maxChars) return text;
+	return `${text.slice(0, maxChars - 3)}...`;
 }
 
 export function wrapText(
-  ctx: CanvasCtx,
-  text: string,
-  x: number,
-  y: number,
-  maxWidth: number,
-  lineHeight: number,
-  maxLines: number
+	ctx: CanvasCtx,
+	text: string,
+	x: number,
+	y: number,
+	maxWidth: number,
+	lineHeight: number,
+	maxLines: number,
 ) {
-  if (!text) return
+	if (!text) return;
 
-  const words = text.split(" ")
-  let line = ""
-  let lines = 0
+	const words = text.split(' ');
+	let line = '';
+	let lines = 0;
 
-  for (const word of words) {
-    const test = line + word + " "
-    const { width } = ctx.measureText(test)
+	for (const word of words) {
+		const test = `${line + word} `;
+		const { width } = ctx.measureText(test);
 
-    if (width > maxWidth) {
-      ctx.fillText(line, x, y)
-      line = word + " "
-      y += lineHeight
-      lines++
+		if (width > maxWidth) {
+			ctx.fillText(line, x, y);
+			line = `${word} `;
+			y += lineHeight;
+			lines++;
 
-      if (lines >= maxLines - 1) {
-        ctx.fillText(line.trim() + "...", x, y)
-        return
-      }
-    } else {
-      line = test
-    }
-  }
+			if (lines >= maxLines - 1) {
+				ctx.fillText(`${line.trim()}...`, x, y);
+				return;
+			}
+		} else {
+			line = test;
+		}
+	}
 
-  ctx.fillText(line, x, y)
+	ctx.fillText(line, x, y);
 }
 
 export function roundedRect(
-  ctx: CanvasCtx,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  r: number
+	ctx: CanvasCtx,
+	x: number,
+	y: number,
+	w: number,
+	h: number,
+	r: number,
 ) {
-  ctx.beginPath()
-  ctx.moveTo(x + r, y)
-  ctx.lineTo(x + w - r, y)
-  ctx.quadraticCurveTo(x + w, y, x + w, y + r)
-  ctx.lineTo(x + w, y + h - r)
-  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h)
-  ctx.lineTo(x + r, y + h)
-  ctx.quadraticCurveTo(x, y + h, x, y + h - r)
-  ctx.lineTo(x, y + r)
-  ctx.quadraticCurveTo(x, y, x + r, y)
-  ctx.closePath()
+	ctx.beginPath();
+	ctx.moveTo(x + r, y);
+	ctx.lineTo(x + w - r, y);
+	ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+	ctx.lineTo(x + w, y + h - r);
+	ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+	ctx.lineTo(x + r, y + h);
+	ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+	ctx.lineTo(x, y + r);
+	ctx.quadraticCurveTo(x, y, x + r, y);
+	ctx.closePath();
 }
 
 export function infoBox(
-  ctx: CanvasCtx,
-  emoji: string,
-  title: string,
-  value: string,
-  x: number,
-  y: number
+	ctx: CanvasCtx,
+	emoji: string,
+	title: string,
+	value: string,
+	x: number,
+	y: number,
 ) {
-  const paddingX = 14
-  const paddingTop = 10
+	const paddingX = 14;
+	const paddingTop = 10;
 
-  ctx.fillStyle = "rgba(30,25,45,0.9)"
-  roundedRect(ctx, x, y, 170, 50, 14)
-  ctx.fill()
+	ctx.fillStyle = 'rgba(30,25,45,0.9)';
+	roundedRect(ctx, x, y, 170, 50, 14);
+	ctx.fill();
 
-  ctx.font = '16px "Emoji"'
-  ctx.fillStyle = "#ffffff"
-  ctx.fillText(emoji, x + paddingX - 6, y + paddingTop + 10)
+	ctx.font = '16px "Emoji"';
+	ctx.fillStyle = '#ffffff';
+	ctx.fillText(emoji, x + paddingX - 6, y + paddingTop + 10);
 
-  ctx.font = '14px "OpenSans"'
-  ctx.fillStyle = "#c7c7c7"
-  ctx.fillText(title, x + paddingX + 22, y + paddingTop + 10)
+	ctx.font = '14px "OpenSans"';
+	ctx.fillStyle = '#c7c7c7';
+	ctx.fillText(title, x + paddingX + 22, y + paddingTop + 10);
 
-  ctx.font = '18px "OpenSans"'
-  ctx.fillStyle = "#ffffff"
-  ctx.fillText(value, x + paddingX, y + paddingTop + 34)
+	ctx.font = '18px "OpenSans"';
+	ctx.fillStyle = '#ffffff';
+	ctx.fillText(value, x + paddingX, y + paddingTop + 34);
 }
 
-type BadgeInput = { badge_id: string }
+type BadgeInput = { badge_id: string };
 
 interface DrawBadgesOptions {
-  x: number
-  y: number
-  size: number
-  gap?: number
-  maxPerRow?: number
+	x: number;
+	y: number;
+	size: number;
+	gap?: number;
+	maxPerRow?: number;
 }
 
 export async function drawBadges(
-  ctx: CanvasCtx,
-  config: DrawBadgesOptions,
-  badges?: BadgeInput[] | null,
-  isBot?: boolean
+	ctx: CanvasCtx,
+	config: DrawBadgesOptions,
+	badges?: BadgeInput[] | null,
+	isBot?: boolean,
 ) {
-  if (!badges?.length) return
+	if (!badges?.length) return;
 
-  const badgeList = [...badges]
+	const badgeList = [...badges];
 
-  if (isBot) {
-    badgeList.unshift({ badge_id: "bot" })
-  }
+	if (isBot) {
+		badgeList.unshift({ badge_id: 'bot' });
+	}
 
-  const { x, y, size, gap = 8, maxPerRow = 8 } = config
+	const { x, y, size, gap = 8, maxPerRow = 8 } = config;
 
-  let cx = x
-  let cy = y
-  let count = 0
+	let cx = x;
+	let cy = y;
+	let count = 0;
 
-  for (const badge of badgeList) {
-    const filePath = path.join(BADGES_DIR, `${badge.badge_id}.png`)
-    if (!fs.existsSync(filePath)) continue
+	for (const badge of badgeList) {
+		const filePath = path.join(BADGES_DIR, `${badge.badge_id}.png`);
+		if (!fs.existsSync(filePath)) continue;
 
-    try {
-      const img = await loadImage(filePath)
+		try {
+			const img = await loadImage(filePath);
 
-      const isOwner = badge.badge_id === "owner"
-      const scale = isOwner ? 0.82 : 1
+			const isOwner = badge.badge_id === 'owner';
+			const scale = isOwner ? 0.82 : 1;
 
-      const drawSize = size * scale
-      const offset = (size - drawSize) / 2
+			const drawSize = size * scale;
+			const offset = (size - drawSize) / 2;
 
-      ctx.drawImage(img, cx + offset, cy + offset, drawSize, drawSize)
+			ctx.drawImage(img, cx + offset, cy + offset, drawSize, drawSize);
 
-      cx += size + gap
-      count++
+			cx += size + gap;
+			count++;
 
-      if (count % maxPerRow === 0) {
-        cx = x
-        cy += size + gap
-      }
-    } catch (err) {
-      console.error("Failed loading badge:", badge.badge_id, err)
-    }
-  }
+			if (count % maxPerRow === 0) {
+				cx = x;
+				cy += size + gap;
+			}
+		} catch (err) {
+			console.error('Failed loading badge:', badge.badge_id, err);
+		}
+	}
 }

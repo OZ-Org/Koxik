@@ -1,8 +1,8 @@
+import crypto from 'node:crypto';
 import { createSubCommand } from '@base';
 import { replyLang } from '@fx/utils/replyLang.js';
 import { UserController } from 'app/jobs/UserController.js';
 import type { Transaction } from 'app/shared/types.js';
-import crypto from 'crypto';
 
 function genItemId(len = 8) {
 	return crypto.randomBytes(len).toString('hex');

@@ -225,7 +225,7 @@ export const paySubCommand = createSubCommand({
 						'',
 						replyLang(interaction.locale, 'eco#pay#error#notReceiver'),
 					);
-					await i.update({ embeds: [errorEmbed], flags: ['Ephemeral'] });
+					await i.update({ embeds: [errorEmbed] });
 					return;
 				}
 
@@ -321,7 +321,7 @@ export const paySubCommand = createSubCommand({
 				}
 			});
 
-			collector.on('end', async (collected, reason) => {
+			collector.on('end', async (_collected, reason) => {
 				if (reason === 'time') {
 					const expiredEmbed = new EmbedBuilder()
 						.setColor(Colors.Orange)

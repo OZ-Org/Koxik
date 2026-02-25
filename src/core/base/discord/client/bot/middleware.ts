@@ -2,7 +2,6 @@ import { db } from '@basedir/db/db.js';
 import { blacklist } from '@basedir/db/schemas.js';
 import { logger } from '@fx/utils/logger.js';
 import type { ChatInputCommandInteraction } from 'discord.js';
-import { sql } from 'drizzle-orm';
 import type { KoxikClient } from './CustomClient.js';
 import type { Command } from './types.js';
 

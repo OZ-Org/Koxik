@@ -10,10 +10,7 @@ import {
 	createSubCommand,
 	createSubCommandGroup,
 } from './bot/command-structure.js';
-import {
-	resolveResponder,
-	setupInteractionHandler,
-} from './bot/interactionHandler.js';
+import { setupInteractionHandler } from './bot/interactionHandler.js';
 import {
 	loadCommandsFromDisk,
 	loadEventsFromDisk,
