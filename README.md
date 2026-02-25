@@ -1,68 +1,78 @@
 # Koxik Bot ✨
-
 [![License](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-TS-blue?logo=typescript)](https://www.typescriptlang.org)
-[![Discord.js](https://img.shields.io/badge/discord.js-v14-purple?logo=discord)](https://discord.js.org)
-[![Top.gg](https://img.shields.io/badge/Top.gg-Vote%20for%20us-orange?logo=topdotgg)](https://top.gg/bot/1446227976793493594)
-[![Open Source](https://img.shields.io/badge/Open%20Source-Yes-success?logo=github)](https://github.com)
-[![Support Server](https://img.shields.io/badge/Discord-Support%20Server-5865F2?logo=discord)](https://discord.gg/84u7UQYXzB)
-[![Bun](https://img.shields.io/badge/Bun-1.3.5-black?logo=bun)](https://bun.sh)
+[![discord.js](https://img.shields.io/badge/discord.js-v14-purple?logo=discord)](https://discord.js.org)
+[![Bun](https://img.shields.io/badge/Bun-1.3.9-black?logo=bun)](https://bun.sh)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-blue?logo=postgresql)](https://www.postgresql.org)
 [![Maintained](https://img.shields.io/badge/Maintained-Yes-brightgreen)](#)
-[![wakatime](https://wakatime.com/badge/user/8d7b071b-f3ff-4a46-83c1-f929d6e39e35/project/c42bbce1-cc54-476b-b976-d631b7802641.svg)](https://wakatime.com/badge/user/8d7b071b-f3ff-4a46-83c1-f929d6e39e35/project/c42bbce1-cc54-476b-b976-d631b7802641)
-[![Hsyst Subproject](https://img.shields.io/badge/Hsyst-Subproject-6f42c1)](https://hsyst.xyz/cert3.html)
+[![Open Source](https://img.shields.io/badge/Open%20Source-Yes-success?logo=github)](https://github.com)
+
+Koxik is a modern, multilingual Discord bot built for performance, clean architecture, and seamless user interaction.
+
+## Add to your server
+
+Invite Koxik and experience clean, multilingual interaction.
+
+<a href="https://top.gg/bot/1446227976793493594"> <img src="https://top.gg/api/widget/1446227976793493594.svg" /> </a>
 
 ---
 
-## Vote Koxik
-<a href="https://top.gg/bot/1446227976793493594">
-  <img src="https://top.gg/api/widget/1446227976793493594.svg">
-</a>
+## Why Koxik?
+
+Koxik was designed with modern development principles in mind:
+
+- ⚡ High performance runtime powered by Bun  
+- 🌍 Automatic language detection per user  
+- 🧩 Modular and scalable architecture  
+- 🧠 Clean, direct interaction design 
 
 ---
 
 ## Key Features
 
-*   **Multilingual Support**: Communicate in English, Spanish, and Brazilian Portuguese.
-*   **Automatic Language Detection**: Detects the user’s language for smooth interactions.
-*   **Direct Responses**: Concise replies that keep the chat clean and organized.
+- **Multilingual Support** (English, Spanish, Brazilian Portuguese)
+- **Automatic Language Detection**
+- **Clean and Direct Responses**
+- **Modular Command System**
+- **Database-backed persistence**
+
+---
 
 ## Tech Stack
 
-Built with modern technologies:
+### Runtime
+- [Bun](https://bun.sh)
 
-*   **Runtime**: [Bun](https://bun.sh)
-*   **Language**: [TypeScript](https://www.typescriptlang.org)
-*   **Discord Framework**: [`discord.js`](https://discord.js.org)
-*   **ORM**: [Drizzle](https://www.drizzle.io)
+### Language
+- [TypeScript](https://www.typescriptlang.org)
+
+### Discord Framework
+- [discord.js](https://discord.js.org)
+
+### ORM
+- [Drizzle ORM](https://www.drizzle.io)
 
 ### Database
+- [PostgreSQL](https://www.postgresql.org)
 
-*   **Database**: [PostgreSQL](https://www.postgresql.org)
 
-### Migration
 
-*   **Database Migrations**: Drizzle Migrate (`migrate:dev`, `migrate`)
+The architecture follows separation of concerns, keeping the bot scalable and maintainable.
 
----
+
+## Getting Started
+
+You can learn how to self-host the bot in the [Self-Hosted Guide](./docs/SELF-HOSTED.md).
 
 ## Contributing
 
-Your help is welcome! Read our [Contribution Guide](./CONTRIBUTING.md).
-
-To contribute:
-
-1.  **Fork** this repository.
-2.  Create a new branch for your feature or fix (`git checkout -b feature`).
-3.  Make your changes and commit them (`git commit -m 'feat: add explosive coxinhas'`).
-4.  Push your changes to your fork (`git push origin feature`).
-5.  Open a **Pull Request** to the original repository.
-
----
+Contributions are welcome. Please read [CONTRIBUTING.md](./CONTRIBUTING.md) to learn how to contribute to the project, and review the [Code of Conduct](./CODE_OF_CONDUCT.md) before participating.
 
 ## License
 
-This project is licensed under the [MIT License](./LICENSE).
+This project is licensed under the MIT License.
 
-You are free to use and modify the bot as long as you keep the license credits intact.
+You are free to use and modify it as long as license credits remain intact.
 
-[This same file, but in portuguese!](./docs/pt-BR/README.md)
+# Portuguese Version
+> 🇧🇷 | [Leia este README em Português](./docs/pt-BR/README.md)
