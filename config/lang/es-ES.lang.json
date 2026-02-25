@@ -332,7 +332,6 @@
 	},
 	"profile": {
 		"view": {
-			"description": "¡Mira el perfil de alguien!",
 			"noAccount": "El usuario no tiene cuenta. Usa %command%",
 			"aboutTitle": "Sobre mí",
 			"aboutDefault": "Koxik es un bot genial... bla bla bla",

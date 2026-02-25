@@ -1,0 +1,3 @@
+files:
+  - source: /config/lang/pt-BR.lang.json
+    translation: /config/lang/%locale%.lang.json
