@@ -9,7 +9,7 @@
 <table>
   <tr>
     <td align="center">
-      <img src="https://github.com/noadevbr.png" width="120" style="border-radius: 50%;" />
+      <img src="https://github.com/noadevbr.png?update=1" width="120" style="border-radius: 50%;" />
       <br />
       <strong>Noa</strong>
       <br />
