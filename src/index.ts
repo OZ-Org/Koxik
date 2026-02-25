@@ -22,5 +22,5 @@ export const {
 			]),
 			RegisterType.Depends.Global<'production'>('production'),
 		],
-	}
+	},
 });

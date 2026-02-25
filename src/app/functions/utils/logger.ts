@@ -62,9 +62,9 @@ export const logger = {
 	},
 
 	banner: (title: string) => {
-		const box = `\n${chalk.magentaBright('╔' + '═'.repeat(title.length + 4) + '╗')}
+		const box = `\n${chalk.magentaBright(`╔${'═'.repeat(title.length + 4)}╗`)}
 ${chalk.magentaBright('║')}  ${chalk.bold.cyan(title)}  ${chalk.magentaBright('║')}
-${chalk.magentaBright('╚' + '═'.repeat(title.length + 4) + '╝')}\n`;
+${chalk.magentaBright(`╚${'═'.repeat(title.length + 4)}╝`)}\n`;
 
 		console.log(box);
 	},
