@@ -42,7 +42,7 @@
     <td align="center">
       <img src="https://github.com/gatifulaa.png" width="120" style="border-radius: 50%;" />
       <br />
-      <strong>Aaron Gatifula</strong>
+      <strong>Aaron — Gatifula</strong>
       <br />
       <sub>Beta • Support</sub>
       <br />
