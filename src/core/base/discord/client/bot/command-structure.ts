@@ -1,5 +1,4 @@
 /** biome-ignore-all lint/complexity/noBannedTypes: ... */
-/** biome-ignore-all assist/source/organizeImports: ... */
 import {
 	ApplicationCommandOptionType,
 	type InteractionContextType,
@@ -15,7 +14,7 @@ import type {
 	AutocompleteOptions,
 	Command,
 	CommandRunOptions,
-	ResponderInteraction,
+	ResponderType,
 } from './types.js';
 import type { Responder } from './types.js';
 import { ReplyBuilder } from './ReplyBuilder.js';
@@ -480,7 +479,7 @@ function compileCustomId(pattern: string) {
 	};
 }
 
-export function createResponder<T extends ResponderInteraction>(
+export function createResponder<T extends ResponderType>(
 	responder: Responder<T>,
 ) {
 	const { regex, keys } = compileCustomId(responder.customId);
