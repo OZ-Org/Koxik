@@ -1,7 +1,10 @@
 import { db } from '@basedir/db/db.js';
 import { blacklist } from '@basedir/db/schemas.js';
 import { logger } from '@fx/utils/logger.js';
-import type { ChatInputCommandInteraction } from 'discord.js';
+import {
+	PermissionsBitField,
+	type ChatInputCommandInteraction,
+} from 'discord.js';
 import type { KoxikClient } from './CustomClient.js';
 import type { Command } from './types.js';
 
@@ -152,13 +155,13 @@ export class PermissionsMiddleware extends CommandMiddleware {
 			return { success: true, continue: true };
 		}
 
-		const requiredPermissions = command.data.default_member_permissions as any;
+		const requiredPermissions = command.data.default_member_permissions;
+
 		if (!requiredPermissions) {
 			return { success: true, continue: true };
 		}
 
-		const member = interaction.member;
-		if (!member) {
+		if (!interaction.memberPermissions) {
 			return {
 				success: true,
 				continue: false,
@@ -166,21 +169,28 @@ export class PermissionsMiddleware extends CommandMiddleware {
 			};
 		}
 
-		let hasPermission = false;
 		try {
-			hasPermission = member.permissions.has(requiredPermissions as any);
+			const perms = PermissionsBitField.resolve(requiredPermissions as any);
+
+			const hasPermission = interaction.memberPermissions.has(perms);
+
+			if (!hasPermission) {
+				return {
+					success: true,
+					continue: false,
+					response: "❌ You don't have permission to use this command.",
+				};
+			}
+
+			return { success: true, continue: true };
 		} catch (error) {
 			logger.error('Permission check failed:', error);
-		}
-		if (!hasPermission) {
+
 			return {
-				success: true,
-				continue: false,
-				response: "❌ You don't have permission to use this command.",
+				success: false,
+				error: 'Permission check failed',
 			};
 		}
-
-		return { success: true, continue: true };
 	}
 }
 
