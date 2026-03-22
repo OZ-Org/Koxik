@@ -17,15 +17,6 @@
       <br />
       <a href="https://github.com/noadevbr">GitHub</a>
     </td>
-    <td align="center">
-      <img src="https://github.com/bryansmithsantos.png" width="120" style="border-radius: 50%;" />
-      <br />
-      <strong>Bryan — Leref</strong>
-      <br />
-      <sub>Developer • Sub-creator</sub>
-      <br />
-      <a href="https://github.com/bryansmithsantos">GitHub</a>
-    </td>
   </tr>
 </table>
 
@@ -76,6 +67,28 @@
       <strong>Matheus — Kukie</strong>
       <br />
       <sub>Koxik Artwork</sub>
+    </td>
+  </tr>
+</table>
+
+</div>
+
+---
+
+### 🧑‍💼 Ex-Members
+
+<div align="center">
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/bryansmithsantos.png" width="120" style="border-radius: 50%;" />
+      <br />
+      <strong>Bryan — Leref</strong>
+      <br />
+      <sub>Ex-SubOwner</sub>
+      <br />
+      <a href="https://github.com/bryansmithsantos">GitHub</a>
     </td>
   </tr>
 </table>
