@@ -312,6 +312,7 @@
 				"",
 				"### ⏳ Uptime",
 				"• I've been alive for **<t:%uptime%:R>**",
+				"• Shards: **%shard%**",
 				"",
 				"🔑 Developed by: **%owner%**"
 			],
@@ -403,13 +404,11 @@
 		"common": "Common Lootbox",
 		"rare": "Rare Lootbox",
 		"epic": "Epic Lootbox",
-
 		"emoji": {
 			"common": "📦",
 			"rare": "🎁",
 			"epic": "💎"
 		},
-
 		"description": {
 			"common": "A simple lootbox with basic rewards.",
 			"rare": "A rare lootbox containing valuable items.",

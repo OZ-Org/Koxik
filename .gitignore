@@ -39,3 +39,8 @@ Desktop.ini
 exclude
 drizzle
 commands.json
+
+# AI
+.claude
+.cursor
+.openclaude-profile.json

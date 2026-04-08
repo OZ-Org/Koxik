@@ -9,6 +9,26 @@ import { ReplyBuilder } from './ReplyBuilder.js';
 import { getResponders } from './registry.js';
 import type { Command, ComponentInteraction, InteractionMap } from './types.js';
 
+export function checkInteractionGlobal(id: string): Promise<boolean> {
+	return new Promise((resolve) => {
+		if (!process.send) return resolve(true);
+
+		const handler = (msg: any) => {
+			if (msg.type === 'CHECK_RESULT' && msg.id === id) {
+				process.off('message', handler);
+				resolve(msg.allowed);
+			}
+		};
+
+		process.on('message', handler);
+
+		process.send({
+			type: 'CHECK_INTERACTION',
+			id,
+		});
+	});
+}
+
 /**
  * Safely handles interaction responses with timeout protection
  */
@@ -19,6 +39,8 @@ async function safeExecuteCommand(
 ) {
 	let hasResponded = false;
 	let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+	if (interaction.replied || interaction.deferred) return;
 
 	try {
 		timeoutId = setTimeout(async () => {
@@ -77,6 +99,17 @@ export function setupInteractionHandler(
 		if (interaction.isChatInputCommand()) {
 			const command = commands.get(interaction.commandName);
 			if (!command) return;
+			if (!(await checkInteractionGlobal(interaction.id))) return;
+
+			if (interaction.guildId && client.shard) {
+				const shardId = client.shard.ids[0];
+				const shardCount = client.options.shardCount ?? 1;
+
+				const guildShard =
+					Number(BigInt(interaction.guildId) >> 22n) % shardCount;
+
+				if (guildShard !== shardId) return;
+			}
 
 			const middlewareResult = await middlewareManager.executeMiddlewares({
 				client,

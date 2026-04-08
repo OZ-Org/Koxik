@@ -312,6 +312,7 @@
 				"",
 				"### ⏳ Uptime",
 				"• He estado activo por **<t:%uptime%:R>**",
+				"• Shards: **%shard%**",
 				"",
 				"🔑 Desarrollado por: **%owner%**"
 			],
@@ -403,13 +404,11 @@
 		"common": "Caja Común",
 		"rare": "Caja Rara",
 		"epic": "Caja Épica",
-
 		"emoji": {
 			"common": "📦",
 			"rare": "🎁",
 			"epic": "💎"
 		},
-
 		"description": {
 			"common": "Una caja simple con recompensas básicas.",
 			"rare": "Una caja rara que contiene objetos valiosos.",
