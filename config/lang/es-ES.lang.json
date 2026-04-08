@@ -312,8 +312,9 @@
 				"",
 				"### ⏳ Uptime",
 				"• He estado activo por **<t:%uptime%:R>**",
+				"• Shards: **%shard%**",
 				"",
-				"🔑 Desarrollado por: **%owner%**"
+				"🔑 Desenvolvido por: **%owner%**"
 			],
 			"footer": "Koxik Bot • Siempre en línea… casi.",
 			"buttons": {
