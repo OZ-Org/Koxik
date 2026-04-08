@@ -22,13 +22,31 @@ export default createSubCommand({
 		const support = 'https://discord.gg/AfeQSwBsZV';
 		const owner = 'Oz-Org';
 
-		const members = client.guilds.cache.reduce(
-			(total, guild) => total + guild.memberCount,
-			0,
-		);
+		const shardId = client.shard?.ids?.[0] ?? 0;
+		const shardCount = client.shard?.count ?? 1;
 
-		const guilds = client.guilds.cache.size;
-		const channels = client.channels.cache.size;
+		let guilds = 0;
+		let members = 0;
+		let channels = 0;
+
+		if (client.shard) {
+			const results = await client.shard.broadcastEval((c) => ({
+				guilds: c.guilds.cache.size,
+				members: c.guilds.cache.reduce((total, g) => total + g.memberCount, 0),
+				channels: c.channels.cache.size,
+			}));
+
+			guilds = results.reduce((a, b) => a + b.guilds, 0);
+			members = results.reduce((a, b) => a + b.members, 0);
+			channels = results.reduce((a, b) => a + b.channels, 0);
+		} else {
+			guilds = client.guilds.cache.size;
+			members = client.guilds.cache.reduce(
+				(total, guild) => total + guild.memberCount,
+				0,
+			);
+			channels = client.channels.cache.size;
+		}
 
 		const uptimeTimestamp = Math.floor(
 			(Date.now() - (client.uptime ?? 0)) / 1000,
@@ -72,6 +90,7 @@ export default createSubCommand({
 						host: hostedBy,
 						uptime: uptimeTimestamp,
 						owner,
+						shard: `${shardId + 1}/${shardCount}`,
 					}),
 				),
 				Separator.Default,

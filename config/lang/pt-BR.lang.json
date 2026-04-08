@@ -198,7 +198,6 @@
 			"cancel_button": "Não, minha raiva passou",
 			"cancelled": "Cancelado, **%user%** tá salvo por enquanto hahaha",
 			"success": "Pronto. **%user%** foi banido. Paz à sua alma. :3",
-
 			"error_cannot_ban_self": "Você não pode se banir, por favor não tente :/",
 			"error_cannot_ban_owner": "Não dá pra banir o dono do servidor, bro. %suspect%",
 			"error_member_not_found": "Não achei o usuário %user% no servidor. ༼ ༎ຶ ᆺ ༎ຶ༽",
@@ -207,7 +206,6 @@
 			"error_no_guild": "Esse comando precisa ser usado dentro de um servidor. (╯°□°）╯",
 			"error_on_ban": "Deu ruim na hora de banir, tenta de novo mais tarde. (;﹏;)",
 			"timeout": "Tempo esgotado. Se mudou de ideia, chama de novo :3",
-
 			"reason_template": "Banido por %moderator% via comando.",
 			"action": "para banir membros"
 		}
@@ -314,6 +312,7 @@
 				"",
 				"### ⏳ Uptime",
 				"• Estou viva há **<t:%uptime%:R>**",
+				"• Shards: **%shard%**",
 				"",
 				"🔑 Desenvolvido por: **%owner%**"
 			],
@@ -405,13 +404,11 @@
 		"common": "Lootbox Comum",
 		"rare": "Lootbox Rara",
 		"epic": "Lootbox Épica",
-
 		"emoji": {
 			"common": "📦",
 			"rare": "🎁",
 			"epic": "💎"
 		},
-
 		"description": {
 			"common": "Uma lootbox simples com recompensas básicas.",
 			"rare": "Uma lootbox rara contendo itens valiosos.",

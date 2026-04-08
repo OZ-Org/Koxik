@@ -1,8 +1,8 @@
-// createBot.ts
 import { db } from '@basedir/db/db.js';
 import { env } from '@env';
 import { logger } from '@fx/utils/logger.js';
 import { type ClientEvents, GatewayIntentBits, Partials } from 'discord.js';
+
 import { KoxikClient } from './bot/CustomClient.js';
 import {
 	createCommand as createCommandBuilder,
@@ -16,9 +16,17 @@ import {
 	loadEventsFromDisk,
 	loadResponders,
 } from './bot/loaders.js';
+
 import { registerResponder } from './bot/registry.js';
 import { syncCommands } from './bot/sync.js';
+
 import type { BotOptions, Command, Event, RegisterType } from './bot/types.js';
+
+import {
+	getShardData,
+	resolveSharding,
+	applySharding,
+} from './bot/sharding.js';
 
 export function resolveRegisterTypes(
 	list: RegisterType[],
@@ -43,15 +51,32 @@ export function resolveRegisterTypes(
 }
 
 export function createBot(options: BotOptions) {
+	if (options.sharding) {
+		const resolved = resolveSharding(options.sharding);
+		applySharding(resolved);
+	}
+
+	const { shardId, shardCount, isMainShard, isPM2Cluster } = getShardData();
+
+	const clientOptions: any = {
+		intents: [
+			GatewayIntentBits.GuildMembers,
+			GatewayIntentBits.Guilds,
+			GatewayIntentBits.GuildModeration,
+		],
+		partials: [Partials.GuildMember, Partials.User],
+	};
+
+	if (!isPM2Cluster) {
+		clientOptions.shards = shardId !== undefined ? [shardId] : 'auto';
+
+		if (typeof shardCount === 'number' && shardCount >= 1) {
+			clientOptions.shardCount = shardCount;
+		}
+	}
+
 	const client = new KoxikClient(
-		{
-			intents: [
-				GatewayIntentBits.GuildMembers,
-				GatewayIntentBits.Guilds,
-				GatewayIntentBits.GuildModeration,
-			],
-			partials: [Partials.GuildMember, Partials.User],
-		},
+		clientOptions,
 		Array.isArray(options.owner)
 			? options.owner
 			: options.owner
@@ -60,7 +85,6 @@ export function createBot(options: BotOptions) {
 	);
 
 	const commands = new Map<string, Command>();
-
 	const registeredEvents = new Set<string>();
 
 	function createEvent<T extends keyof ClientEvents>(event: Event<T>) {
@@ -85,19 +109,19 @@ export function createBot(options: BotOptions) {
 	setupInteractionHandler(client, commands);
 
 	client.once('clientReady', async () => {
-		logger.info(`Connected as ${client.user?.tag ?? 'unknown'}`);
+		logger.info(
+			`Connected as ${client.user?.tag ?? 'unknown'} (shard ${shardId ?? 0})`,
+		);
 
 		if (Array.isArray(options.commands?.registerOn)) {
 			const resolved = resolveRegisterTypes(options.commands.registerOn);
 
-			if (resolved) {
-				options.commands.registerOn = resolved;
-			} else {
-				options.commands.registerOn = [];
-			}
+			options.commands.registerOn = resolved ?? [];
 		}
 
-		await syncCommands(client, commands, options);
+		if (isMainShard) {
+			await syncCommands(client, commands, options);
+		}
 	});
 
 	process.on('unhandledRejection', (err) =>

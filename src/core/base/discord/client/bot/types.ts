@@ -364,4 +364,50 @@ export interface BotOptions {
 	 * Useful for storing configuration, API keys, or other shared state.
 	 */
 	customVariables?: Record<string, any>;
+
+	sharding?: ShardingConfig[];
 }
+
+export type ShardMode = 'Internal' | 'PM2' | 'Disabled';
+
+type BaseShard<T extends ShardMode> = {
+	type: T;
+	env?: string;
+};
+
+export type InternalShard = BaseShard<'Internal'> & {
+	count: number | 'auto';
+};
+
+export type PM2Shard = BaseShard<'PM2'> & {
+	instances: number | 'max';
+};
+
+export type DisabledShard = BaseShard<'Disabled'>;
+
+export type ShardingConfig = InternalShard | PM2Shard | DisabledShard;
+
+export const ShardingType = {
+	Disabled: <E extends string>(env?: E): DisabledShard => ({
+		type: 'Disabled',
+		env,
+	}),
+
+	Internal: <E extends string>(
+		env: E,
+		options?: { count?: number | 'auto' },
+	): InternalShard => ({
+		type: 'Internal',
+		env,
+		count: options?.count ?? 'auto',
+	}),
+
+	PM2: <E extends string>(
+		env: E,
+		options?: { instances?: number | 'max' },
+	): PM2Shard => ({
+		type: 'PM2',
+		env,
+		instances: options?.instances ?? 'max',
+	}),
+};

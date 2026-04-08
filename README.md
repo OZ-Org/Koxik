@@ -2,7 +2,7 @@
 [![License](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-TS-blue?logo=typescript)](https://www.typescriptlang.org)
 [![discord.js](https://img.shields.io/badge/discord.js-v14-purple?logo=discord)](https://discord.js.org)
-[![Bun](https://img.shields.io/badge/Bun-1.3.9-black?logo=bun)](https://bun.sh)
+[![Bun](https://img.shields.io/badge/Bun-black?logo=bun)](https://bun.sh)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-blue?logo=postgresql)](https://www.postgresql.org)
 [![Maintained](https://img.shields.io/badge/Maintained-Yes-brightgreen)](#)
 [![Open Source](https://img.shields.io/badge/Open%20Source-Yes-success?logo=github)](https://github.com)

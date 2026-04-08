@@ -133,3 +133,18 @@ export const blacklist = pgTable('Blacklist', {
 		.default(sql`CURRENT_TIMESTAMP`)
 		.notNull(),
 });
+
+export const sessions = pgTable('Sessions', {
+	id: text('id').primaryKey().notNull(),
+
+	userId: text('user_id').notNull(),
+
+	refreshTokenHash: text('refresh_token_hash').notNull(),
+
+	userAgent: text('user_agent'),
+	ip: text('ip'),
+
+	expiresAt: timestamp('expires_at', { mode: 'string' }).notNull(),
+
+	createdAt: timestamp('created_at', { mode: 'string' }).defaultNow().notNull(),
+});
