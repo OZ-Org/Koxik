@@ -312,8 +312,9 @@
 				"",
 				"### ⏳ Uptime",
 				"• I've been alive for **<t:%uptime%:R>**",
+				"• Shards: **%shard%**",
 				"",
-				"🔑 Developed by: **%owner%**"
+				"🔑 Desenvolvido por: **%owner%**"
 			],
 			"footer": "Koxik Bot • Always online… almost.",
 			"buttons": {
