@@ -68,6 +68,22 @@ You can learn how to self-host the bot in the [Self-Hosted Guide](./docs/SELF-HO
 
 Contributions are welcome. Please read [CONTRIBUTING.md](./CONTRIBUTING.md) to learn how to contribute to the project, and review the [Code of Conduct](./CODE_OF_CONDUCT.md) before participating.
 
+---
+
+## ☁️ Hosting Partner
+
+Koxik is proudly powered by infrastructure provided by **Gatihost**.
+
+<a href="https://www.gatihost.com.br">
+  <img src="https://www.gatihost.com.br/og.png" alt="Gatihost" />
+</a>
+
+Gatihost delivers reliable and scalable hosting solutions, ensuring Koxik runs smoothly.
+
+If you're looking for a hosting provider, especially for game servers like Minecraft, it's worth checking them out.
+
+🔗 https://gatihost.com.br
+
 ## License
 
 This project is licensed under the MIT License.
