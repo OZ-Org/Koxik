@@ -39,6 +39,7 @@ Desktop.ini
 exclude
 drizzle
 commands.json
+logs/
 
 # AI
 .claude
