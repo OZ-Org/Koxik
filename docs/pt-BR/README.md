@@ -77,6 +77,21 @@ Contribuições são bem-vindas. Leia o [CONTRIBUTING.md](./CONTRIBUTING.md) par
 
 ---
 
+## ☁️ Hosting Partner
+
+A Koxik tem o orgulho de contar com a infraestrutura fornecida pela **Gatihost**.
+
+<a href="https://www.gatihost.com.br">
+  <img src="https://www.gatihost.com.br/og.png" alt="Gatihost" />
+</a>
+
+A Gatihost oferece soluções de hospedagem confiáveis ​​e escaláveis, garantindo que a Koxik funcione sem problemas!
+
+Se você está procurando um provedor de hospedagem, especialmente para servidores de jogos como Minecraft, vale a pena conferir.
+
+🔗 https://gatihost.com.br
+---
+
 ## Licença
 
 Este projeto é licenciado sob a MIT License.
