@@ -8,6 +8,7 @@ const envSchema = z.object({
 	TOPGG_TOKEN: z.string().optional(),
 	DB_POOL_MAX: z.coerce.number().min(1).max(100).default(10),
 	DB_POOL_IDLE_TIMEOUT: z.coerce.number().min(1000).default(10000),
+	SHARD_COUNT: z.coerce.number().max(20).optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);
