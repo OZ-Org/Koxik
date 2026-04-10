@@ -26,7 +26,7 @@ export const {
 		}),
 
 		ShardingType.Internal<'production'>('production', {
-			count: 'auto',
+			count: env.SHARD_COUNT,
 		}),
 	],
 
