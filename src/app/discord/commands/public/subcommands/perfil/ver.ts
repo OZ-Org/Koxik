@@ -43,11 +43,31 @@ GlobalFonts.registerFromPath(EMOJI_PATH, 'Emoji');
 
 export default createSubCommand({
 	name: 'view',
+	name_localizations: {
+		'pt-BR': 'ver',
+		'es-ES': 'ver',
+	},
+
 	description: "View someone's profile!",
+	description_localizations: {
+		'pt-BR': 'Veja o perfil de alguém!',
+		'es-ES': '¡Mira el perfil de alguien!',
+	},
+
 	options: [
 		{
 			name: 'user',
+			name_localizations: {
+				'pt-BR': 'usuario',
+				'es-ES': 'usuario',
+			},
+
 			description: 'User you want to view the profile!',
+			description_localizations: {
+				'pt-BR': 'Usuário que você quer ver o perfil!',
+				'es-ES': '¡Usuario cuyo perfil quieres ver!',
+			},
+
 			type: ApplicationCommandOptionType.User,
 		},
 	],
