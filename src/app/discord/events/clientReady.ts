@@ -53,15 +53,18 @@ export default createEvent({
 		}, 60_000);
 
 		if (env.TOPGG_TOKEN) {
+			const isMainShard = !client.shard || client.shard.ids.includes(0);
+
+			if (!isMainShard) return;
+
 			setTimeout(
 				() => {
-					if (env.TOPGG_TOKEN)
-						AutoPoster(env.TOPGG_TOKEN, client).on('posted', () => {
-							logger.success('Posted stats on top.gg!');
-						});
+					AutoPoster(env.TOPGG_TOKEN!, client).on('posted', () => {
+						logger.success('Posted stats on top.gg!');
+					});
 				},
 				10 * 60 * 60 * 1000,
 			);
-		} else return;
+		}
 	},
 });
