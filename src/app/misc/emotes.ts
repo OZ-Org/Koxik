@@ -9,6 +9,12 @@ export const emotes = {
 		staff: '<:staff:1422371851618877520>',
 		beta: '<:beta_tester:1422422201273024715>',
 	},
+	tech: {
+		git: '<:git:1492925542733975734>',
+		typescript: '<:typescript:1492925356405952624>',
+		djs: '<:djs:1492925273341956158>',
+		bun: '<:bun:1492924882084692138>',
+	},
 	misc: {
 		suspect: '<:breadsus:1422770743451844668>',
 		dollar: '<:dollar:1455382683344568550>',
