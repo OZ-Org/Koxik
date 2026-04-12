@@ -20,16 +20,6 @@ export const {
 } = createBot({
 	token: env.DISCORD_TOKEN,
 
-	sharding: [
-		ShardingType.Internal<'development'>('development', {
-			count: 2,
-		}),
-
-		ShardingType.Internal<'production'>('production', {
-			count: env.SHARD_COUNT,
-		}),
-	],
-
 	commands: {
 		registerOn: [
 			RegisterType.Depends.Guild<'development'>('development', [
@@ -38,4 +28,11 @@ export const {
 			RegisterType.Depends.Global<'production'>('production'),
 		],
 	},
+	sharding: [
+		ShardingType.Disabled<'development'>('development'),
+
+		ShardingType.Internal<'production'>('production', {
+			count: env.SHARD_COUNT,
+		}),
+	],
 });
