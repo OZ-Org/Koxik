@@ -46,6 +46,8 @@ Koxik V1 is a Discord bot written in JavaScript using Node.js and Discord.js. Th
 
 This version (V1) is **no longer maintained** and should not be used for production purposes.
 
+This branch is archived, so we do not accept pull requests.
+
 ## Upgrade to Koxik V2
 
 We recommend migrating to **Koxik V2**, which is currently in production and offers significant improvements:
