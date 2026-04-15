@@ -11,8 +11,6 @@ Koxik is a modern, multilingual Discord bot built for performance, clean archite
 
 ## Add to your server
 
-Invite Koxik and experience clean, multilingual interaction.
-
 <a href="https://top.gg/bot/1446227976793493594"> <img src="https://top.gg/api/widget/1446227976793493594.svg" /> </a>
 
 ---
