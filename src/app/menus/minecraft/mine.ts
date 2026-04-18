@@ -1,7 +1,12 @@
 import { randomInt, randomUUID } from 'node:crypto';
 import { replyLang } from '@fx/utils/replyLang.js';
 import { createRow, EmbedPlusBuilder } from '@magicyan/discord';
-import type { BackpackItem, BackpackType, OreType } from 'app/shared/types.js';
+import type {
+	BackpackItem,
+	BackpackType,
+	OreType,
+	PickaxesTypesIDs,
+} from 'app/shared/types.js';
 import {
 	ButtonBuilder,
 	ButtonStyle,
@@ -10,6 +15,9 @@ import {
 	type Locale,
 } from 'discord.js';
 import { UserController } from '../../jobs/UserController.js';
+import { emotes } from '@misc/emotes.js';
+
+type LootboxRarity = 'common' | 'rare' | 'epic';
 
 interface LootboxDrop {
 	id: string;
@@ -17,57 +25,68 @@ interface LootboxDrop {
 	rarity: LootboxRarity;
 }
 
-const LOOTBOX_CONFIG = {
-	common: {
-		color: 9807270,
-		dropChance: 2,
-		rarity: 'common',
-	},
-	rare: {
-		color: 0xffd700,
-		dropChance: 1,
-		rarity: 'rare',
-	},
-	epic: {
-		color: 0xff00ff,
-		dropChance: 0.5,
-		rarity: 'epic',
-	},
-} as const;
+const PICKAXE_RATES: Record<
+	PickaxesTypesIDs,
+	Partial<Record<OreType, number>>
+> = {
+	PICX_WOODEN: { stone: 70, coal: 30 },
+	PICX_STONE: { stone: 60, coal: 30, iron: 10 },
+	PICX_GOLD: { stone: 30, coal: 20 },
+	PICX_IRON: { stone: 30, coal: 25, iron: 30, gold: 10, diamond: 5 },
+	PICX_DIAMOND: { stone: 35, coal: 20, iron: 25, gold: 20, diamond: 5 },
+	PICX_NETHERITE: { stone: 10, coal: 25, iron: 25, gold: 45, diamond: 5 },
+};
 
-type LootboxRarity = keyof typeof LOOTBOX_CONFIG;
+function rollOre(pickaxeId: PickaxesTypesIDs): OreType {
+	const rates = PICKAXE_RATES[pickaxeId];
 
-function progressBar(current: number, max: number, size = 12): string {
-	const filled = Math.round((current / max) * size);
-	const empty = size - filled;
-	return `[${'🟩'.repeat(filled)}${'🟥'.repeat(empty)}] ${current}/${max}`;
-}
+	if (!rates) return 'stone';
 
-function generateOre(
-	pickaxe: Extract<BackpackItem, { type: 'pickaxe' }>,
-): OreType {
-	const ores = pickaxe.ores ?? ['stone'];
 	const roll = randomInt(1, 101);
-	let cum = 0;
+	let acc = 0;
 
-	for (const ore of ores) {
-		cum += pickaxe.rates?.[ore] ?? 0;
-		if (roll <= cum) return ore;
+	for (const [ore, chance] of Object.entries(rates)) {
+		acc += chance;
+		if (roll <= acc) return ore as OreType;
 	}
 
 	return 'stone';
 }
 
-function checkLootboxDrop(): LootboxDrop | null {
+function getOreEmoji(ore: OreType) {
+	const map: Partial<Record<OreType, string>> = {
+		diamond: emotes.minecraft.ores.diamond,
+		iron: emotes.minecraft.ores.iron,
+		gold: emotes.minecraft.ores.gold,
+		coal: emotes.minecraft.ores.coal,
+	};
+	return map[ore] ?? '🪨';
+}
+
+function getPickaxeEmoji(id: PickaxesTypesIDs) {
+	const map = {
+		PICX_WOODEN: emotes.minecraft.pickaxe.wooden_pickaxe,
+		PICX_STONE: emotes.minecraft.pickaxe.stone_pickaxe,
+		PICX_IRON: emotes.minecraft.pickaxe.iron_pickaxe,
+		PICX_GOLD: emotes.minecraft.pickaxe.golden_pickaxe,
+		PICX_DIAMOND: emotes.minecraft.pickaxe.diamond_pickaxe,
+		PICX_NETHERITE: emotes.minecraft.pickaxe.netherite_pickaxe,
+	} as const;
+
+	return map[id] ?? '⛏️';
+}
+
+function progressBar(current: number, max: number, size = 12) {
+	const filled = Math.round((current / max) * size);
+	return `[${'🟩'.repeat(filled)}${'⬛'.repeat(size - filled)}] ${current}/${max}`;
+}
+
+function checkLootbox(): LootboxDrop | null {
 	const roll = randomInt(1, 101);
 
-	if (roll <= LOOTBOX_CONFIG.common.dropChance) {
-		return {
-			id: `lootbox_${randomUUID()}`,
-			type: 'lootbox',
-			rarity: 'common',
-		};
-	}
+	if (roll <= 2) return { id: randomUUID(), type: 'lootbox', rarity: 'common' };
+	if (roll <= 3) return { id: randomUUID(), type: 'lootbox', rarity: 'rare' };
+	if (roll === 4) return { id: randomUUID(), type: 'lootbox', rarity: 'epic' };
 
 	return null;
 }
@@ -76,14 +95,14 @@ async function handleLava(
 	interaction: ChatInputCommandInteraction,
 	locale: Locale,
 	durability: number,
-): Promise<number> {
-	const lavaMsg = await interaction.followUp({
+) {
+	const msg = await interaction.followUp({
 		content: `🌋 ${replyLang(locale, 'mine#lava_appears')}`,
 		components: [
 			createRow(
 				new ButtonBuilder()
 					.setCustomId('jump')
-					.setLabel('🔥 PULAR!')
+					.setLabel('🔥 PULAR')
 					.setStyle(ButtonStyle.Danger),
 			),
 		],
@@ -92,7 +111,7 @@ async function handleLava(
 
 	let jumped = false;
 
-	const collector = lavaMsg.createMessageComponentCollector({
+	const collector = msg.createMessageComponentCollector({
 		componentType: ComponentType.Button,
 		time: 3000,
 	});
@@ -104,7 +123,6 @@ async function handleLava(
 				content: replyLang(locale, 'mine#lava_jump_success'),
 				flags: ['Ephemeral'],
 			});
-			await lavaMsg.delete().catch(() => {});
 		}
 	});
 
@@ -112,13 +130,10 @@ async function handleLava(
 		collector.on('end', async () => {
 			if (!jumped) {
 				durability = Math.max(0, durability - 2);
-				await interaction
-					.followUp({
-						content: replyLang(locale, 'mine#lava_jump_fail'),
-						flags: ['Ephemeral'],
-					})
-					.catch(() => {});
-				await lavaMsg.delete().catch(() => {});
+				await interaction.followUp({
+					content: replyLang(locale, 'mine#lava_jump_fail'),
+					flags: ['Ephemeral'],
+				});
 			}
 			resolve(durability);
 		});
@@ -127,16 +142,15 @@ async function handleLava(
 
 export async function mine(interaction: ChatInputCommandInteraction) {
 	const user = interaction.user;
-	const pickaxeId = interaction.options.getString('pickaxe', true);
+	const pickaxeId = interaction.options.getString(
+		'pickaxe',
+		true,
+	) as PickaxesTypesIDs;
+
 	const locale = interaction.locale ?? 'pt-BR';
 
 	const userDB = await UserController.find(user.id);
-	if (!userDB) throw new Error(replyLang(locale, 'user#notFound'));
-	if (!userDB?.backpack)
-		return interaction.reply({
-			content: replyLang(locale, 'mine#no_backpack'),
-			flags: ['Ephemeral'],
-		});
+	if (!userDB || !userDB.backpack) return;
 
 	const backpack = userDB.backpack as BackpackType;
 
@@ -144,48 +158,29 @@ export async function mine(interaction: ChatInputCommandInteraction) {
 		(i) => i.type === 'pickaxe' && i.id === pickaxeId,
 	) as Extract<BackpackItem, { type: 'pickaxe' }> | undefined;
 
-	if (!pickaxe)
-		return interaction.reply({
-			content: replyLang(locale, 'mine#pickaxe_not_found'),
-			flags: ['Ephemeral'],
-		});
-
-	if (pickaxe.durability <= 0)
-		return interaction.reply({
-			content: replyLang(locale, 'mine#pickaxe_broken'),
-			flags: ['Ephemeral'],
-		});
+	if (!pickaxe || pickaxe.durability <= 0) return;
 
 	let durability = pickaxe.durability;
 	const maxDurability = pickaxe.durability;
+
 	const loot: Partial<Record<OreType, number>> = {};
 	const lootboxes: LootboxDrop[] = [];
+
 	let mining = true;
-	let pickaxeBroke = false;
 
 	const embed = new EmbedPlusBuilder({
-		title: replyLang(locale, 'mine#mining_start'),
+		title: `${getPickaxeEmoji(pickaxeId)} Mineração`,
 		color: 0x2ecc71,
-		description: replyLang(locale, 'mine#mining_progress'),
 		fields: [
-			{
-				name: `${replyLang(locale, 'mine#durability_field')} ⚒️`,
-				value: progressBar(durability, maxDurability),
-				inline: false,
-			},
-			{
-				name: `${replyLang(locale, 'mine#loot_field')} 💎`,
-				value: replyLang(locale, 'mine#none_yet'),
-				inline: false,
-			},
+			{ name: 'Durabilidade', value: progressBar(durability, maxDurability) },
+			{ name: 'Loot', value: 'Nada ainda...' },
 		],
-		footer: { text: `👤 ${user.username}` },
 	});
 
 	const stopRow = createRow(
 		new ButtonBuilder()
 			.setCustomId('stop')
-			.setLabel(replyLang(locale, 'mine#stop_button'))
+			.setLabel('Parar')
 			.setStyle(ButtonStyle.Danger),
 	);
 
@@ -199,268 +194,118 @@ export async function mine(interaction: ChatInputCommandInteraction) {
 	});
 
 	collector.on('collect', async (i) => {
-		if (i.user.id !== user.id)
-			return i.reply({
-				content: replyLang(locale, 'mine#not_your_button'),
-				flags: ['Ephemeral'],
-			});
+		if (i.user.id !== user.id) return;
 
 		if (i.customId === 'stop') {
 			mining = false;
-			collector.stop('user_stop');
-			await msg.edit({ components: [] }).catch(() => {});
-			await i.reply({
-				content: replyLang(locale, 'mine#mining_stop'),
-				flags: ['Ephemeral'],
-			});
+			collector.stop();
+			await msg.edit({ components: [] });
+			await i.reply({ content: 'Parado.', flags: ['Ephemeral'] });
 		}
 	});
 
-	async function saveLoot() {
-		const updatedBackpack = backpack.map((i) =>
-			i.type === 'pickaxe' && i.id === pickaxe!.id ? { ...i, durability } : i,
-		) as BackpackType;
+	let tick = 0;
 
-		for (const [ore, qty] of Object.entries(loot)) {
-			if (!qty) continue;
+	while (mining && durability > 0 && tick < 25) {
+		await new Promise((r) => setTimeout(r, 1000));
 
-			const fixedOreId = `ore_${ore}`;
-			const existingOreIndex = updatedBackpack.findIndex(
-				(item) => item.type === 'ore' && item.id === fixedOreId,
-			);
-
-			if (existingOreIndex !== -1) {
-				const existingItem = updatedBackpack[existingOreIndex];
-				if (existingItem.type === 'ore') {
-					updatedBackpack[existingOreIndex] = {
-						...existingItem,
-						amount: existingItem.amount + qty,
-					};
-				}
-			} else {
-				updatedBackpack.push({
-					id: fixedOreId,
-					type: 'ore',
-					name: ore as OreType,
-					amount: qty,
-				});
-			}
-		}
-
-		for (const lootbox of lootboxes) {
-			updatedBackpack.push(lootbox as any);
-		}
-
-		await UserController.update(user.id, { backpack: updatedBackpack });
-	}
-
-	async function processMiningCycle(): Promise<boolean> {
-		await new Promise((res) => setTimeout(res, 1000));
+		if (!mining) break;
 
 		if (randomInt(1, 25) === 13) {
 			durability = await handleLava(interaction, locale, durability);
 		}
 
-		if (!pickaxe) {
-			mining = false;
-			return false;
-		}
-
-		const ore = generateOre(pickaxe);
+		const ore = rollOre(pickaxeId);
 		loot[ore] = (loot[ore] ?? 0) + 1;
 
-		const lootboxDrop = checkLootboxDrop();
-		if (lootboxDrop) {
-			lootboxes.push(lootboxDrop);
-			const lootboxName = replyLang(locale, `lootbox#${lootboxDrop.rarity}`);
-			const lootboxEmoji = replyLang(
-				locale,
-				`lootbox#emoji#${lootboxDrop.rarity}`,
-			);
-			await interaction
-				.followUp({
-					content: `🎉 **LOOTBOX ENCONTRADA!** ${lootboxEmoji} ${lootboxName}`,
-					flags: ['Ephemeral'],
-				})
-				.catch(() => {});
-		}
+		const box = checkLootbox();
+		if (box) lootboxes.push(box);
 
-		durability = Math.max(0, durability - 1);
-
-		const formattedLoot =
-			Object.entries(loot)
-				.map(([o, q]) => `• ${q}x **${o}**`)
-				.join('\n') || replyLang(locale, 'mine#none_yet');
-
-		const lootboxDisplay =
-			lootboxes.length > 0
-				? `\n\n**🎁 Lootboxes:**\n${lootboxes
-						.map((lb) => {
-							const name = replyLang(locale, `lootbox#${lb.rarity}`);
-							const emoji = replyLang(locale, `lootbox#emoji#${lb.rarity}`);
-							return `• ${emoji} ${name}`;
-						})
-						.join('\n')}`
-				: '';
+		durability--;
 
 		embed.setFields(
 			{
-				name: `${replyLang(locale, 'mine#durability_field')} ⚒️`,
+				name: 'Durabilidade',
 				value: progressBar(durability, maxDurability),
 			},
 			{
-				name: `${replyLang(locale, 'mine#loot_field')} 💎`,
-				value: formattedLoot + lootboxDisplay,
+				name: 'Loot',
+				value:
+					Object.entries(loot)
+						.map(([o, q]) => `• ${q}x ${getOreEmoji(o as OreType)} ${o}`)
+						.join('\n') || 'Nada...',
 			},
 		);
 
-		embed
-			.setColor(0x27ae60)
-			.setFooter({ text: replyLang(locale, 'mine#progress_footer') });
+		await msg.edit({ embeds: [embed], components: [stopRow] });
 
-		if (mining && durability > 0) {
-			await msg
-				.edit({ embeds: [embed], components: [stopRow] })
-				.catch(() => {});
-		} else {
-			await msg.edit({ embeds: [embed], components: [] }).catch(() => {});
-		}
-
-		if (durability <= 0) {
-			mining = false;
-			pickaxeBroke = true;
-			return false;
-		}
-
-		return mining;
-	}
-
-	let tick = 0;
-	while (tick < 20 && mining) {
-		const shouldContinue = await processMiningCycle();
-		if (!shouldContinue) break;
 		tick++;
 	}
 
-	if (collector && !collector.ended) {
-		collector.stop('mining_complete');
-	}
+	await msg.edit({ components: [] });
 
-	await saveLoot();
-
-	if (pickaxeBroke) {
-		const lootboxDisplay =
-			lootboxes.length > 0 ? `\n\n**🎁 Lootboxes:** ${lootboxes.length}x` : '';
-
-		const breakEmbed = new EmbedPlusBuilder({
-			title: `💥 ${replyLang(locale, 'mine#pickaxe_broken_title')}`,
-			description: replyLang(locale, 'mine#pickaxe_broken_desc'),
-			color: 0xe74c3c,
-			fields: [
-				{
-					name: replyLang(locale, 'mine#loot_field'),
-					value:
-						(Object.entries(loot)
-							.map(([o, q]) => `• ${q}x **${o}**`)
-							.join('\n') || replyLang(locale, 'mine#none_yet')) +
-						lootboxDisplay,
-				},
-			],
-			footer: {
-				text: `⚒️ ${replyLang(locale, 'mine#durability_field')}: ${durability}/${maxDurability}`,
-			},
-		});
-
-		await msg.edit({ embeds: [breakEmbed], components: [] }).catch(() => {});
-		return;
-	}
-
-	const lootboxDisplay =
-		lootboxes.length > 0 ? `\n\n**🎁 Lootboxes:** ${lootboxes.length}x` : '';
-
-	const endEmbed = new EmbedPlusBuilder({
-		title: `✅ ${replyLang(locale, 'mine#mining_complete')}`,
-		description: replyLang(locale, 'mine#choose_loot_action'),
-		color: 0x3498db,
-		fields: [
-			{
-				name: replyLang(locale, 'mine#loot_field'),
-				value:
-					(Object.entries(loot)
-						.map(([o, q]) => `• ${q}x **${o}**`)
-						.join('\n') || replyLang(locale, 'mine#none_yet')) + lootboxDisplay,
-			},
-		],
-		footer: {
-			text: `⚒️ ${replyLang(locale, 'mine#durability_field')}: ${durability}/${maxDurability}`,
-		},
-	});
-
-	const lootRow = createRow(
+	const actionRow = createRow(
 		new ButtonBuilder()
 			.setCustomId('keep')
-			.setLabel(replyLang(locale, 'mine#keep_loot'))
+			.setLabel('Guardar')
 			.setStyle(ButtonStyle.Success),
 		new ButtonBuilder()
 			.setCustomId('burn')
-			.setLabel(replyLang(locale, 'mine#burn_loot'))
+			.setLabel('Jogar fora')
 			.setStyle(ButtonStyle.Danger),
 	);
 
-	await msg.edit({ embeds: [endEmbed], components: [lootRow] }).catch(() => {});
+	await msg.edit({
+		embeds: [embed.setTitle('Finalizado')],
+		components: [actionRow],
+	});
 
-	const lootCollector = msg.createMessageComponentCollector({
+	const endCollector = msg.createMessageComponentCollector({
 		componentType: ComponentType.Button,
 		time: 20000,
 	});
 
-	lootCollector.on('collect', async (i) => {
-		if (i.user.id !== user.id)
-			return i.reply({
-				content: replyLang(locale, 'mine#not_your_button'),
-				flags: ['Ephemeral'],
-			});
-
-		let finalEmbed: EmbedPlusBuilder;
+	endCollector.on('collect', async (i) => {
+		if (i.user.id !== user.id) return;
 
 		if (i.customId === 'keep') {
-			finalEmbed = new EmbedPlusBuilder({
-				title: replyLang(locale, 'mine#loot_saved_title'),
-				description: replyLang(locale, 'mine#loot_saved_desc'),
-				color: 0x2ecc71,
-				footer: { text: `✅ ${replyLang(locale, 'mine#mining_complete')}` },
-			});
-		} else {
-			const updatedBackpack = await UserController.getBackpack(user.id);
-			const oreIdsToRemove = Object.keys(loot).map((ore) => `ore_${ore}`);
-			const filteredBackpack = updatedBackpack.filter((item) => {
-				if (item.type === 'ore') {
-					return !oreIdsToRemove.includes(item.id);
+			const updated = [...backpack];
+
+			for (const [ore, qty] of Object.entries(loot)) {
+				const id = `ore_${ore}`;
+
+				const found = updated.find((i) => i.type === 'ore' && i.id === id);
+
+				if (found && found.type === 'ore') {
+					found.amount += qty!;
+				} else {
+					updated.push({
+						id,
+						type: 'ore',
+						name: ore as OreType,
+						amount: qty!,
+					});
 				}
-				return true;
+			}
+
+			await UserController.update(user.id, {
+				backpack: updated.map((i) =>
+					i.type === 'pickaxe' && i.id === pickaxeId ? { ...i, durability } : i,
+				),
 			});
 
-			await UserController.update(user.id, { backpack: filteredBackpack });
-
-			finalEmbed = new EmbedPlusBuilder({
-				title: replyLang(locale, 'mine#loot_burned_title'),
-				description: `${replyLang(locale, 'mine#loot_burned_desc')}\n\n*🎁 Lootboxes foram mantidas!*`,
-				color: 0xe74c3c,
-				footer: { text: `😵 ${replyLang(locale, 'mine#mining_complete')}` },
+			await i.reply({ content: 'Salvo.', flags: ['Ephemeral'] });
+		} else {
+			await UserController.update(user.id, {
+				backpack: backpack.map((i) =>
+					i.type === 'pickaxe' && i.id === pickaxeId ? { ...i, durability } : i,
+				),
 			});
+
+			await i.reply({ content: 'Loot descartado.', flags: ['Ephemeral'] });
 		}
 
-		await msg.edit({ embeds: [finalEmbed], components: [] }).catch(() => {});
-
-		await i.reply({
-			content: '✅ Ação concluída!',
-			flags: ['Ephemeral'],
-		});
-
-		lootCollector.stop();
-	});
-
-	lootCollector.on('end', () => {
-		msg.edit({ components: [] }).catch(() => {});
+		endCollector.stop();
+		await msg.edit({ components: [] });
 	});
 }

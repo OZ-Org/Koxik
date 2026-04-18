@@ -2,6 +2,7 @@ import { createResponder, registerResponder } from '@base';
 import { replyLang } from '@fx/utils/replyLang.js';
 import { createContainer, createRow, Separator } from '@magicyan/discord';
 import { emotes } from '@misc/emotes.js';
+import { getShopI } from '@misc/shop.js';
 import {
 	StringSelectMenuBuilder,
 	StringSelectMenuOptionBuilder,
@@ -44,18 +45,7 @@ registerResponder(
 			}
 
 			function createRoleplayPage() {
-				const itens = [
-					{
-						name: replyLang(interaction.locale, 'shop#select#ring_to_married'),
-						description: replyLang(
-							interaction.locale,
-							'shop#select#ring_description',
-						),
-						cid: 'ringmarried',
-						price: 6000,
-						emoji: emotes.social.ring,
-					},
-				];
+				const itens = getShopI(interaction.locale);
 
 				const container = createContainer(
 					'#e11d48',
