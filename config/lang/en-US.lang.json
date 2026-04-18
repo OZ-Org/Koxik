@@ -356,9 +356,13 @@
 			"minecraft_items": "Minecraft items",
 			"roleplay_items": "Roleplay items"
 		},
+		"items": {
+			"ring_to_married": {
+				"name": "Wedding ring",
+				"description": "A common wedding ring!"
+			}
+		},
 		"select": {
-			"ring_to_married": "Wedding ring",
-			"ring_description": "A common wedding ring!",
 			"roleplay_title": "# Roleplay Items | Bot Shop!",
 			"roleplay_description": "Here you can buy (with bot coins) items for the roleplay (or fictional life) category commands by clicking the select menu below!",
 			"not_found_hint": "### Hmmmm, still didn't find what you wanted?",
@@ -481,6 +485,20 @@
 				"title": "Edit leave message",
 				"label": "Message",
 				"success": "Leave message updated successfully."
+			}
+		}
+	},
+	"commands": {
+		"backpack": {
+			"empty": {
+				"title": "🎒 Backpack",
+				"description": "empty... just like your bank account. 😔"
+			},
+			"title": "🎒 Your Backpack",
+			"fields": {
+				"pickaxes": "⛏️ Pickaxes",
+				"ores": "💎 Ores",
+				"others": "📦 Others"
 			}
 		}
 	}

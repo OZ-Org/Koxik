@@ -356,9 +356,13 @@
 			"minecraft_items": "Ítems de minecraft",
 			"roleplay_items": "Ítems de roleplay"
 		},
+		"items": {
+			"ring_to_married": {
+				"name": "Anillo de matrimonio",
+				"description": "¡Un anillo de matrimonio común!"
+			}
+		},
 		"select": {
-			"ring_to_married": "Anillo de matrimonio",
-			"ring_description": "¡Un anillo de matrimonio común!",
 			"roleplay_title": "# Ítems de Roleplay | Tienda del bot!",
 			"roleplay_description": "¡Aquí puedes comprar (con monedas del bot) ítems para los comandos de la categoría roleplay (o vida ficticia) haciendo clic en el menú select abajo!",
 			"not_found_hint": "### ¿Hmmmm, todavía no encontraste lo que querías?",
@@ -481,6 +485,20 @@
 				"title": "Editar mensaje de salida",
 				"label": "Mensaje",
 				"success": "Mensaje de salida actualizado con éxito."
+			}
+		}
+	},
+	"commands": {
+		"backpack": {
+			"empty": {
+				"title": "🎒 Mochila",
+				"description": "vacía... igual a tu cuenta bancaria. 😔"
+			},
+			"title": "🎒 Tu Mochila",
+			"fields": {
+				"pickaxes": "⛏️ Picaretas",
+				"ores": "💎 Minerales",
+				"others": "📦 Otros"
 			}
 		}
 	}

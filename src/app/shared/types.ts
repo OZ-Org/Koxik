@@ -13,6 +13,7 @@ export type PickaxesTypesIDs =
 	| 'PICX_STONE'
 	| 'PICX_IRON'
 	| 'PICX_DIAMOND'
+	| 'PICX_GOLD'
 	| 'PICX_NETHERITE';
 
 export type OreType =
@@ -21,7 +22,8 @@ export type OreType =
 	| 'iron'
 	| 'diamond'
 	| 'netherite'
-	| 'wood';
+	| 'wood'
+	| 'gold';
 
 export type BackpackItem =
 	| {
@@ -38,6 +40,12 @@ export type BackpackItem =
 			id: string;
 			type: 'ore';
 			name: OreType;
+			amount: number;
+	  }
+	| {
+			id: string;
+			type: 'any';
+			name: string;
 			amount: number;
 	  };
 

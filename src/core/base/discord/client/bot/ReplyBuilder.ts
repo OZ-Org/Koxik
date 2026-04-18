@@ -29,6 +29,19 @@ export class ReplyBuilder {
 		private updateMode = false,
 	) {}
 
+	private isComponentInteraction(
+		interaction: SupportedInteraction,
+	): interaction is
+		| ButtonInteraction
+		| StringSelectMenuInteraction
+		| ChannelSelectMenuInteraction {
+		return (
+			interaction.isButton() ||
+			interaction.isStringSelectMenu() ||
+			interaction.isChannelSelectMenu()
+		);
+	}
+
 	private async dispatch(payload: ReplyPayload) {
 		const flags = [
 			...(Array.isArray(payload.flags) ? payload.flags : []),
@@ -40,17 +53,18 @@ export class ReplyBuilder {
 			flags: flags.length ? flags : undefined,
 		};
 
-		if (this.interaction.replied || this.interaction.deferred) {
+		if (this.updateMode && this.isComponentInteraction(this.interaction)) {
+			if (this.interaction.deferred || this.interaction.replied) {
+				return this.interaction.editReply(data);
+			}
+
+			await this.interaction.deferUpdate();
+
 			return this.interaction.editReply(data);
 		}
 
-		if (
-			this.updateMode &&
-			(this.interaction.isButton() ||
-				this.interaction.isStringSelectMenu() ||
-				this.interaction.isChannelSelectMenu())
-		) {
-			return this.interaction.update(data);
+		if (this.interaction.replied || this.interaction.deferred) {
+			return this.interaction.editReply(data);
 		}
 
 		return this.interaction.reply(data);

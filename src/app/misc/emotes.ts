@@ -15,6 +15,22 @@ export const emotes = {
 		djs: '<:djs:1492925273341956158>',
 		bun: '<:bun:1492924882084692138>',
 	},
+	minecraft: {
+		ores: {
+			diamond: '<:diamond:1495063699612766449>',
+			iron: '<:iron:1495063703094296646>',
+			gold: '<:gold:1495063701349470378>',
+			coal: '<:coal:1495063705132466430>',
+		},
+		pickaxe: {
+			netherite_pickaxe: '<:netherite_pickaxe:1495062810252542215>',
+			diamond_pickaxe: '<:diamond_pickaxe:1495062756888547398>',
+			iron_pickaxe: '<:iron_pickaxe:1495062680116002866>',
+			stone_pickaxe: '<:stone_pickaxe:1495062582833319956>',
+			golden_pickaxe: '<:golden_pickaxe:1495062521575641210>',
+			wooden_pickaxe: '<:wooden_pickaxe:1495062457167773757>',
+		},
+	},
 	misc: {
 		suspect: '<:breadsus:1422770743451844668>',
 		dollar: '<:dollar:1455382683344568550>',
