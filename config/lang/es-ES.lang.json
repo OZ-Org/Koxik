@@ -427,7 +427,10 @@
 			"leaveEnabled": "%emote% | Sistema de salida: Activado",
 			"leaveDisabled": "%emote% | Sistema de salida: Desactivado",
 			"welcomeButton": "Gestionar sistema de bienvenida",
-			"leaveButton": "Gestionar sistema de salida"
+			"leaveButton": "Gestionar sistema de salida",
+			"legacyWarning": "⚠️ | Este comando está **legado** y será eliminado en el futuro.",
+			"legacyDescription": "Configura el sistema de bienvenida a través del dashboard.",
+			"dashboardButton": "Abrir Dashboard"
 		},
 		"panel": {
 			"title": "Gestionar sistema de bienvenida",
@@ -491,7 +494,12 @@
 			"imageSaved": "Imagen guardada con éxito!",
 			"thumbnailLabel": "URL de la miniatura",
 			"thumbnailPlaceholder": "https://ejemplo.com/imagen.png",
-			"thumbnailSaved": "Miniatura guardada con éxito!"
+			"thumbnailSaved": "Miniatura guardada con éxito!",
+			"editComponents": "Editar componentes",
+			"componentsLabel": "Componentes V2 (JSON)",
+			"componentsPlaceholder": "[{\"type\": \"text_display\", \"content\": \"...\"}, ...]",
+			"componentsSaved": "Componentes guardados con éxito!",
+			"componentsInvalid": "JSON inválido. Asegúrate de usar un array de objetos."
 		},
 		"errors": {
 			"invalidGuild": "Guild inválida.",

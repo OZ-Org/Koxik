@@ -427,7 +427,10 @@
 			"leaveEnabled": "%emote% | Leave system: Enabled",
 			"leaveDisabled": "%emote% | Leave system: Disabled",
 			"welcomeButton": "Manage welcome system",
-			"leaveButton": "Manage leave system"
+			"leaveButton": "Manage leave system",
+			"legacyWarning": "⚠️ | This command is **legacy** and will be removed in the future.",
+			"legacyDescription": "Configure the welcome system through the dashboard.",
+			"dashboardButton": "Open Dashboard"
 		},
 		"panel": {
 			"title": "Manage welcome system",
@@ -439,6 +442,7 @@
 			"setChannel": "Set channel",
 			"editMessage": "Edit message",
 			"editEmbed": "Edit embed",
+			"editComponents": "V2 Components",
 			"back": "Back"
 		},
 		"channel": {
@@ -491,7 +495,12 @@
 			"imageSaved": "Image saved successfully!",
 			"thumbnailLabel": "Thumbnail URL",
 			"thumbnailPlaceholder": "https://example.com/image.png",
-			"thumbnailSaved": "Thumbnail saved successfully!"
+			"thumbnailSaved": "Thumbnail saved successfully!",
+			"editComponents": "Edit components",
+			"componentsLabel": "V2 Components (JSON)",
+			"componentsPlaceholder": "[{\"type\": \"text_display\", \"content\": \"...\"}, ...]",
+			"componentsSaved": "Components saved successfully!",
+			"componentsInvalid": "Invalid JSON. Make sure to use an array of objects."
 		},
 		"errors": {
 			"invalidGuild": "Invalid guild.",
@@ -511,10 +520,11 @@
 				"disable": "Disable",
 				"setChannel": "Set channel",
 				"editMessage": "Edit message",
-				"editEmbed": "Edit embed",
-				"back": "Back"
-			},
-			"channel": {
+"editEmbed": "Edit embed",
+			"editComponents": "V2 Components",
+			"back": "Back"
+		},
+		"channel": {
 				"placeholder": "Select leave channel",
 				"content": "📢 Choose the channel for leave messages:",
 				"selectTitle": "Select Channel"

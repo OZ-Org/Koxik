@@ -100,6 +100,11 @@ export function buildWelcomePanelButtons(
 			.setCustomId(`gen/welcome/embed/${guildId}`),
 
 		new ButtonBuilder()
+			.setLabel(replyLang(locale, 'welcome#panel#editComponents'))
+			.setStyle(ButtonStyle.Secondary)
+			.setCustomId(`gen/welcome/embed/components/${guildId}`),
+
+		new ButtonBuilder()
 			.setLabel(replyLang(locale, 'welcome#panel#back'))
 			.setStyle(ButtonStyle.Secondary)
 			.setCustomId(`gen/back/${guildId}`),

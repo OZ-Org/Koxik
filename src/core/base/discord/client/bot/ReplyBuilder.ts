@@ -27,6 +27,7 @@ export class ReplyBuilder {
 		private interaction: SupportedInteraction,
 		private ephemeralMode = false,
 		private updateMode = false,
+		private followUpMode = false,
 	) {}
 
 	private isComponentInteraction(
@@ -52,6 +53,10 @@ export class ReplyBuilder {
 			...payload,
 			flags: flags.length ? flags : undefined,
 		};
+
+		if (this.followUpMode) {
+			return this.interaction.followUp(data);
+		}
 
 		if (this.updateMode && this.isComponentInteraction(this.interaction)) {
 			if (this.interaction.deferred || this.interaction.replied) {
@@ -84,7 +89,11 @@ export class ReplyBuilder {
 	}
 
 	update() {
-		return new ReplyBuilder(this.interaction, this.ephemeralMode, true);
+		return new ReplyBuilder(this.interaction, this.ephemeralMode, true, this.followUpMode);
+	}
+
+	followUp() {
+		return new ReplyBuilder(this.interaction, this.ephemeralMode, this.updateMode, true);
 	}
 
 	success(content: string) {
@@ -144,6 +153,32 @@ export class ReplyBuilder {
 			...payload,
 			flags: [MessageFlags.IsComponentsV2],
 			components,
+		});
+	}
+
+	v2FollowUp(components: V2Encodable[], payload?: ReplyPayload) {
+		return new ReplyBuilder(this.interaction, this.ephemeralMode, this.updateMode, true).dispatch({
+			...payload,
+			flags: [MessageFlags.IsComponentsV2],
+			components,
+		});
+	}
+
+	successFollowUp(content: string) {
+		return new ReplyBuilder(this.interaction, this.ephemeralMode, this.updateMode, true).dispatch({
+			content: `${emotes.utils.checkmark} | ${content}`,
+		});
+	}
+
+	errorFollowUp(content: string) {
+		return new ReplyBuilder(this.interaction, this.ephemeralMode, this.updateMode, true).dispatch({
+			content: `${emotes.utils.crossmark} | ${content}`,
+		});
+	}
+
+	infoFollowUp(content: string) {
+		return new ReplyBuilder(this.interaction, this.ephemeralMode, this.updateMode, true).dispatch({
+			content: `${emotes.utils.info} | ${content}`,
 		});
 	}
 }

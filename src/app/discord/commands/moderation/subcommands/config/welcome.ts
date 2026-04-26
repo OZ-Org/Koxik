@@ -57,20 +57,41 @@ export default createSubCommand({
 					emote: offlineEmote,
 				});
 
+		const legacyWarning = replyLang(
+			interaction.locale,
+			'welcome#config#legacyWarning',
+			{},
+		);
+		const legacyDescription = replyLang(
+			interaction.locale,
+			'welcome#config#legacyDescription',
+			{},
+		);
+		const dashboardButton = replyLang(
+			interaction.locale,
+			'welcome#config#dashboardButton',
+			{},
+		);
+
 		const embed = new EmbedBuilder()
 			.setTitle(replyLang(interaction.locale, 'welcome#config#title'))
-			.setDescription(brBuilder(welStr, leaStr))
+			.setDescription(
+				brBuilder(
+					legacyWarning,
+					legacyDescription,
+					welStr,
+					leaStr,
+				),
+			)
 			.setColor('#0c0a09');
+
+		const dashboardUrl = `https://koxik.ozorg.xyz/dashboard/guild/${interaction.guild.id}/welcome`;
 
 		const row = createRow(
 			new ButtonBuilder()
-				.setLabel(replyLang(interaction.locale, 'welcome#config#welcomeButton'))
-				.setStyle(ButtonStyle.Secondary)
-				.setCustomId(`gen/welcome/${interaction.guild.id}`),
-			new ButtonBuilder()
-				.setLabel(replyLang(interaction.locale, 'welcome#config#leaveButton'))
-				.setStyle(ButtonStyle.Secondary)
-				.setCustomId(`gen/leave/${interaction.guild.id}`),
+				.setLabel(dashboardButton)
+				.setStyle(ButtonStyle.Link)
+				.setURL(dashboardUrl),
 		);
 
 		return res.update().raw({
