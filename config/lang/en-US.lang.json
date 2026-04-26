@@ -438,6 +438,7 @@
 			"disable": "Disable",
 			"setChannel": "Set channel",
 			"editMessage": "Edit message",
+			"editEmbed": "Edit embed",
 			"back": "Back"
 		},
 		"channel": {
@@ -455,6 +456,42 @@
 		"toggle": {
 			"enabled": "**Enabled**",
 			"disabled": "**Disabled**"
+		},
+		"embed": {
+			"title": "Edit embed",
+			"currentStatus": "Status: %status%",
+			"variables": "Available variables",
+			"varUser": "User mention",
+			"varUserName": "Username",
+			"varDisplayName": "Display name",
+			"varUserId": "User ID",
+			"varAvatar": "Avatar URL",
+			"varServerName": "Server name",
+			"varMemberCount": "Member count",
+			"instruction": "Use the buttons below to configure.",
+			"enableEmbed": "Enable embed",
+			"disableEmbed": "Disable embed",
+			"editTitle": "Title",
+			"editColor": "Color",
+			"editFooter": "Footer",
+			"editImage": "Image",
+			"editThumbnail": "Thumbnail",
+			"toggled": "Embed %status%",
+			"titleLabel": "Embed title",
+			"titlePlaceholder": "Ex: Welcome {user}!",
+			"titleSaved": "Title saved successfully!",
+			"colorLabel": "Color (hex)",
+			"colorPlaceholder": "Ex: #00ff00",
+			"colorSaved": "Color saved successfully!",
+			"footerLabel": "Footer text",
+			"footerPlaceholder": "Ex: Server {server.name}",
+			"footerSaved": "Footer saved successfully!",
+			"imageLabel": "Image URL",
+			"imagePlaceholder": "https://example.com/image.png",
+			"imageSaved": "Image saved successfully!",
+			"thumbnailLabel": "Thumbnail URL",
+			"thumbnailPlaceholder": "https://example.com/image.png",
+			"thumbnailSaved": "Thumbnail saved successfully!"
 		},
 		"errors": {
 			"invalidGuild": "Invalid guild.",
@@ -474,6 +511,7 @@
 				"disable": "Disable",
 				"setChannel": "Set channel",
 				"editMessage": "Edit message",
+				"editEmbed": "Edit embed",
 				"back": "Back"
 			},
 			"channel": {

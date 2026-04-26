@@ -2,7 +2,7 @@ import { UserController } from '@app/jobs/UserController.js';
 import { createCommand } from '@base';
 import { EmbedBuilder } from 'discord.js';
 import { emotes } from '@misc/emotes.js';
-import { BackpackType } from '@app/shared/types.js';
+import type { BackpackType } from '@app/shared/types.js';
 import { replyLang } from '@fx/utils/replyLang.js';
 
 function getPickaxeData(id: string) {

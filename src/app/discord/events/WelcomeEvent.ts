@@ -7,6 +7,7 @@ import {
 	type GuildTextBasedChannel,
 	Locale,
 	PermissionsBitField,
+	EmbedBuilder,
 } from 'discord.js';
 import { getDefaultMessage } from '../responders/movement/welcome.utils.js';
 
@@ -33,6 +34,12 @@ async function canSendToChannel(
 	]);
 }
 
+function parseColor(color: string | undefined): number {
+	if (!color) return 0x00ff00;
+	const hex = color.replace('#', '');
+	return parseInt(hex, 16) || 0x00ff00;
+}
+
 export default createEvent({
 	name: 'welcome',
 	event: 'guildMemberAdd',
@@ -51,7 +58,6 @@ export default createEvent({
 			}, 60000);
 
 			const guildId = member.guild.id;
-			const userId = member.id;
 
 			const config = await GuildController.getWelcomeConfig(guildId);
 
@@ -78,13 +84,69 @@ export default createEvent({
 				config.message || getDefaultMessage(Locale.PortugueseBR, 'welcome');
 			const msg = GuildController.formatMessage(
 				message,
-				userId,
+				member,
 				member.guild.name,
+				member.guild.memberCount,
 			);
 
-			await channel.send({
+			const sendOptions: { content?: string; embeds?: EmbedBuilder[] } = {
 				content: msg,
-			});
+			};
+
+			if (config.embed?.enabled) {
+				const embed = new EmbedBuilder()
+					.setColor(parseColor(config.embed.color))
+					.setDescription(msg);
+
+				if (config.embed.title) {
+					embed.setTitle(
+						GuildController.formatMessage(
+							config.embed.title,
+							member,
+							member.guild.name,
+							member.guild.memberCount,
+						),
+					);
+				}
+
+				if (config.embed.thumbnailUrl) {
+					embed.setThumbnail(
+						GuildController.formatMessage(
+							config.embed.thumbnailUrl,
+							member,
+							member.guild.name,
+							member.guild.memberCount,
+						),
+					);
+				}
+
+				if (config.embed.imageUrl) {
+					embed.setImage(
+						GuildController.formatMessage(
+							config.embed.imageUrl,
+							member,
+							member.guild.name,
+							member.guild.memberCount,
+						),
+					);
+				}
+
+				if (config.embed.footer) {
+					embed.setFooter({
+						text: GuildController.formatMessage(
+							config.embed.footer,
+							member,
+							member.guild.name,
+							member.guild.memberCount,
+						),
+					});
+				}
+
+				sendOptions.content = undefined;
+				sendOptions.embeds = [embed];
+			}
+
+			await channel.send(sendOptions);
 		} catch (err) {
 			logger.error('Erro no guildMemberAdd:', err);
 		}

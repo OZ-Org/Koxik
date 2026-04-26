@@ -1,8 +1,7 @@
 import { replyLang } from '@app/functions/utils/replyLang.js';
 import { GuildController } from '@app/jobs/GuildController.js';
 import { createResponder, registerResponder } from '@base';
-import { createLabel } from '@magicyan/discord';
-import { ModalBuilder, TextInputBuilder, TextInputStyle } from 'discord.js';
+import { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from 'discord.js';
 import { getDefaultLeaveMessage } from './leave.utils.js';
 
 registerResponder(
@@ -14,24 +13,21 @@ registerResponder(
 
 			const config = await GuildController.getLeaveConfig(guildId);
 
-			const modal = new ModalBuilder()
-				.setCustomId(`gen/leave/message/modal/${guildId}`)
-				.setTitle(replyLang(interaction.locale, 'welcome#leave#message#title'));
-
 			const input = new TextInputBuilder()
 				.setCustomId('message')
 				.setStyle(TextInputStyle.Paragraph)
 				.setRequired(true)
+				.setLabel(replyLang(interaction.locale, 'welcome#leave#message#label'))
 				.setValue(
 					config?.message || getDefaultLeaveMessage(interaction.locale),
 				);
 
-			const label = createLabel({
-				label: replyLang(interaction.locale, 'welcome#leave#message#label'),
-				component: input,
-			});
+			const row = new ActionRowBuilder<TextInputBuilder>().addComponents(input);
 
-			modal.addLabelComponents(label);
+			const modal = new ModalBuilder()
+				.setCustomId(`gen/leave/message/modal/${guildId}`)
+				.setTitle(replyLang(interaction.locale, 'welcome#leave#message#title'))
+				.addComponents(row);
 
 			await interaction.showModal(modal);
 		},

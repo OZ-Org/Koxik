@@ -6,6 +6,14 @@ export interface WelcomeLeaveConfig {
 	enable: boolean;
 	channelId: string;
 	message: string;
+	embed?: {
+		enabled: boolean;
+		title?: string;
+		color?: string;
+		imageUrl?: string;
+		thumbnailUrl?: string;
+		footer?: string;
+	};
 }
 
 export interface MovementLogsConfig {
@@ -96,6 +104,7 @@ export class GuildController {
 				enable: false,
 				channelId: '',
 				message: '',
+				embed: { enabled: false },
 			};
 
 			const updatedMovementLogs = {
@@ -104,6 +113,7 @@ export class GuildController {
 					enable: config.enable ?? existingConfig.enable,
 					channelId: config.channelId ?? existingConfig.channelId,
 					message: config.message ?? existingConfig.message,
+					embed: config.embed ?? existingConfig.embed,
 				},
 			};
 
@@ -143,13 +153,32 @@ export class GuildController {
 
 	static formatMessage(
 		message: string,
-		userId: string,
+		member: {
+			id: string;
+			user: {
+				username: string;
+				discriminator: string;
+				globalName?: string | null;
+				avatarURL?: () => string | null;
+			};
+		},
 		guildName: string,
+		memberCount?: number,
 	): string {
 		return message
-			.replace('{user}', `<@${userId}>`)
-			.replace('{server.name}', guildName)
-			.replace('{guild.name}', guildName);
+			.replace(/{user}/g, `<@${member.id}>`)
+			.replace(/{user\.mention}/g, `<@${member.id}>`)
+			.replace(/{user\.id}/g, member.id)
+			.replace(/{user\.name}/g, member.user.username)
+			.replace(
+				/{user\.displayname}/g,
+				member.user.globalName ?? member.user.username,
+			)
+			.replace(/{user\.avatar}/g, member.user.avatarURL?.() ?? '')
+			.replace(/{server\.name}/g, guildName)
+			.replace(/{server\.count}/g, String(memberCount ?? 0))
+			.replace(/{guild\.name}/g, guildName)
+			.replace(/{guild\.memberCount}/g, String(memberCount ?? 0));
 	}
 
 	static async getWelcomeConfig(

@@ -85,6 +85,11 @@ export function buildLeavePanelButtons(
 			.setCustomId(`gen/leave/message/${guildId}`),
 
 		new ButtonBuilder()
+			.setLabel(replyLang(locale, 'welcome#leave#panel#editEmbed'))
+			.setStyle(ButtonStyle.Secondary)
+			.setCustomId(`gen/leave/embed/${guildId}`),
+
+		new ButtonBuilder()
 			.setLabel(replyLang(locale, 'welcome#leave#panel#back'))
 			.setStyle(ButtonStyle.Secondary)
 			.setCustomId(`gen/back/${guildId}`),

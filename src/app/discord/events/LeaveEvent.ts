@@ -6,6 +6,7 @@ import {
 	type Guild,
 	type GuildTextBasedChannel,
 	PermissionsBitField,
+	EmbedBuilder,
 } from 'discord.js';
 
 const processedMembers = new Set();
@@ -31,6 +32,12 @@ async function canSendToChannel(
 	]);
 }
 
+function parseColor(color: string | undefined): number {
+	if (!color) return 0xff0000;
+	const hex = color.replace('#', '');
+	return parseInt(hex, 16) || 0xff0000;
+}
+
 export default createEvent({
 	name: 'leave',
 	event: 'guildMemberRemove',
@@ -49,7 +56,6 @@ export default createEvent({
 			}, 60000);
 
 			const guildId = member.guild.id;
-			const userId = member.id;
 
 			const config = await GuildController.getLeaveConfig(guildId);
 
@@ -64,13 +70,72 @@ export default createEvent({
 				if (channel) {
 					const msg = GuildController.formatMessage(
 						config.message,
-						userId,
+						member,
 						member.guild.name,
+						member.guild.memberCount,
 					);
 
-					await channel.send({
+					const sendOptions: {
+						content?: string;
+						embeds?: EmbedBuilder[];
+					} = {
 						content: msg,
-					});
+					};
+
+					if (config.embed?.enabled) {
+						const embed = new EmbedBuilder()
+							.setColor(parseColor(config.embed.color))
+							.setDescription(msg);
+
+						if (config.embed.title) {
+							embed.setTitle(
+								GuildController.formatMessage(
+									config.embed.title,
+									member,
+									member.guild.name,
+									member.guild.memberCount,
+								),
+							);
+						}
+
+						if (config.embed.thumbnailUrl) {
+							embed.setThumbnail(
+								GuildController.formatMessage(
+									config.embed.thumbnailUrl,
+									member,
+									member.guild.name,
+									member.guild.memberCount,
+								),
+							);
+						}
+
+						if (config.embed.imageUrl) {
+							embed.setImage(
+								GuildController.formatMessage(
+									config.embed.imageUrl,
+									member,
+									member.guild.name,
+									member.guild.memberCount,
+								),
+							);
+						}
+
+						if (config.embed.footer) {
+							embed.setFooter({
+								text: GuildController.formatMessage(
+									config.embed.footer,
+									member,
+									member.guild.name,
+									member.guild.memberCount,
+								),
+							});
+						}
+
+						sendOptions.content = undefined;
+						sendOptions.embeds = [embed];
+					}
+
+					await channel.send(sendOptions);
 				}
 			}
 		} catch (err) {

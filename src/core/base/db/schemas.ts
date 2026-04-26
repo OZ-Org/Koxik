@@ -33,6 +33,16 @@ export const GuildConfigsSchema = z.object({
 					enable: z.boolean(),
 					channelId: z.string(),
 					message: z.string(),
+					embed: z
+						.object({
+							enabled: z.boolean(),
+							title: z.string().optional(),
+							color: z.string().optional(),
+							imageUrl: z.string().optional(),
+							thumbnailUrl: z.string().optional(),
+							footer: z.string().optional(),
+						})
+						.optional(),
 				})
 				.optional(),
 			leave: z
@@ -40,6 +50,16 @@ export const GuildConfigsSchema = z.object({
 					enable: z.boolean(),
 					channelId: z.string(),
 					message: z.string(),
+					embed: z
+						.object({
+							enabled: z.boolean(),
+							title: z.string().optional(),
+							color: z.string().optional(),
+							imageUrl: z.string().optional(),
+							thumbnailUrl: z.string().optional(),
+							footer: z.string().optional(),
+						})
+						.optional(),
 				})
 				.optional(),
 		})

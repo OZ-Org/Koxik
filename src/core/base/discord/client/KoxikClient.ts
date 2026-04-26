@@ -113,13 +113,15 @@ export function createBot(options: BotOptions) {
 			`Connected as ${client.user?.tag ?? 'unknown'} (shard ${shardId ?? 0})`,
 		);
 
-		if (Array.isArray(options.commands?.registerOn)) {
-			const resolved = resolveRegisterTypes(options.commands.registerOn);
+		if (!isMainShard) {
+			logger.info('Not main shard - loading commands only');
+		} else {
+			if (Array.isArray(options.commands?.registerOn)) {
+				const resolved = resolveRegisterTypes(options.commands.registerOn);
 
-			options.commands.registerOn = resolved ?? [];
-		}
+				options.commands.registerOn = resolved ?? [];
+			}
 
-		if (isMainShard) {
 			await syncCommands(client, commands, options);
 		}
 	});
@@ -143,7 +145,11 @@ export function createBot(options: BotOptions) {
 				});
 
 			await loadCommandsFromDisk(commands);
-			await loadEventsFromDisk(createEvent);
+
+			if (isMainShard) {
+				await loadEventsFromDisk(createEvent);
+			}
+
 			await loadResponders();
 
 			await client.login(options.token);

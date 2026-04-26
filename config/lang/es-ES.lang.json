@@ -438,6 +438,7 @@
 			"disable": "Desactivar",
 			"setChannel": "Establecer canal",
 			"editMessage": "Editar mensaje",
+			"editEmbed": "Editar embed",
 			"back": "Volver"
 		},
 		"channel": {
@@ -455,6 +456,42 @@
 		"toggle": {
 			"enabled": "**Activado**",
 			"disabled": "**Desactivado**"
+		},
+		"embed": {
+			"title": "Editar embed",
+			"currentStatus": "Estado: %status%",
+			"variables": "Variables disponibles",
+			"varUser": "Mención del usuario",
+			"varUserName": "Nombre de usuario",
+			"varDisplayName": "Nombre para mostrar",
+			"varUserId": "ID del usuario",
+			"varAvatar": "URL del avatar",
+			"varServerName": "Nombre del servidor",
+			"varMemberCount": "Cantidad de miembros",
+			"instruction": "Usa los botones de abajo para configurar.",
+			"enableEmbed": "Activar embed",
+			"disableEmbed": "Desactivar embed",
+			"editTitle": "Título",
+			"editColor": "Color",
+			"editFooter": "Pie",
+			"editImage": "Imagen",
+			"editThumbnail": "Miniatura",
+			"toggled": "Embed %status%",
+			"titleLabel": "Título del embed",
+			"titlePlaceholder": "Ej: Bienvenido {user}!",
+			"titleSaved": "Título guardado con éxito!",
+			"colorLabel": "Color (hex)",
+			"colorPlaceholder": "Ej: #00ff00",
+			"colorSaved": "Color guardado con éxito!",
+			"footerLabel": "Texto del pie",
+			"footerPlaceholder": "Ej: Servidor {server.name}",
+			"footerSaved": "Pie guardado con éxito!",
+			"imageLabel": "URL de la imagen",
+			"imagePlaceholder": "https://ejemplo.com/imagen.png",
+			"imageSaved": "Imagen guardada con éxito!",
+			"thumbnailLabel": "URL de la miniatura",
+			"thumbnailPlaceholder": "https://ejemplo.com/imagen.png",
+			"thumbnailSaved": "Miniatura guardada con éxito!"
 		},
 		"errors": {
 			"invalidGuild": "Guild inválida.",
@@ -474,6 +511,7 @@
 				"disable": "Desactivar",
 				"setChannel": "Establecer canal",
 				"editMessage": "Editar mensaje",
+				"editEmbed": "Editar embed",
 				"back": "Volver"
 			},
 			"channel": {
