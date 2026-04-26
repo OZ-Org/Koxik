@@ -427,7 +427,10 @@
 			"leaveEnabled": "%emote% | Sistema de saídas: Ativada",
 			"leaveDisabled": "%emote% | Sistema de saídas: Desativada",
 			"welcomeButton": "Gerenciar sistema de entrada",
-			"leaveButton": "Gerenciar sistema de saída"
+			"leaveButton": "Gerenciar sistema de saída",
+			"legacyWarning": "⚠️ | Esse comando está **legado** e será removido futuramente.",
+			"legacyDescription": "Configure o sistema de bem-vindos através da dashboard.",
+			"dashboardButton": "Abrir Dashboard"
 		},
 		"panel": {
 			"title": "Gerenciar sistema de entrada",
@@ -439,6 +442,7 @@
 			"setChannel": "Definir canal",
 			"editMessage": "Editar mensagem",
 			"editEmbed": "Editar embed",
+			"editComponents": "Componentes V2",
 			"back": "Voltar"
 		},
 		"channel": {
@@ -491,7 +495,12 @@
 			"imageSaved": "Imagem salva com sucesso!",
 			"thumbnailLabel": "URL da miniatura",
 			"thumbnailPlaceholder": "https://exemplo.com/imagem.png",
-			"thumbnailSaved": "Miniatura salva com sucesso!"
+			"thumbnailSaved": "Miniatura salva com sucesso!",
+			"editComponents": "Editar componentes",
+			"componentsLabel": "Componentes V2 (JSON)",
+			"componentsPlaceholder": "[{\"type\": \"text_display\", \"content\": \"...\"}, ...]",
+			"componentsSaved": "Componentes salvos com sucesso!",
+			"componentsInvalid": "JSON inválido. Certifique-se de usar um array de objetos."
 		},
 		"errors": {
 			"invalidGuild": "Guild inválida.",
@@ -512,6 +521,7 @@
 				"setChannel": "Definir canal",
 				"editMessage": "Editar mensagem",
 				"editEmbed": "Editar embed",
+				"editComponents": "Componentes V2",
 				"back": "Voltar"
 			},
 			"channel": {
