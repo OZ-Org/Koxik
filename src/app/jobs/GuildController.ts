@@ -14,6 +14,7 @@ export interface WelcomeLeaveConfig {
 		thumbnailUrl?: string;
 		footer?: string;
 	};
+	components?: object[];
 }
 
 export interface MovementLogsConfig {

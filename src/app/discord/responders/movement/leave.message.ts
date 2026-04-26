@@ -1,7 +1,12 @@
 import { replyLang } from '@app/functions/utils/replyLang.js';
 import { GuildController } from '@app/jobs/GuildController.js';
 import { createResponder, registerResponder } from '@base';
-import { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from 'discord.js';
+import {
+	ActionRowBuilder,
+	ModalBuilder,
+	TextInputBuilder,
+	TextInputStyle,
+} from 'discord.js';
 import { getDefaultLeaveMessage } from './leave.utils.js';
 
 registerResponder(

@@ -7,6 +7,12 @@ import {
 	type GuildTextBasedChannel,
 	PermissionsBitField,
 	EmbedBuilder,
+	MessageFlags,
+	ContainerBuilder,
+	TextDisplayBuilder,
+	SectionBuilder,
+	ButtonBuilder,
+	ButtonStyle,
 } from 'discord.js';
 
 const processedMembers = new Set();
@@ -36,6 +42,108 @@ function parseColor(color: string | undefined): number {
 	if (!color) return 0xff0000;
 	const hex = color.replace('#', '');
 	return parseInt(hex, 16) || 0xff0000;
+}
+
+function parseV2Components(
+	components: object[],
+	member: {
+		id: string;
+		user: {
+			username: string;
+			globalName?: string | null;
+			avatarURL?: () => string | null;
+		};
+	},
+	guildName: string,
+	memberCount: number,
+): unknown[] {
+	return components.map((comp) => {
+		if (!('type' in comp)) return comp;
+		const c = comp as { type: string; [key: string]: unknown };
+
+		if (c.type === 'text_display') {
+			const textDisplay = new TextDisplayBuilder();
+			let content = String(c.content || '');
+			content = GuildController.formatMessage(
+				content,
+				member,
+				guildName,
+				memberCount,
+			);
+			return textDisplay.setContent(content);
+		}
+
+		if (c.type === 'container') {
+			const container = new ContainerBuilder();
+			if (c.accentColor) {
+				const hex = String(c.accentColor).replace('#', '');
+				container.setAccentColor(parseInt(hex, 16));
+			}
+			if (c.label) {
+				let label = String(c.label);
+				label = GuildController.formatMessage(
+					label,
+					member,
+					guildName,
+					memberCount,
+				);
+				container.addTextDisplayComponents(
+					new TextDisplayBuilder().setContent(label),
+				);
+			}
+			if (c.description) {
+				let description = String(c.description);
+				description = GuildController.formatMessage(
+					description,
+					member,
+					guildName,
+					memberCount,
+				);
+				container.addTextDisplayComponents(
+					new TextDisplayBuilder().setContent(description),
+				);
+			}
+			return container;
+		}
+
+		if (c.type === 'section') {
+			const section = new SectionBuilder();
+			if (c.title) {
+				let title = String(c.title);
+				title = GuildController.formatMessage(
+					title,
+					member,
+					guildName,
+					memberCount,
+				);
+				section.addTextDisplayComponents(
+					new TextDisplayBuilder().setContent(title),
+				);
+			}
+			if (c.text) {
+				let text = String(c.text);
+				text = GuildController.formatMessage(
+					text,
+					member,
+					guildName,
+					memberCount,
+				);
+				section.addTextDisplayComponents(
+					new TextDisplayBuilder().setContent(text),
+				);
+			}
+			if (c.buttonLabel && c.buttonUrl) {
+				const button = new ButtonBuilder()
+					.setLabel(String(c.buttonLabel))
+					.setURL(String(c.buttonUrl))
+					.setStyle(ButtonStyle.Link);
+				section.setButtonAccessory(button);
+			}
+			return section;
+		}
+
+		return comp;
+	});
 }
 
 export default createEvent({
@@ -78,6 +186,8 @@ export default createEvent({
 					const sendOptions: {
 						content?: string;
 						embeds?: EmbedBuilder[];
+						flags?: MessageFlags;
+						components?: unknown[];
 					} = {
 						content: msg,
 					};
@@ -133,6 +243,16 @@ export default createEvent({
 
 						sendOptions.content = undefined;
 						sendOptions.embeds = [embed];
+					}
+
+					if (config.components) {
+						sendOptions.flags = MessageFlags.IsComponentsV2;
+						sendOptions.components = parseV2Components(
+							config.components,
+							member,
+							member.guild.name,
+							member.guild.memberCount,
+						);
 					}
 
 					await channel.send(sendOptions);

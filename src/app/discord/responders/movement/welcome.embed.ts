@@ -80,6 +80,12 @@ registerResponder(
 					.setStyle(ButtonStyle.Secondary)
 					.setCustomId(`gen/welcome/embed/footer/${guildId}`),
 				new ButtonBuilder()
+					.setLabel(
+						replyLang(interaction.locale, 'welcome#embed#editComponents'),
+					)
+					.setStyle(ButtonStyle.Secondary)
+					.setCustomId(`gen/welcome/embed/components/${guildId}`),
+				new ButtonBuilder()
 					.setLabel(replyLang(interaction.locale, 'welcome#panel#back'))
 					.setStyle(ButtonStyle.Secondary)
 					.setCustomId(`gen/welcome/${guildId}`),
@@ -261,3 +267,82 @@ buildEmbedModalHandler('color');
 buildEmbedModalHandler('footer');
 buildEmbedModalHandler('imageUrl');
 buildEmbedModalHandler('thumbnailUrl');
+
+registerResponder(
+	createResponder({
+		type: 'button',
+		customId: 'gen/welcome/embed/components/{guildId}',
+		run: async ({ interaction, useParams }) => {
+			const { guildId } = useParams();
+
+			if (!interaction.guild) return;
+
+			const currentConfig = await GuildController.getWelcomeConfig(guildId);
+			const currentComponents = currentConfig?.components ?? [];
+
+			const jsonString =
+				currentComponents.length > 0
+					? JSON.stringify(currentComponents, null, 2)
+					: JSON.stringify(
+							[
+								{
+									type: 'text_display',
+									content: 'Bem-vindo, {user}!',
+								},
+								{
+									type: 'container',
+									label: 'Novo Membro',
+									description:
+										'{user.name} entrou no servidor! Agora temos {server.count} membros.',
+									accentColor: '#16a34a',
+								},
+							],
+							null,
+							2,
+						);
+
+			const modal = buildEmbedModal(
+				`welcome-embed-components/${guildId}`,
+				replyLang(interaction.locale, 'welcome#embed#editComponents'),
+				replyLang(interaction.locale, 'welcome#embed#componentsLabel'),
+				replyLang(interaction.locale, 'welcome#embed#componentsPlaceholder'),
+				jsonString,
+			);
+
+			return interaction.showModal(modal);
+		},
+	}),
+);
+
+registerResponder(
+	createResponder({
+		type: 'modal',
+		customId: 'welcome-embed-components/{guildId}',
+		run: async ({ interaction, res, useParams }) => {
+			const { guildId } = useParams();
+			const value = interaction.fields.getTextInputValue('value');
+
+			await res.ephemeral().defer();
+
+			let components: object[] = [];
+			try {
+				components = JSON.parse(value);
+				if (!Array.isArray(components)) {
+					throw new Error('Must be an array');
+				}
+			} catch {
+				return res.error(
+					replyLang(interaction.locale, 'welcome#embed#componentsInvalid'),
+				);
+			}
+
+			await GuildController.setMovementLog(guildId, 'welcome', {
+				components,
+			});
+
+			return res.success(
+				replyLang(interaction.locale, 'welcome#embed#componentsSaved'),
+			);
+		},
+	}),
+);
