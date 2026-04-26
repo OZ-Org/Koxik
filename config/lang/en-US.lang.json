@@ -438,6 +438,7 @@
 			"disable": "Desativar",
 			"setChannel": "Definir canal",
 			"editMessage": "Editar mensagem",
+			"editEmbed": "Editar embed",
 			"back": "Voltar"
 		},
 		"channel": {
@@ -455,6 +456,42 @@
 		"toggle": {
 			"enabled": "**Ativado**",
 			"disabled": "**Desativado**"
+		},
+		"embed": {
+			"title": "Editar embed",
+			"currentStatus": "Status: %status%",
+			"variables": "Variáveis disponíveis",
+			"varUser": "Menção do usuário",
+			"varUserName": "Nome do usuário",
+			"varDisplayName": "Nome global",
+			"varUserId": "ID do usuário",
+			"varAvatar": "URL do avatar",
+			"varServerName": "Nome do servidor",
+			"varMemberCount": "Total de membros",
+			"instruction": "Use os botões abaixo para configurar.",
+			"enableEmbed": "Ativar embed",
+			"disableEmbed": "Desativar embed",
+			"editTitle": "Título",
+			"editColor": "Cor",
+			"editFooter": "Rodapé",
+			"editImage": "Imagem",
+			"editThumbnail": "Miniatura",
+			"toggled": "Embed %status%",
+			"titleLabel": "Título do embed",
+			"titlePlaceholder": "Ex: Bem-vindo {user}!",
+			"titleSaved": "Título salvo com sucesso!",
+			"colorLabel": "Cor (hex)",
+			"colorPlaceholder": "Ex: #00ff00",
+			"colorSaved": "Cor salva com sucesso!",
+			"footerLabel": "Texto do rodapé",
+			"footerPlaceholder": "Ex: Servidor {server.name}",
+			"footerSaved": "Rodapé salvo com sucesso!",
+			"imageLabel": "URL da imagem",
+			"imagePlaceholder": "https://exemplo.com/imagem.png",
+			"imageSaved": "Imagem salva com sucesso!",
+			"thumbnailLabel": "URL da miniatura",
+			"thumbnailPlaceholder": "https://exemplo.com/imagem.png",
+			"thumbnailSaved": "Miniatura salva com sucesso!"
 		},
 		"errors": {
 			"invalidGuild": "Guild inválida.",
@@ -474,6 +511,7 @@
 				"disable": "Desativar",
 				"setChannel": "Definir canal",
 				"editMessage": "Editar mensagem",
+				"editEmbed": "Editar embed",
 				"back": "Voltar"
 			},
 			"channel": {
