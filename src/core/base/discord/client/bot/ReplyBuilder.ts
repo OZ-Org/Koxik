@@ -1,4 +1,5 @@
 import { emotes, images } from '@misc/emotes.js';
+import { replyLang } from '@fx/utils/replyLang.js';
 import {
 	type APIMessageTopLevelComponent,
 	type ButtonInteraction,
@@ -89,11 +90,12 @@ export class ReplyBuilder {
 	}
 
 	update() {
-		return new ReplyBuilder(this.interaction, this.ephemeralMode, true, this.followUpMode);
-	}
-
-	followUp() {
-		return new ReplyBuilder(this.interaction, this.ephemeralMode, this.updateMode, true);
+		return new ReplyBuilder(
+			this.interaction,
+			this.ephemeralMode,
+			true,
+			this.followUpMode,
+		);
 	}
 
 	success(content: string) {
@@ -106,13 +108,7 @@ export class ReplyBuilder {
 		return this.dispatch({
 			embeds: [
 				{
-					title: `${emotes.utils.crossmark} | ${
-						locale === 'pt-BR'
-							? 'Algo deu errado...'
-							: locale === 'es-ES'
-								? 'Algo salió mal...'
-								: 'Something went wrong...'
-					}`,
+					title: `${emotes.utils.crossmark} | ${replyLang(locale as any, 'common#errors#title')}`,
 					description: content,
 					thumbnail: { url: images.koxik.cry },
 					color: 0xed4245,
@@ -157,7 +153,12 @@ export class ReplyBuilder {
 	}
 
 	v2FollowUp(components: V2Encodable[], payload?: ReplyPayload) {
-		return new ReplyBuilder(this.interaction, this.ephemeralMode, this.updateMode, true).dispatch({
+		return new ReplyBuilder(
+			this.interaction,
+			this.ephemeralMode,
+			this.updateMode,
+			true,
+		).dispatch({
 			...payload,
 			flags: [MessageFlags.IsComponentsV2],
 			components,
@@ -165,19 +166,34 @@ export class ReplyBuilder {
 	}
 
 	successFollowUp(content: string) {
-		return new ReplyBuilder(this.interaction, this.ephemeralMode, this.updateMode, true).dispatch({
+		return new ReplyBuilder(
+			this.interaction,
+			this.ephemeralMode,
+			this.updateMode,
+			true,
+		).dispatch({
 			content: `${emotes.utils.checkmark} | ${content}`,
 		});
 	}
 
 	errorFollowUp(content: string) {
-		return new ReplyBuilder(this.interaction, this.ephemeralMode, this.updateMode, true).dispatch({
+		return new ReplyBuilder(
+			this.interaction,
+			this.ephemeralMode,
+			this.updateMode,
+			true,
+		).dispatch({
 			content: `${emotes.utils.crossmark} | ${content}`,
 		});
 	}
 
 	infoFollowUp(content: string) {
-		return new ReplyBuilder(this.interaction, this.ephemeralMode, this.updateMode, true).dispatch({
+		return new ReplyBuilder(
+			this.interaction,
+			this.ephemeralMode,
+			this.updateMode,
+			true,
+		).dispatch({
 			content: `${emotes.utils.info} | ${content}`,
 		});
 	}

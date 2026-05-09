@@ -196,13 +196,13 @@ export const paySubCommand = createSubCommand({
 			const row = createRow(
 				new ButtonBuilder({
 					custom_id: 'accept/pay',
-					label: replyLang(interaction.locale, 'eco#pay#confirmation#accept'),
+					label: replyLang(interaction.locale, 'common#buttons#accept'),
 					style: ButtonStyle.Danger,
 					emoji: emotes.utils.checkmark,
 				}),
 				new ButtonBuilder({
 					custom_id: 'decline/pay',
-					label: replyLang(interaction.locale, 'eco#pay#confirmation#decline'),
+					label: replyLang(interaction.locale, 'common#buttons#decline'),
 					style: ButtonStyle.Secondary,
 					emoji: emotes.utils.crossmark,
 				}),

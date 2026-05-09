@@ -1,6 +1,7 @@
 {
 	"common": {
 		"errors": {
+			"title": "Something went wrong...",
 			"missing_permission": {
 				"bot": {
 					"title": "I don't have permission to %action%!",
@@ -10,7 +11,41 @@
 					"title": "You don't have permission to %action%!",
 					"description": "You need the **%permission%** permission to use this command."
 				}
-			}
+			},
+			"generic": "Something went wrong. Please try again.",
+			"generic_with_retry": "Something went wrong. Try again later! 🥲",
+			"insufficient_funds": "You need **%amount%** pollens! 💸",
+			"insufficient_funds_requester": "The requester doesn't have **%amount%** pollens! 💸",
+			"user_not_found": "❌ User not found in the system!",
+			"already_married": "You're already married!",
+			"target_married": "That person is already married. Respect the marriage. 💍",
+			"account_not_found": "You don't have an account in the bot! Use %command% to create your account first."
+		},
+		"buttons": {
+			"accept": "Accept",
+			"decline": "Decline",
+			"confirm": "Confirm",
+			"cancel": "Cancel",
+			"back": "Back",
+			"enable": "Enable",
+			"disable": "Disable",
+			"source": "View source"
+		},
+		"success": {
+			"saved": "Saved successfully!"
+		},
+		"labels": {
+			"channel": "Channel",
+			"no_channel": "No channel set",
+			"message": "Message",
+			"title": "Title",
+			"color": "Color",
+			"footer": "Footer",
+			"image": "Image",
+			"thumbnail": "Thumbnail",
+			"select_option": "Select an option...",
+			"home_page": "Home page",
+			"you_are_here": "You are here now!"
 		}
 	},
 	"ping": [
@@ -372,36 +407,35 @@
 			"minecraft_items": "Minecraft items",
 			"roleplay_items": "Roleplay items",
 			"you_are_here": "You are here now!"
-		}
-	},
-	"buy": {
-		"error": {
-			"no_account_title": "Account not found",
-			"no_account_description": "You don't have an account in the bot! Use %command% to create your account first.",
-			"item_not_found_title": "Item not found",
-			"item_not_found_description": "This item is not currently available in the shop.",
-			"insufficient_funds_title": "Insufficient balance",
-			"insufficient_funds_description": "You don't have enough Pollens to buy **%item_name%**!\n\n💰 **Price:** %item_price% Pollens\n💳 **Your balance:** %current_balance% Pollens\n💸 **Missing:** %missing% Pollens",
-			"generic_error_title": "Purchase error",
-			"generic_error_description": "An error occurred while processing your purchase. Try again later.",
-			"transaction_failed_title": "Transaction failed",
-			"transaction_failed_description": "Your purchase could not be completed. Your balance was not debited. Try again!"
 		},
-		"confirmation": {
-			"title": "🛍️ Confirm purchase",
-			"description": "You are about to buy:\n\n**%item_name%**\n%item_description%\n\n💰 **Price:** %item_price% Pollens\n💳 **Current balance:** %current_balance% Pollens\n💸 **New balance:** %new_balance% Pollens\n\nAre you sure you want to continue?"
-		},
-		"buttons": {
-			"confirm": "Confirm purchase",
-			"cancel": "Cancel"
-		},
-		"success": {
-			"title": "Purchase completed successfully!",
-			"description": "You bought **%item_name%** for %item_price% Pollens!\n\n💳 **New balance:** %new_balance% Pollens\n\nThanks for your purchase! 💖"
-		},
-		"cancelled": {
-			"title": "Purchase cancelled",
-			"description": "Your purchase was cancelled. Your Pollens were not debited."
+		"buy": {
+			"error": {
+				"no_account_title": "Account not found",
+				"no_account_description": "You don't have an account in the bot! Use %command% to create your account first.",
+				"item_not_found_title": "Item not found",
+				"item_not_found_description": "This item is not currently available in the shop.",
+				"insufficient_funds_title": "Insufficient balance",
+				"insufficient_funds_description": "You don't have enough Pollens to buy **%item_name%**!\n\n💰 **Price:** %item_price% Pollens\n💳 **Your balance:** %current_balance% Pollens\n💸 **Missing:** %missing% Pollens",
+				"generic_error_title": "Purchase error",
+				"generic_error_description": "An error occurred while processing your purchase. Try again later."
+			},
+			"confirmation": {
+				"title": "🛍️ Confirm purchase",
+				"description": "You are about to buy:\n\n**%item_name%**\n%item_description%\n\n💰 **Price:** %item_price% Pollens\n💳 **Current balance:** %current_balance% Pollens\n💸 **New balance:** %new_balance% Pollens\n\nAre you sure you want to continue?"
+			},
+			"buttons": {
+				"confirm": "Confirm purchase",
+				"cancel": "Cancel",
+				"source": "View source"
+			},
+			"success": {
+				"title": "Purchase completed successfully!",
+				"description": "You bought **%item_name%** for %item_price% Pollens!\n\n💳 **New balance:** %new_balance% Pollens\n\nThanks for your purchase! 💖"
+			},
+			"cancelled": {
+				"title": "Purchase cancelled",
+				"description": "Your purchase was cancelled. Your Pollens were not debited."
+			}
 		}
 	},
 	"lootbox": {
@@ -520,11 +554,11 @@
 				"disable": "Disable",
 				"setChannel": "Set channel",
 				"editMessage": "Edit message",
-"editEmbed": "Edit embed",
-			"editComponents": "V2 Components",
-			"back": "Back"
-		},
-		"channel": {
+				"editEmbed": "Edit embed",
+				"editComponents": "V2 Components",
+				"back": "Back"
+			},
+			"channel": {
 				"placeholder": "Select leave channel",
 				"content": "📢 Choose the channel for leave messages:",
 				"selectTitle": "Select Channel"
@@ -549,5 +583,74 @@
 				"others": "📦 Others"
 			}
 		}
+	},
+	"date": {
+		"error": {
+			"self": "You can't date yourself! 🤡",
+			"already_dating": "You're already dating someone! Stay faithful. 💔",
+			"target_dating": "That person is already dating someone else. 😢",
+			"already_married": "You're already married! 🙏",
+			"target_married": "That person is already married. Respect the marriage. 💍",
+			"insufficient_funds": "You need **%amount%** pollens to pay for that fancy date! 💸",
+			"insufficient_funds_requester": "The requester doesn't have **%amount%** pollens! 💸",
+			"generic": "Something went wrong. Please try again."
+		},
+		"confirmation": {
+			"title": "💕 Dating Request",
+			"description": "%user% wants to date %target%!\nIt will cost **%cost%** pollens to pay for that fancy date! 🍽️"
+		},
+		"buttons": {
+			"accept": "Accept",
+			"decline": "Decline"
+		},
+		"success": {
+			"title": "💕 Dating Started!",
+			"description": "%user% and %target% are now dating!\nThey spent **%cost%** pollens on the date and it was amazing! 🍽️✨"
+		},
+		"declined": {
+			"title": "💔 Dating Declined",
+			"description": "%target% declined the dating request from %requester%. Awkward! 💔"
+		}
+	},
+	"marry": {
+		"error": {
+			"self": "You can't marry yourself! 🤡",
+			"not_dating": "You need to be dating first! Use /date.",
+			"target_not_dating": "The target isn't dating you! Try again.",
+			"no_ring": "You need a **Wedding Ring** in your backpack! Buy one at the shop.",
+			"insufficient_funds": "You need **%amount%** pollens to afford this wedding! 💸",
+			"insufficient_funds_requester": "The requester doesn't have **%amount%** pollens! 💸",
+			"not_dating_anymore": "You're not dating anymore! Did someone cheat? 💔",
+			"not_host": "Come on, you're not the one who proposed just to suddenly call it off! Only %requester%",
+			"generic": "Something went wrong. Please try again.",
+			"already_married": "You're already married! 😭",
+			"target_married": "That person is already married. Respect the marriage. 💍"
+		},
+		"confirmation": {
+			"title": "💍 Wedding Request",
+			"description": "%user% wants to marry %target%!\nIt will cost **%cost%** pollens (the ring doesn't count! 😉). 💍"
+		},
+		"buttons": {
+			"accept": "Accept",
+			"decline": "Decline",
+			"cancel": "Cancel"
+		},
+		"success": {
+			"title": "💍 Wedding Complete!",
+			"description": "%user% and %target% are now married!\nThey spent **%cost%** pollens on the wedding, but love is worth the investment! 🎉"
+		},
+		"declined": {
+			"title": "💔 Wedding Declined",
+			"description": "%target% declined the wedding request from %requester%. Awkward! 💔"
+		},
+		"cancelled": {
+			"title": "A PLOT TWIST?!??",
+			"description": "Incredibly, %requester% decided at the last moment that THEY WOULD NOT MARRY %target% ANYMORE!!!!\n\nI'm afraid everyone here already knows this shocking news!!!"
+		}
+	},
+	"kiss": {
+		"self": "You tried to kiss yourself... that's another level of narcissism. 💀",
+		"bot": "HEY??? 😳",
+		"success": "%user% kissed %target%! 💋"
 	}
 }
