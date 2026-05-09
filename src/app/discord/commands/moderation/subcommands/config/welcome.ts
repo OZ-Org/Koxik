@@ -76,12 +76,7 @@ export default createSubCommand({
 		const embed = new EmbedBuilder()
 			.setTitle(replyLang(interaction.locale, 'welcome#config#title'))
 			.setDescription(
-				brBuilder(
-					legacyWarning,
-					legacyDescription,
-					welStr,
-					leaStr,
-				),
+				brBuilder(legacyWarning, legacyDescription, welStr, leaStr),
 			)
 			.setColor('#0c0a09');
 
