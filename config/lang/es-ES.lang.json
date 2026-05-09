@@ -1,6 +1,7 @@
 {
 	"common": {
 		"errors": {
+			"title": "Algo deu errado...",
 			"missing_permission": {
 				"bot": {
 					"title": "Não tenho permissão %action%!",
@@ -10,7 +11,41 @@
 					"title": "Você não tem permissão %action%!",
 					"description": "Você precisa da permissão **%permission%** pra usar este comando."
 				}
-			}
+			},
+			"generic": "Algo deu errado. Tente novamente.",
+			"generic_with_retry": "Algo deu errado. Tente novamente mais tarde! 🥲",
+			"insufficient_funds": "Você precisa de **%amount%** pólens! 💸",
+			"insufficient_funds_requester": "O autor do pedido não tem **%amount%** pólens! 💸",
+			"user_not_found": "❌ Usuário não encontrado no sistema!",
+			"already_married": "Você já é casado!",
+			"target_married": "Essa pessoa já é casada. Respeite o casamento. 💍",
+			"account_not_found": "Você não tem uma conta no bot! Use %command% para criar sua conta primeiro."
+		},
+		"buttons": {
+			"accept": "Aceitar",
+			"decline": "Recusar",
+			"confirm": "Confirmar",
+			"cancel": "Cancelar",
+			"back": "Voltar",
+			"enable": "Ativar",
+			"disable": "Desativar",
+			"source": "Ver fonte da imagem"
+		},
+		"success": {
+			"saved": "Salvo com sucesso!"
+		},
+		"labels": {
+			"channel": "Canal",
+			"no_channel": "Nenhum canal definido",
+			"message": "Mensagem",
+			"title": "Título",
+			"color": "Cor",
+			"footer": "Rodapé",
+			"image": "Imagem",
+			"thumbnail": "Miniatura",
+			"select_option": "Selecione uma opção...",
+			"home_page": "Página inicial",
+			"you_are_here": "Você está aqui agora!"
 		}
 	},
 	"ping": [
@@ -37,7 +72,7 @@
 	"create_user": {
 		"created": "🚀 %user_mention% ¡Tu cuenta ha sido creada con éxito! Ahora puedes usar los comandos de economía.",
 		"fail": "🚫 %user_mention% No se pudo crear tu cuenta. ¡Inténtalo de nuevo más tarde!",
-		"already": "🚫 %user_mention% ¡Ya tienes una cuenta! Usa el comando ``/create account`` para ver tu saldo."
+		"already": "🚫 %user_mention% você já tem uma conta! Use o comando ``/eco dinheiro`` para ver seu saldo atual."
 	},
 	"botStats": {
 		"title": "📊 Estadísticas del Bot Koxik",
@@ -392,7 +427,8 @@
 			},
 			"buttons": {
 				"confirm": "Confirmar compra",
-				"cancel": "Cancelar"
+				"cancel": "Cancelar",
+				"source": "Ver fonte da imagem"
 			},
 			"success": {
 				"title": "Compra realizada com sucesso!",
@@ -549,5 +585,75 @@
 				"others": "📦 Outros"
 			}
 		}
+	},
+	"date": {
+		"error": {
+			"self": "Você não pode namorar com você mesmo! 🤡",
+			"already_dating": "Você já está namorando! Seja fiel. 💔",
+			"target_dating": "Essa pessoa já está namorando alguém. 😢",
+			"already_married": "Você já é casado! 😭",
+			"target_married": "Essa pessoa já é casada. Respeite o casamento. 💍",
+			"insufficient_funds": "Você precisa de **%amount%** pólens pra pagar aquele date legal! 💸",
+			"insufficient_funds_requester": "O autor do pedido não tem **%amount%** pólens! 💸",
+			"generic": "Algo deu errado. Tente novamente."
+		},
+		"confirmation": {
+			"title": "💕 Pedido de Namoro",
+			"description": "%user% quer namorar com %target%!\nVai custar **%cost%** pólens pra pagar aquele date legal! 🍽️"
+		},
+		"buttons": {
+			"accept": "Aceitar",
+			"decline": "Recusar"
+		},
+		"success": {
+			"title": "💕 Namoro Iniciado!",
+			"description": "%user% e %target% agora estão namorando!\nGastaram **%cost%** pólens no date e foi incrível! 🍽️✨"
+		},
+		"declined": {
+			"title": "💔 Namoro Recusado",
+			"description": "%target% recusou o pedido de namoro de %requester%. Que tenso! 💔"
+		}
+	},
+	"marry": {
+		"error": {
+			"self": "Você não pode casar com você mesmo! 🤡",
+			"not_dating": "Vocês precisam estar namorando primeiro! Use /date.",
+			"target_not_dating": "O alvo não está namorando com você! Tente de novo.",
+			"no_ring": "Você precisa de um **Anel de Casamento** na mochila! Compre na loja.",
+			"insufficient_funds": "Você precisa de **%amount%** pólens pra bancar esse casamento! 💸",
+			"insufficient_funds_requester": "O autor do pedido não tem **%amount%** pólens! 💸",
+			"not_dating_anymore": "Vocês não estão mais namorando! Alguém foi infiel? 💔",
+			"not_host": "Poxa vida, você não é a pessoa que pediu em casamento pra simplesmente decidir acabar! Apenas %requester%",
+			"generic": "Algo deu errado. Tente novamente.",
+			"already_married": "Você já é casado! 😭",
+			"target_married": "Essa pessoa já é casada. Respeite o casamento. 💍"
+		},
+		"confirmation": {
+			"title": "💍 Pedido de Casamento",
+			"description": "%user% quer casar com %target%!\nVai custar **%cost%** pólens (o anel não conta! 😉). 💍"
+		},
+		"buttons": {
+			"accept": "Aceitar",
+			"decline": "Recusar",
+			"cancel": "Cancelar",
+			"source": "Ver fonte da imagem"
+		},
+		"success": {
+			"title": "💍 Casamento Realizado!",
+			"description": "%user% e %target% agora são casados!\nGastaram **%cost%** pólens no casamento, mas o amor vale o investimento! 🎉"
+		},
+		"declined": {
+			"title": "💔 Casamento Recusado",
+			"description": "%target% recusou o pedido de casamento de %requester%. Que tenso! 💔"
+		},
+		"cancelled": {
+			"title": "Uma REVIRAVOLTA?!??",
+			"description": "Incrivelmente %requester% decidiu de ultima hora que NÃO IRIA MAIS SE CASAR COM %target% !!!!\n\nReceio que todo mundo aqui na obra sabe dessa notícia chocante!!!"
+		}
+	},
+	"kiss": {
+		"self": "Você tentou se beijar... narcisismo em outro nível. 💀",
+		"bot": "EI??? 😳",
+		"success": "%user% beijou %target%! 💋"
 	}
 }
