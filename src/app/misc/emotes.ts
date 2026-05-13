@@ -41,6 +41,7 @@ export const emotes = {
 		rocket: '🚀',
 		boom: '💥',
 		boot: '👢',
+		peridot: '<:Peridot:1503971063154081862>',
 	},
 	utils: {
 		crossmark: '<:cross:1458541184984154208>',
@@ -92,5 +93,8 @@ export const emotes = {
 export const images = {
 	koxik: {
 		cry: 'https://i.ibb.co/6JLjTDnQ/koxik-cry.png',
+	},
+	misc: {
+		peridot: 'https://i.ibb.co/fYhmcVwy/image.png',
 	},
 };
