@@ -1,4 +1,5 @@
 import { createSubCommand } from '@base';
+import { getShardData } from '@basedir/discord/client/bot/sharding.js';
 import { replyLang } from '@fx/utils/replyLang.js';
 import { brBuilder, createContainer, Separator } from '@magicyan/discord';
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
@@ -22,8 +23,9 @@ export default createSubCommand({
 		const support = 'https://discord.gg/AfeQSwBsZV';
 		const owner = 'Oz-Org';
 
-		const shardId = client.shard?.ids?.[0] ?? 0;
-		const shardCount = client.shard?.count ?? 1;
+		const { shardId, shardCount, isSharded } = getShardData();
+		const displayShardId = isSharded ? (shardId ?? 0) + 1 : 1;
+		const displayShardCount = isSharded ? (shardCount ?? 1) : 1;
 
 		let guilds = 0;
 		let members = 0;
@@ -90,7 +92,7 @@ export default createSubCommand({
 						host: hostedBy,
 						uptime: uptimeTimestamp,
 						owner,
-						shard: `${shardId + 1}/${shardCount}`,
+						shard: `${displayShardId}/${displayShardCount}`,
 					}),
 				),
 				Separator.Default,

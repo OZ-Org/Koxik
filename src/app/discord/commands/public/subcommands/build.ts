@@ -1,4 +1,5 @@
 import { createSubCommand } from '@base';
+import { getShardData } from '@basedir/discord/client/bot/sharding.js';
 import { createContainer, Separator } from '@magicyan/discord';
 import { emotes } from '@misc/emotes.js';
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
@@ -92,13 +93,9 @@ export default createSubCommand({
 		const env = process.env.NODE_ENV ?? 'production';
 		const totalPing = Date.now() - start;
 
-		const hasSharding = !!client.shard;
-
-		const rawShardId = client.shard?.ids?.[0] ?? 0;
-		const shardCount = client.shard?.count ?? 1;
-
-		const displayShardId = hasSharding ? rawShardId + 1 : 0;
-		const displayShardCount = hasSharding ? shardCount : 0;
+		const { shardId, shardCount, isSharded } = getShardData();
+		const displayShardId = isSharded ? (shardId ?? 0) + 1 : 1;
+		const displayShardCount = isSharded ? (shardCount ?? 1) : 1;
 
 		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
 			new ButtonBuilder()
