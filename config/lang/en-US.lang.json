@@ -655,5 +655,10 @@
 		"self": "Você tentou se beijar... narcisismo em outro nível. 💀",
 		"bot": "EI??? 😳",
 		"success": "%user% beijou %target%! 💋"
+	},
+	"peridot": {
+		"title": "%emoji% Peridot responde!",
+		"question": "Pergunta",
+		"answer": "Resposta"
 	}
 }
