@@ -1,14 +1,48 @@
 import os from 'node:os';
 import { type ChildProcess, spawn } from 'node:child_process';
+import { Api } from '@top-gg/sdk';
 import type { ShardingConfig } from './types.js';
 
+let _isShardManager = false;
 const children: ChildProcess[] = [];
+const guildCounts = new Map<number, number>();
+
+export function isShardManager(): boolean {
+	return _isShardManager;
+}
+
+function startTopGGPosting(totalShards: number) {
+	const token = process.env.TOPGG_TOKEN;
+	if (!token) return;
+
+	const api = new Api(token);
+
+	const post = () => {
+		let total = 0;
+
+		for (const count of guildCounts.values()) {
+			total += count;
+		}
+
+		if (total === 0) return;
+
+		api
+			.postStats({ serverCount: total, shardCount: totalShards })
+			.then(() => console.log('[Koxik] Posted stats on top.gg!'))
+			.catch((err) => console.error('[Koxik] Top.GG post failed:', err));
+	};
+
+	setTimeout(post, 10 * 60 * 1000);
+	setInterval(post, 30 * 60 * 1000);
+}
 
 export function setupSharding() {
 	if (process.env.KOXIK_SHARD === 'true') return;
 
 	const total = Number(process.env.SHARD_COUNT) || os.cpus().length;
 	if (total <= 1) return;
+
+	_isShardManager = true;
 
 	const entry = process.argv[1];
 	if (!entry) throw new Error('[Koxik] Entry file not found');
@@ -33,21 +67,36 @@ export function setupSharding() {
 		console.log(`[Koxik] Shard ${i} started (pid: ${child.pid})`);
 
 		child.on('message', (msg: any) => {
-			if (msg.type === 'CHECK_INTERACTION') {
-				const exists = globalLocks.has(msg.id);
+			switch (msg.type) {
+				case 'CHECK_INTERACTION': {
+					const exists = globalLocks.has(msg.id);
 
-				if (!exists) globalLocks.add(msg.id);
+					if (!exists) globalLocks.add(msg.id);
 
-				child.send?.({
-					type: 'CHECK_RESULT',
-					id: msg.id,
-					allowed: !exists,
-				});
+					child.send?.({
+						type: 'CHECK_RESULT',
+						id: msg.id,
+						allowed: !exists,
+					});
+					break;
+				}
+
+				case 'GUILD_COUNT': {
+					if (
+						typeof msg.shardId === 'number' &&
+						typeof msg.count === 'number'
+					) {
+						guildCounts.set(msg.shardId, msg.count);
+					}
+					break;
+				}
 			}
 		});
 	}
 
 	console.log('[Koxik] Master done. Waiting shards...');
+
+	startTopGGPosting(total);
 
 	process.on('SIGINT', () => {
 		console.log('\n[Koxik] Killing shards...');
