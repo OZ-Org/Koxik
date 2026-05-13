@@ -652,5 +652,10 @@
 		"self": "You tried to kiss yourself... that's another level of narcissism. 💀",
 		"bot": "HEY??? 😳",
 		"success": "%user% kissed %target%! 💋"
+	},
+	"peridot": {
+		"title": "%emoji% Peridot answers!",
+		"question": "Question",
+		"answer": "Answer"
 	}
 }

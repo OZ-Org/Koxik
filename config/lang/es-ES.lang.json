@@ -651,6 +651,11 @@
 			"self": "Intentaste besarte a ti mismo... narcisismo en otro nivel. 💀",
 			"bot": "¿¿¿EH??? 😳",
 			"success": "%user% besó a %target%! 💋"
+		},
+		"peridot": {
+			"title": "%emoji% ¡Peridot responde!",
+			"question": "Pregunta",
+			"answer": "Respuesta"
 		}
 	}
 }
