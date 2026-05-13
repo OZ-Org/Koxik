@@ -1,7 +1,12 @@
 import { db } from '@basedir/db/db.js';
 import { env } from '@env';
 import { logger } from '@fx/utils/logger.js';
-import { type ClientEvents, GatewayIntentBits, Partials } from 'discord.js';
+import {
+	type Client,
+	type ClientEvents,
+	GatewayIntentBits,
+	Partials,
+} from 'discord.js';
 
 import { KoxikClient } from './bot/CustomClient.js';
 import {
@@ -83,6 +88,14 @@ export function createBot(options: BotOptions) {
 				? [options.owner]
 				: [],
 	);
+
+	if (shardId !== undefined && shardCount !== undefined) {
+		(client as Record<string, unknown>).shard = {
+			ids: [shardId],
+			count: shardCount,
+			broadcastEval: async (fn: (c: Client) => unknown) => [await fn(client)],
+		};
+	}
 
 	const commands = new Map<string, Command>();
 	const registeredEvents = new Set<string>();

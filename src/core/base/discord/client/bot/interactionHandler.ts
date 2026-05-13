@@ -7,6 +7,7 @@ import type { KoxikClient } from './CustomClient.js';
 import { MiddlewareManager } from './middleware.js';
 import { ReplyBuilder } from './ReplyBuilder.js';
 import { getResponders } from './registry.js';
+import { isShardManager } from './sharding.js';
 import type { Command, ComponentInteraction, InteractionMap } from './types.js';
 
 export function checkInteractionGlobal(id: string): Promise<boolean> {
@@ -93,6 +94,8 @@ export function setupInteractionHandler(
 	client: KoxikClient,
 	commands: Map<string, Command>,
 ) {
+	if (isShardManager()) return;
+
 	const middlewareManager = new MiddlewareManager();
 
 	client.on('interactionCreate', async (interaction: Interaction) => {
