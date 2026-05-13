@@ -1,6 +1,7 @@
 import { createEvent } from '@base';
 import { env } from '@env';
 import { logger } from '@fx/utils/logger.js';
+import { getMusicStatus } from '@app/discord/utils/musicStatus.js';
 import { ActivityType, type Client } from 'discord.js';
 import { AutoPoster } from 'topgg-autoposter';
 
@@ -41,7 +42,16 @@ export default createEvent({
 
 		let index = 0;
 
-		setInterval(() => {
+		setInterval(async () => {
+			const musicStatus = await getMusicStatus();
+
+			if (musicStatus) {
+				client.user?.setActivity(musicStatus.name, {
+					type: musicStatus.type,
+				});
+				return;
+			}
+
 			const statuses = getStatuses();
 			const status = statuses[index % statuses.length];
 
