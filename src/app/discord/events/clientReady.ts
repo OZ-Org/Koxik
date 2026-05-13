@@ -2,6 +2,7 @@ import { createEvent } from '@base';
 import { env } from '@env';
 import { logger } from '@fx/utils/logger.js';
 import { getMusicStatus } from '@app/discord/utils/musicStatus.js';
+import { isShardManager } from '@basedir/discord/client/bot/sharding.js';
 import { ActivityType, type Client } from 'discord.js';
 import { AutoPoster } from 'topgg-autoposter';
 
@@ -63,18 +64,29 @@ export default createEvent({
 		}, 60_000);
 
 		if (env.TOPGG_TOKEN) {
-			const isMainShard = !client.shard || client.shard.ids.includes(0);
+			if (process.env.KOXIK_SHARD === 'true') {
+				const report = () => {
+					if (!process.send) return;
 
-			if (!isMainShard) return;
-
-			setTimeout(
-				() => {
-					AutoPoster(env.TOPGG_TOKEN!, client).on('posted', () => {
-						logger.success('Posted stats on top.gg!');
+					process.send({
+						type: 'GUILD_COUNT',
+						shardId: Number(process.env.SHARD_ID),
+						count: client.guilds.cache.size,
 					});
-				},
-				10 * 60 * 60 * 1000,
-			);
+				};
+
+				report();
+				setInterval(report, 30 * 60 * 1000);
+			} else if (!isShardManager()) {
+				setTimeout(
+					() => {
+						AutoPoster(env.TOPGG_TOKEN!, client).on('posted', () => {
+							logger.success('Posted stats on top.gg!');
+						});
+					},
+					10 * 60 * 60 * 1000,
+				);
+			}
 		}
 	},
 });
