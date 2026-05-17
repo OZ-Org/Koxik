@@ -1,5 +1,5 @@
 import { createSubCommand } from '@base';
-import { MusicController } from '@basedir/music/MusicController.js';
+import type { MusicController } from '@basedir/music/MusicController.js';
 import { createEmbed } from '@magicyan/discord';
 import { Colors } from 'discord.js';
 
@@ -14,9 +14,8 @@ export default createSubCommand({
 	},
 
 	run: async ({ client, res }) => {
-		const controller = client.getCustomVariable<MusicController>(
-			'musicController',
-		);
+		const controller =
+			client.getCustomVariable<MusicController>('musicController');
 
 		if (!controller?.hasApi) {
 			return res.ephemeral().info('Music API is not configured.');

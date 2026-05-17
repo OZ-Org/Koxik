@@ -653,6 +653,18 @@
 		"bot": "HEY??? 😳",
 		"success": "%user% kissed %target%! 💋"
 	},
+	"giveaway": {
+		"responses": {
+			"error_no_guild": "Command must be used in a server.",
+			"giveaway_created": "Giveaway created for **%prize%** with **%winners%** winner(s) lasting **%duration%** minutes! Ends %endTime%",
+			"giveaway_not_found": "Giveaway not found or has already ended.",
+			"giveaway_ended": "This giveaway has already ended.",
+			"already_joined": "You have already joined this giveaway!",
+			"joined_title": "Giveaway Joined!",
+			"joined_description": "You have successfully joined the giveaway for **%prize%**! Good luck!",
+			"join_button": "Join Giveaway"
+		}
+	},
 	"peridot": {
 		"title": "%emoji% Peridot answers!",
 		"question": "Question",

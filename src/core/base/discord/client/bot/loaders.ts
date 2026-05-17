@@ -121,6 +121,18 @@ export async function loadResponders() {
 		await import(pathToFileURL(file).href);
 	}
 }
+
+export async function loadWorkers(client: any) {
+	const workersDir = path.join(__dirname, '../../../../../core/workers');
+	const files = await walk(workersDir);
+
+	for (const file of files) {
+		const module = await import(pathToFileURL(file).href);
+		if (module.startGiveawayWorker) {
+			await module.startGiveawayWorker(client);
+		}
+	}
+}
 export async function loadEventsFromDisk(
 	createEvent: <T extends keyof ClientEvents>(event: Event<T>) => Event<T>,
 ): Promise<void> {

@@ -72,7 +72,12 @@ export class MusicController extends EventEmitter {
 			if (!response.ok) return this.handleNoTrack();
 
 			const data: TrackData = await response.json();
-			if (!data.playing || !data.track?.id || !data.track?.title || !data.track?.artist)
+			if (
+				!data.playing ||
+				!data.track?.id ||
+				!data.track?.title ||
+				!data.track?.artist
+			)
 				return this.handleNoTrack();
 
 			this.handleTrack(data.track);

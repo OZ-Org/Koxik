@@ -652,6 +652,18 @@
 			"bot": "¿¿¿EH??? 😳",
 			"success": "%user% besó a %target%! 💋"
 		},
+		"giveaway": {
+			"responses": {
+				"error_no_guild": "Este comando debe ser utilizado dentro de un servidor.",
+				"giveaway_created": "Drawn creado para **%prize%** con **%winners%** ganador(es) que duran **%duration%** minutos! Termina %endTime%",
+				"giveaway_not_found": "No se encontró dibujo o está terminado.",
+				"giveaway_ended": "Este sorteo ha terminado.",
+				"already_joined": "¡Ya has entrado en este sorteo!",
+				"joined_title": "Draw In!",
+				"joined_description": "Ingresaste con éxito el sorteo de **%prize%**! ¡Buena suerte!",
+				"join_button": "Get in the Draw"
+			}
+		},
 		"peridot": {
 			"title": "%emoji% ¡Peridot responde!",
 			"question": "Pregunta",
