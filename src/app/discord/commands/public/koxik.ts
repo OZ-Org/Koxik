@@ -3,6 +3,7 @@ import AnalyticsSubCommand from './subcommands/analytics.js';
 import InfoSubCommand from './subcommands/info.js';
 import InviteSubCommand from './subcommands/invite.js';
 import BuildSubCommand from './subcommands/build.js';
+import NowPlayingSubCommand from './subcommands/nowplaying.js';
 
 export default createCommand({
 	name: 'koxik',
@@ -17,4 +18,5 @@ export default createCommand({
 	InfoSubCommand,
 	InviteSubCommand,
 	BuildSubCommand,
+	NowPlayingSubCommand,
 ]);

@@ -2,12 +2,17 @@ import { EventEmitter } from 'node:events';
 import { env } from '@env';
 
 export interface MusicTrack {
+	id: string;
 	title: string;
 	artist: string;
-	cover?: string;
+	album: string | null;
+	cover: string;
+	url: string;
+	durationMs: number;
 }
 
 interface TrackData {
+	playing: boolean;
 	track: MusicTrack;
 	progressMs: number;
 }
@@ -31,8 +36,13 @@ export class MusicController extends EventEmitter {
 		return this._currentTrack;
 	}
 
+	get hasApi(): boolean {
+		return !!env.MUSIC_API;
+	}
+
 	start(): void {
 		if (this.pollTimer) return;
+		if (!this.hasApi) return;
 
 		this.pollTimer = setInterval(() => this.poll(), POLL_INTERVAL_MS);
 		this.poll();
@@ -51,15 +61,18 @@ export class MusicController extends EventEmitter {
 	}
 
 	private async poll(): Promise<void> {
+		const apiUrl = env.MUSIC_API;
+		if (!apiUrl) return;
+
 		try {
-			const response = await fetch(`${env.MUSIC_API}/music/current`, {
+			const response = await fetch(`${apiUrl}/music/current`, {
 				signal: AbortSignal.timeout(5_000),
 			});
 
 			if (!response.ok) return this.handleNoTrack();
 
 			const data: TrackData = await response.json();
-			if (!data.track?.title || !data.track?.artist)
+			if (!data.playing || !data.track?.id || !data.track?.title || !data.track?.artist)
 				return this.handleNoTrack();
 
 			this.handleTrack(data.track);
@@ -87,12 +100,7 @@ export class MusicController extends EventEmitter {
 			this.gapTimer = null;
 		}
 
-		const trackId = `${track.title}::${track.artist}`;
-		const prevId = this._currentTrack
-			? `${this._currentTrack.title}::${this._currentTrack.artist}`
-			: null;
-
-		if (trackId === prevId) return;
+		if (this._currentTrack && track.id === this._currentTrack.id) return;
 
 		if (this._currentTrack) {
 			this.emit('trackEnd', this._currentTrack);

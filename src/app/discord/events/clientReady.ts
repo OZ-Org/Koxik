@@ -15,6 +15,7 @@ export default createEvent({
 		const musicController = new MusicController();
 		setupMusicPresence(client, musicController);
 		musicController.start();
+		client.setCustomVariable('musicController', musicController);
 
 		const getStatuses = () => [
 			{
