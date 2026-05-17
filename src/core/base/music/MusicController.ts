@@ -1,5 +1,6 @@
 import { EventEmitter } from 'node:events';
 import { env } from '@env';
+import { logger } from '@fx/utils/logger.js';
 
 export interface MusicTrack {
 	id: string;
@@ -42,8 +43,12 @@ export class MusicController extends EventEmitter {
 
 	start(): void {
 		if (this.pollTimer) return;
-		if (!this.hasApi) return;
+		if (!this.hasApi) {
+			logger.warn('Music API not configured — music controller disabled');
+			return;
+		}
 
+		logger.info(`Music controller started — API: ${env.MUSIC_API}`);
 		this.pollTimer = setInterval(() => this.poll(), POLL_INTERVAL_MS);
 		this.poll();
 	}
