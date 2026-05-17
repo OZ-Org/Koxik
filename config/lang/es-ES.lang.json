@@ -659,13 +659,18 @@
 	"giveaway": {
 		"responses": {
 			"error_no_guild": "Este comando deve ser usado dentro de um servidor.",
-			"giveaway_created": "Sorteio criado para **%prize%** com **%winners%** vencedor(es) durando **%duration%** minutos! Termina %endTime%",
+			"error_bot_permission": "Eu não tenho a permissão **Gerenciar Servidor** para criar sorteios.",
+			"error_user_permission": "Você não tem a permissão **Gerenciar Servidor** para criar sorteios.",
+			"error_manage_permission": "Você não tem permissão para gerenciar este sorteio.",
+			"error_invalid_duration": "Formato de duração inválido. Use formatos como: 1d 2h 30m 15s",
+			"giveaway_created": "🎉 **Sorteio: %prize%**\n\nVencedores: **%winners%**\nTermina: %endTime%\n\nClique no botão abaixo para participar!",
 			"giveaway_not_found": "Sorteio não encontrado ou já terminou.",
 			"giveaway_ended": "Este sorteio já terminou.",
 			"already_joined": "Você já entrou neste sorteio!",
 			"joined_title": "Sorteio Entrado!",
 			"joined_description": "Você entrou com sucesso no sorteio para **%prize%**! Boa sorte!",
-			"join_button": "Entrar no Sorteio"
+			"join_button": "Participar",
+			"manage_panel": "Prêmio: **%prize%**\nParticipantes: **%participants%**\n\nEscolha uma ação abaixo:"
 		}
 	},
 	"peridot": {
