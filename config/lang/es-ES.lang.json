@@ -656,6 +656,18 @@
 		"bot": "EI??? 😳",
 		"success": "%user% beijou %target%! 💋"
 	},
+	"giveaway": {
+		"responses": {
+			"error_no_guild": "Este comando deve ser usado dentro de um servidor.",
+			"giveaway_created": "Sorteio criado para **%prize%** com **%winners%** vencedor(es) durando **%duration%** minutos! Termina %endTime%",
+			"giveaway_not_found": "Sorteio não encontrado ou já terminou.",
+			"giveaway_ended": "Este sorteio já terminou.",
+			"already_joined": "Você já entrou neste sorteio!",
+			"joined_title": "Sorteio Entrado!",
+			"joined_description": "Você entrou com sucesso no sorteio para **%prize%**! Boa sorte!",
+			"join_button": "Entrar no Sorteio"
+		}
+	},
 	"peridot": {
 		"title": "%emoji% Peridot responde!",
 		"question": "Pergunta",
