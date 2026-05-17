@@ -1,16 +1,21 @@
 import { createEvent } from '@base';
 import { env } from '@env';
 import { logger } from '@fx/utils/logger.js';
-import { getMusicStatus } from '@app/discord/utils/musicStatus.js';
 import { isShardManager } from '@basedir/discord/client/bot/sharding.js';
 import { ActivityType, type Client } from 'discord.js';
 import { AutoPoster } from 'topgg-autoposter';
+import { MusicController } from '@basedir/music/MusicController.js';
+import { setupMusicPresence } from '@app/discord/utils/musicPresence.js';
 
 export default createEvent({
 	name: 'ready:activity',
 	event: 'clientReady',
 	once: true,
 	run: async (client: Client) => {
+		const musicController = new MusicController();
+		setupMusicPresence(client, musicController);
+		musicController.start();
+
 		const getStatuses = () => [
 			{
 				name: `with ${client.guilds.cache.size} servers`,
@@ -44,14 +49,7 @@ export default createEvent({
 		let index = 0;
 
 		setInterval(async () => {
-			const musicStatus = await getMusicStatus();
-
-			if (musicStatus) {
-				client.user?.setActivity(musicStatus.name, {
-					type: musicStatus.type,
-				});
-				return;
-			}
+			if (musicController.musicModeActive) return;
 
 			const statuses = getStatuses();
 			const status = statuses[index % statuses.length];
