@@ -2,6 +2,7 @@ import { createEvent } from '@base';
 import { env } from '@env';
 import { logger } from '@fx/utils/logger.js';
 import { isShardManager } from '@basedir/discord/client/bot/sharding.js';
+import { loadWorkers } from '@basedir/discord/client/bot/loaders.js';
 import { ActivityType, type Client } from 'discord.js';
 import { AutoPoster } from 'topgg-autoposter';
 import { MusicController } from '@basedir/music/MusicController.js';
@@ -12,9 +13,12 @@ export default createEvent({
 	event: 'clientReady',
 	once: true,
 	run: async (client: Client) => {
+		await loadWorkers(client);
+
 		const musicController = new MusicController();
 		setupMusicPresence(client, musicController);
 		musicController.start();
+		client.setCustomVariable('musicController', musicController);
 
 		const getStatuses = () => [
 			{

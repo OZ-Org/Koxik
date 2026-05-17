@@ -9,7 +9,8 @@ const envSchema = z.object({
 	DB_POOL_MAX: z.coerce.number().min(1).max(100).default(10),
 	DB_POOL_IDLE_TIMEOUT: z.coerce.number().min(1000).default(10000),
 	SHARD_COUNT: z.coerce.number().max(20).optional(),
-	MUSIC_API: z.string().url(),
+	MUSIC_API: z.string().url().optional(),
+	REDIS_URL: z.string(),
 });
 
 const parsed = envSchema.safeParse(process.env);
