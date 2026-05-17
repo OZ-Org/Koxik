@@ -656,13 +656,18 @@
 	"giveaway": {
 		"responses": {
 			"error_no_guild": "Command must be used in a server.",
-			"giveaway_created": "Giveaway created for **%prize%** with **%winners%** winner(s) lasting **%duration%** minutes! Ends %endTime%",
+			"error_bot_permission": "I don't have the **Manage Server** permission to create giveaways.",
+			"error_user_permission": "You don't have the **Manage Server** permission to create giveaways.",
+			"error_manage_permission": "You don't have permission to manage this giveaway.",
+			"error_invalid_duration": "Invalid duration format. Use formats like: 1d 2h 30m 15s",
+			"giveaway_created": "🎉 **Giveaway: %prize%**\n\nWinners: **%winners%**\nEnds: %endTime%\n\nClick the button below to enter!",
 			"giveaway_not_found": "Giveaway not found or has already ended.",
 			"giveaway_ended": "This giveaway has already ended.",
 			"already_joined": "You have already joined this giveaway!",
 			"joined_title": "Giveaway Joined!",
 			"joined_description": "You have successfully joined the giveaway for **%prize%**! Good luck!",
-			"join_button": "Join Giveaway"
+			"join_button": "Enter Giveaway",
+			"manage_panel": "Prize: **%prize%**\nParticipants: **%participants%**\n\nChoose an action below:"
 		}
 	},
 	"peridot": {
