@@ -7,7 +7,7 @@ import { preloadBlacklistCache } from '@basedir/discord/client/bot/middleware.js
 import { ActivityType } from 'discord.js';
 import { AutoPoster } from 'topgg-autoposter';
 import { MusicController } from '@basedir/music/MusicController.js';
-import { type KoxikClient } from '@basedir/discord/client/bot/CustomClient.js';
+import type { KoxikClient } from '@basedir/discord/client/bot/CustomClient.js';
 import { setupMusicPresence } from '@app/discord/utils/musicPresence.js';
 
 export default createEvent({
