@@ -11,6 +11,7 @@ const envSchema = z.object({
 	SHARD_COUNT: z.coerce.number().max(20).optional(),
 	MUSIC_API: z.url().optional(),
 	REDIS_URL: z.string(),
+	SENTRY_DSN: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

@@ -1,6 +1,7 @@
 import { db } from '@basedir/db/db.js';
 import { commandStat } from '@basedir/db/schemas.js';
 import { logger } from '@fx/utils/logger.js';
+import { Sentry } from '@basedir/sentry/index.js';
 import type { ChatInputCommandInteraction, Interaction } from 'discord.js';
 import { sql } from 'drizzle-orm';
 import type { KoxikClient } from './CustomClient.js';
@@ -61,6 +62,14 @@ async function safeExecuteCommand(
 		await command.run({ client, interaction, res });
 		hasResponded = true;
 	} catch (err) {
+		Sentry.withScope((scope) => {
+			scope.setContext('command', {
+				name: interaction.commandName,
+				guildId: interaction.guildId,
+				userId: interaction.user.id,
+			});
+			Sentry.captureException(err);
+		});
 		logger.error(`Error in command → ${interaction.commandName}`, err);
 
 		try {
@@ -194,6 +203,14 @@ export function setupInteractionHandler(
 			try {
 				await command.autocomplete({ client, interaction });
 			} catch (err) {
+				Sentry.withScope((scope) => {
+					scope.setContext('autocomplete', {
+						commandName: interaction.commandName,
+						guildId: interaction.guildId,
+						userId: interaction.user.id,
+					});
+					Sentry.captureException(err);
+				});
 				logger.error(`Autocomplete error → ${interaction.commandName}`, err);
 			}
 			return;
@@ -246,6 +263,15 @@ export async function resolveResponder(interaction: ComponentInteraction) {
 			break;
 		}
 	} catch (error) {
+		Sentry.withScope((scope) => {
+			scope.setContext('responder', {
+				type,
+				customId: interaction.customId,
+				guildId: interaction.guildId,
+				userId: interaction.user.id,
+			});
+			Sentry.captureException(error);
+		});
 		logger.error(
 			`Error in ${type} responder (${interaction.customId}):`,
 			error,

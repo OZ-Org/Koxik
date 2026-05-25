@@ -1,6 +1,7 @@
 import { db } from '@basedir/db/db.js';
 import { env } from '@env';
 import { logger } from '@fx/utils/logger.js';
+import { initSentry, Sentry } from '@basedir/sentry/index.js';
 import {
 	type Client,
 	type ClientEvents,
@@ -25,7 +26,13 @@ import {
 import { registerResponder } from './bot/registry.js';
 import { syncCommands } from './bot/sync.js';
 
-import type { BotOptions, Command, Event, MapClientArgs, RegisterType } from './bot/types.js';
+import type {
+	BotOptions,
+	Command,
+	Event,
+	MapClientArgs,
+	RegisterType,
+} from './bot/types.js';
 
 import {
 	getShardData,
@@ -56,6 +63,9 @@ export function resolveRegisterTypes(
 }
 
 export function createBot(options: BotOptions) {
+	// Initialize Sentry error tracking (optional, based on SENTRY_DSN env var)
+	initSentry();
+
 	if (options.sharding) {
 		const resolved = resolveSharding(options.sharding);
 		applySharding(resolved);
@@ -146,13 +156,15 @@ export function createBot(options: BotOptions) {
 		}
 	});
 
-	process.on('unhandledRejection', (err) =>
-		logger.error('Unhandled Rejection', err),
-	);
+	process.on('unhandledRejection', (err) => {
+		Sentry.captureException(err);
+		logger.error('Unhandled Rejection', err);
+	});
 
-	process.on('uncaughtException', (err) =>
-		logger.error('Uncaught Exception', err),
-	);
+	process.on('uncaughtException', (err) => {
+		Sentry.captureException(err);
+		logger.error('Uncaught Exception', err);
+	});
 
 	async function startBot(): Promise<void> {
 		try {

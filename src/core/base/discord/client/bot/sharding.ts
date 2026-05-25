@@ -96,17 +96,17 @@ export function setupSharding() {
 					break;
 				}
 
-			case 'GUILD_COUNT': {
-				if (
-					typeof msg.shardId === 'number' &&
-					typeof msg.count === 'number'
-				) {
-					guildCounts.set(msg.shardId, msg.count);
-					broadcastTotalGuildCount();
-					postToTopGg();
+				case 'GUILD_COUNT': {
+					if (
+						typeof msg.shardId === 'number' &&
+						typeof msg.count === 'number'
+					) {
+						guildCounts.set(msg.shardId, msg.count);
+						broadcastTotalGuildCount();
+						postToTopGg();
+					}
+					break;
 				}
-				break;
-			}
 			}
 		});
 	}

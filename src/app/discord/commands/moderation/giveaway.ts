@@ -601,14 +601,12 @@ async function processGiveawayEnd(
 			'Giveaway Ended',
 			`No one participated in the giveaway for **${prize}**.`,
 		);
-		await channel
-			.send({ embeds: [noPartEmbed] })
-			.catch((err: Error) => {
-				logger.error(
-					`Failed to send no-participants message for ${giveawayId}:`,
-					err,
-				);
-			});
+		await channel.send({ embeds: [noPartEmbed] }).catch((err: Error) => {
+			logger.error(
+				`Failed to send no-participants message for ${giveawayId}:`,
+				err,
+			);
+		});
 		return;
 	}
 
@@ -624,12 +622,7 @@ async function processGiveawayEnd(
 		`Congratulations! The winner(s) of **${prize}** are:\n${winners.map((w) => `<@${w}>`).join('\n')}`,
 	);
 
-	await channel
-		.send({ embeds: [winnerEmbed] })
-		.catch((err: Error) => {
-			logger.error(
-				`Failed to send winner announcement for ${giveawayId}:`,
-				err,
-			);
-		});
+	await channel.send({ embeds: [winnerEmbed] }).catch((err: Error) => {
+		logger.error(`Failed to send winner announcement for ${giveawayId}:`, err);
+	});
 }
