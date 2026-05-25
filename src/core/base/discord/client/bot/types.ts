@@ -3,6 +3,7 @@ import type {
 	ButtonInteraction,
 	ChannelSelectMenuInteraction,
 	ChatInputCommandInteraction,
+	Client,
 	ClientEvents,
 	InteractionReplyOptions,
 	ModalSubmitInteraction,
@@ -13,6 +14,8 @@ import type {
 } from 'discord.js';
 import type { KoxikClient } from './CustomClient.js';
 import type { ReplyBuilder } from './ReplyBuilder.js';
+
+type ReplaceClient<T> = T extends Client<infer _> ? KoxikClient : T;
 
 export interface CommandRunOptions {
 	client: KoxikClient;
@@ -162,6 +165,10 @@ export interface Responder<T extends ResponderType> {
  *   },
  * });
  */
+export type MapClientArgs<T extends unknown[]> = {
+	[K in keyof T]: ReplaceClient<T[K]>;
+};
+
 export interface Event<T extends keyof ClientEvents = keyof ClientEvents> {
 	/**
 	 * Unique internal name for this event.
@@ -189,8 +196,9 @@ export interface Event<T extends keyof ClientEvents = keyof ClientEvents> {
 	/**
 	 * The event handler function.
 	 * Arguments depend on the Discord event type.
+	 * Any `Client` parameter is replaced with `KoxikClient`.
 	 */
-	run: (...args: ClientEvents[T]) => Promise<void> | void;
+	run: (...args: MapClientArgs<ClientEvents[T]>) => Promise<void> | void;
 }
 
 /**

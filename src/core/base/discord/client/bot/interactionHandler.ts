@@ -56,7 +56,7 @@ async function safeExecuteCommand(
 					);
 				}
 			}
-		}, 2500);
+		}, 1000);
 		const res = new ReplyBuilder(interaction);
 		await command.run({ client, interaction, res });
 		hasResponded = true;
@@ -150,9 +150,11 @@ export function setupInteractionHandler(
 			const ignoreAnalytics =
 				interaction.commandName === 'koxik' && subcommand === 'analytics';
 
-			// Log usage
+			// Log usage — non-blocking, pushed to next event loop tick
 			if (!ignoreAnalytics) {
-				(async () => {
+				const cmdName = interaction.commandName;
+				const sub = subcommand ?? '__name__';
+				setImmediate(async () => {
 					try {
 						const date = new Date();
 						date.setHours(0, 0, 0, 0);
@@ -161,8 +163,8 @@ export function setupInteractionHandler(
 							.insert(commandStat)
 							.values({
 								date: date.toISOString(),
-								command: interaction.commandName,
-								subcommand: subcommand ?? '__name__',
+								command: cmdName,
+								subcommand: sub,
 								count: 1,
 							})
 							.onConflictDoUpdate({
@@ -176,7 +178,7 @@ export function setupInteractionHandler(
 					} catch (err) {
 						logger.error('Failed to log command usage:', err);
 					}
-				})();
+				});
 			}
 
 			// Safe execution

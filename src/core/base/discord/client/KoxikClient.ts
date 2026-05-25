@@ -25,7 +25,7 @@ import {
 import { registerResponder } from './bot/registry.js';
 import { syncCommands } from './bot/sync.js';
 
-import type { BotOptions, Command, Event, RegisterType } from './bot/types.js';
+import type { BotOptions, Command, Event, MapClientArgs, RegisterType } from './bot/types.js';
 
 import {
 	getShardData,
@@ -90,7 +90,7 @@ export function createBot(options: BotOptions) {
 	);
 
 	if (shardId !== undefined && shardCount !== undefined) {
-		(client as Record<string, unknown>).shard = {
+		(client as unknown as Record<string, unknown>).shard = {
 			ids: [shardId],
 			count: shardCount,
 			broadcastEval: async (fn: (c: Client) => unknown) => [await fn(client)],
@@ -108,7 +108,8 @@ export function createBot(options: BotOptions) {
 
 		registeredEvents.add(event.name);
 
-		const handler = (...args: ClientEvents[T]) => event.run(...args);
+		const handler = (...args: ClientEvents[T]) =>
+			event.run(...(args as unknown as MapClientArgs<ClientEvents[T]>));
 
 		event.once
 			? client.once(event.event, handler)
@@ -136,6 +137,12 @@ export function createBot(options: BotOptions) {
 			}
 
 			await syncCommands(client, commands, options);
+		}
+	});
+
+	process.on('message', (msg: any) => {
+		if (msg?.type === 'TOTAL_GUILD_COUNT' && typeof msg.count === 'number') {
+			client.setCustomVariable('totalGuildCount', msg.count);
 		}
 	});
 
