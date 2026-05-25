@@ -5,6 +5,7 @@ import { checkEndedGiveaways } from '@app/discord/commands/moderation/giveaway.j
 const CHECK_INTERVAL_MS = 30_000;
 
 export async function startGiveawayWorker(client: KoxikClient) {
+	console.log('[GIVEAWAY WORKER] Starting giveaway worker...');
 	logger.info('Starting giveaway worker...');
 
 	await checkEndedGiveaways(client);
@@ -13,12 +14,14 @@ export async function startGiveawayWorker(client: KoxikClient) {
 		try {
 			await checkEndedGiveaways(client);
 		} catch (error) {
+			console.error('[GIVEAWAY WORKER] Error in interval:', error);
 			logger.error('Error in giveaway worker:', error);
 		}
 	}, CHECK_INTERVAL_MS);
 
 	return () => {
 		clearInterval(interval);
+		console.log('[GIVEAWAY WORKER] Stopping giveaway worker...');
 		logger.info('Stopping giveaway worker...');
 	};
 }

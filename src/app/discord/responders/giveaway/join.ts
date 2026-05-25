@@ -8,40 +8,44 @@ import {
 
 registerResponder(
 	createResponder({
-		customId: 'giveaway_join_*',
+		customId: 'giveaway/join/{giveawayId}',
 		type: 'button',
-		run: async ({ interaction, res }) => {
-			await handleGiveawayJoinButton(interaction, res);
+		run: async ({ interaction, useParams, res }) => {
+			const { giveawayId } = useParams();
+			await handleGiveawayJoinButton(interaction, giveawayId, res);
 		},
 	}),
 );
 
 registerResponder(
 	createResponder({
-		customId: 'giveaway_manage_*',
+		customId: 'giveaway/manage/{giveawayId}',
 		type: 'button',
-		run: async ({ interaction, res }) => {
-			await handleGiveawayManageButton(interaction, res);
+		run: async ({ interaction, useParams, res }) => {
+			const { giveawayId } = useParams();
+			await handleGiveawayManageButton(interaction, giveawayId, res);
 		},
 	}),
 );
 
 registerResponder(
 	createResponder({
-		customId: 'giveaway_end_*',
+		customId: 'giveaway/end/{giveawayId}',
 		type: 'button',
-		run: async ({ interaction, res }) => {
-			await handleGiveawayEndButton(interaction, res);
+		run: async ({ interaction, useParams, res }) => {
+			const { giveawayId } = useParams();
+			await handleGiveawayEndButton(interaction, giveawayId, res);
 		},
 	}),
 );
 
 registerResponder(
 	createResponder({
-		customId: 'giveaway_reroll_*',
+		customId: 'giveaway/reroll/{giveawayId}',
 		type: 'button',
-		run: async ({ interaction, res }) => {
-			await handleGiveawayRerollButton(interaction, res);
+		run: async ({ interaction, useParams, res }) => {
+			const { giveawayId } = useParams();
+			await handleGiveawayRerollButton(interaction, giveawayId, res);
 		},
 	}),
 );

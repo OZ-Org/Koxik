@@ -12,7 +12,36 @@ const blacklistCache = new Map<
 	string,
 	{ data: { targetId: string; type: string }[]; expiresAt: number }
 >();
-const BLACKLIST_CACHE_TTL = 60000;
+const BLACKLIST_CACHE_TTL = 120000;
+
+let blacklistLoaded = false;
+let blacklistPromise: Promise<void> | null = null;
+
+async function preloadBlacklist(): Promise<void> {
+	if (blacklistLoaded) return;
+	if (blacklistPromise) return blacklistPromise;
+
+	blacklistPromise = (async () => {
+		try {
+			const result = await db.select().from(blacklist);
+			blacklistCache.set('global_blacklist', {
+				data: result,
+				expiresAt: Date.now() + BLACKLIST_CACHE_TTL,
+			});
+			blacklistLoaded = true;
+		} catch (error) {
+			logger.error('Failed to preload blacklist:', error);
+		} finally {
+			blacklistPromise = null;
+		}
+	})();
+
+	return blacklistPromise;
+}
+
+export async function preloadBlacklistCache(): Promise<void> {
+	await preloadBlacklist();
+}
 
 export interface MiddlewareContext {
 	client: KoxikClient;
@@ -36,25 +65,14 @@ export class BlacklistMiddleware extends CommandMiddleware {
 	name = 'blacklist';
 	priority = 100;
 
-	private async getBlacklist(): Promise<{ targetId: string; type: string }[]> {
-		const cacheKey = 'global_blacklist';
-		const cached = blacklistCache.get(cacheKey);
-
-		if (cached && Date.now() < cached.expiresAt) {
-			return cached.data;
-		}
-
-		const result = await db.select().from(blacklist);
-		blacklistCache.set(cacheKey, {
-			data: result,
-			expiresAt: Date.now() + BLACKLIST_CACHE_TTL,
-		});
-		return result;
-	}
-
 	async execute(context: MiddlewareContext): Promise<MiddlewareResult> {
 		try {
-			const allBlacklist = await this.getBlacklist();
+			const cached = blacklistCache.get('global_blacklist');
+			if (!cached || Date.now() >= cached.expiresAt) {
+				await preloadBlacklist();
+			}
+
+			const allBlacklist = blacklistCache.get('global_blacklist')?.data ?? [];
 			const userId = context.interaction.user.id;
 			const guildId = context.interaction.guildId;
 

@@ -2,6 +2,7 @@ import { createCommand } from '@base';
 import { replyLang } from '@fx/utils/replyLang.js';
 import { createRow } from '@magicyan/discord';
 import { emotes } from '@misc/emotes.js';
+import { logger } from '@fx/utils/logger.js';
 import {
 	ButtonBuilder,
 	type ButtonInteraction,
@@ -10,6 +11,7 @@ import {
 	type Locale,
 	PermissionFlagsBits,
 	SlashCommandBuilder,
+	type TextBasedChannel,
 } from 'discord.js';
 import {
 	createConfirmationEmbed,
@@ -103,6 +105,19 @@ export default createCommand({
 				})
 				.setMinValue(1)
 				.setMaxValue(10),
+		)
+		.addChannelOption((opt) =>
+			opt
+				.setName('channel')
+				.setNameLocalizations({
+					'pt-BR': 'canal',
+					'es-ES': 'canal',
+				})
+				.setDescription('Channel to post the giveaway in (optional)')
+				.setDescriptionLocalizations({
+					'pt-BR': 'Canal para postar o sorteio (opcional)',
+					'es-ES': 'Canal para publicar el sorteo (opcional)',
+				}),
 		),
 
 	run: async ({ client, interaction, res }) => {
@@ -123,7 +138,7 @@ export default createCommand({
 			interaction.guild.members.cache.get(client.solid.user.id) ??
 			(await interaction.guild.members.fetch(client.solid.user.id));
 
-		if (!me.permissions.has(PermissionFlagsBits.ManageGuild)) {
+		if (!me.permissions.has(PermissionFlagsBits.ManageMessages)) {
 			const embed = createErrorEmbed(
 				locale,
 				'Error',
@@ -147,6 +162,9 @@ export default createCommand({
 		const prize = interaction.options.getString('prize', true);
 		const durationStr = interaction.options.getString('duration', true);
 		const winnersCount = interaction.options.getInteger('winners') ?? 1;
+		const targetChannel = interaction.options.getChannel(
+			'channel',
+		) as TextBasedChannel | null;
 
 		const durationMs = parseDuration(durationStr);
 		if (durationMs <= 0) {
@@ -161,10 +179,12 @@ export default createCommand({
 		const endTime = Date.now() + durationMs;
 		const giveawayId = `giveaway:${interaction.guild.id}:${Date.now()}`;
 
+		const channelId = targetChannel?.id ?? interaction.channelId;
+
 		await redis.hset(giveawayId, {
 			prize,
 			guildId: interaction.guild.id,
-			channelId: interaction.channelId,
+			channelId,
 			messageId: '',
 			endTime: endTime.toString(),
 			winnersCount: winnersCount.toString(),
@@ -188,7 +208,7 @@ export default createCommand({
 
 		const joinRow = createRow(
 			new ButtonBuilder()
-				.setCustomId(`giveaway_join_${giveawayId}`)
+				.setCustomId(`giveaway/join/${giveawayId}`)
 				.setLabel(t(locale, 'giveaway#responses#join_button'))
 				.setStyle(ButtonStyle.Success)
 				.setEmoji(emotes.utils.checkmark || '🎉'),
@@ -196,34 +216,50 @@ export default createCommand({
 
 		const manageRow = createRow(
 			new ButtonBuilder()
-				.setCustomId(`giveaway_manage_${giveawayId}`)
+				.setCustomId(`giveaway/manage/${giveawayId}`)
 				.setLabel('Manage')
 				.setStyle(ButtonStyle.Secondary)
 				.setEmoji('⚙️'),
 		);
 
-		res.raw({
+		const channel = targetChannel
+			? ((await client.channels.fetch(channelId)) as TextBasedChannel)
+			: interaction.channel;
+
+		if (!channel || !('send' in channel)) {
+			const embed = createErrorEmbed(
+				locale,
+				'Error',
+				'Could not access the target channel.',
+			);
+			return res.ephemeral().raw({ embeds: [embed] });
+		}
+
+		const message = await channel.send({
 			embeds: [embed],
 			components: [joinRow, manageRow],
 		});
 
-		const message = await interaction.fetchReply();
-
 		await redis.hset(giveawayId, 'messageId', message.id);
+		await redis.expire(giveawayId, Math.ceil((durationMs + 3600_000) / 1000));
+
+		if (targetChannel) {
+			const confirmEmbed = createSuccessEmbed(
+				'Giveaway Created',
+				`Giveaway posted in ${targetChannel}`,
+			);
+			res.ephemeral().raw({ embeds: [confirmEmbed] });
+		}
 	},
 });
 
 export async function handleGiveawayJoinButton(
 	interaction: ButtonInteraction,
+	giveawayId: string,
 	res: any,
 ) {
 	const locale: Locale = interaction.locale;
 	const t = replyLang;
-	const customId = interaction.customId;
-
-	if (!customId.startsWith('giveaway_join_')) return;
-
-	const giveawayId = customId.replace('giveaway_join_', '');
 	const giveawayData = await redis.hgetall(giveawayId);
 
 	if (!giveawayData || Object.keys(giveawayData).length === 0) {
@@ -281,14 +317,11 @@ export async function handleGiveawayJoinButton(
 
 export async function handleGiveawayManageButton(
 	interaction: ButtonInteraction,
+	giveawayId: string,
 	res: any,
 ) {
 	const locale: Locale = interaction.locale;
 	const t = replyLang;
-	const customId = interaction.customId;
-
-	if (!customId.startsWith('giveaway_manage_')) return;
-
 	const executor = interaction.member as GuildMember;
 	if (
 		!executor.permissions.has(PermissionFlagsBits.ManageGuild) &&
@@ -302,7 +335,6 @@ export async function handleGiveawayManageButton(
 		return res.ephemeral().raw({ embeds: [embed] });
 	}
 
-	const giveawayId = customId.replace('giveaway_manage_', '');
 	const giveawayData = await redis.hgetall(giveawayId);
 
 	if (!giveawayData || Object.keys(giveawayData).length === 0) {
@@ -316,12 +348,12 @@ export async function handleGiveawayManageButton(
 
 	const manageRow = createRow(
 		new ButtonBuilder()
-			.setCustomId(`giveaway_end_${giveawayId}`)
+			.setCustomId(`giveaway/end/${giveawayId}`)
 			.setLabel('End Now')
 			.setStyle(ButtonStyle.Danger)
 			.setEmoji('⏹️'),
 		new ButtonBuilder()
-			.setCustomId(`giveaway_reroll_${giveawayId}`)
+			.setCustomId(`giveaway/reroll/${giveawayId}`)
 			.setLabel('Reroll')
 			.setStyle(ButtonStyle.Primary)
 			.setEmoji('🔄'),
@@ -344,14 +376,11 @@ export async function handleGiveawayManageButton(
 
 export async function handleGiveawayEndButton(
 	interaction: ButtonInteraction,
+	giveawayId: string,
 	res: any,
 ) {
 	const locale: Locale = interaction.locale;
 	const t = replyLang;
-	const customId = interaction.customId;
-
-	if (!customId.startsWith('giveaway_end_')) return;
-
 	const executor = interaction.member as GuildMember;
 	if (
 		!executor.permissions.has(PermissionFlagsBits.ManageGuild) &&
@@ -365,10 +394,9 @@ export async function handleGiveawayEndButton(
 		return res.ephemeral().raw({ embeds: [embed] });
 	}
 
-	const giveawayId = customId.replace('giveaway_end_', '');
 	const giveawayData = await redis.hgetall(giveawayId);
 
-	if (!giveawayData) return;
+	if (!giveawayData || Object.keys(giveawayData).length === 0) return;
 
 	await processGiveawayEnd(
 		giveawayId,
@@ -376,7 +404,6 @@ export async function handleGiveawayEndButton(
 		interaction.client,
 		locale,
 	);
-	await redis.del(giveawayId);
 
 	const embed = createSuccessEmbed(
 		'Giveaway Ended',
@@ -387,14 +414,11 @@ export async function handleGiveawayEndButton(
 
 export async function handleGiveawayRerollButton(
 	interaction: ButtonInteraction,
+	giveawayId: string,
 	res: any,
 ) {
 	const locale: Locale = interaction.locale;
 	const t = replyLang;
-	const customId = interaction.customId;
-
-	if (!customId.startsWith('giveaway_reroll_')) return;
-
 	const executor = interaction.member as GuildMember;
 	if (
 		!executor.permissions.has(PermissionFlagsBits.ManageGuild) &&
@@ -408,10 +432,16 @@ export async function handleGiveawayRerollButton(
 		return res.ephemeral().raw({ embeds: [embed] });
 	}
 
-	const giveawayId = customId.replace('giveaway_reroll_', '');
 	const giveawayData = await redis.hgetall(giveawayId);
 
-	if (!giveawayData) return;
+	if (!giveawayData || Object.keys(giveawayData).length === 0) {
+		const embed = createErrorEmbed(
+			locale,
+			'Error',
+			'Giveaway no longer exists.',
+		);
+		return res.ephemeral().raw({ embeds: [embed] });
+	}
 
 	const participants = JSON.parse(giveawayData.participants || '[]');
 	if (participants.length === 0) {
@@ -423,18 +453,56 @@ export async function handleGiveawayRerollButton(
 		return res.ephemeral().raw({ embeds: [embed] });
 	}
 
-	const randomIndex = Math.floor(Math.random() * participants.length);
-	const winner = participants[randomIndex];
+	const winnersCount = parseInt(giveawayData.winnersCount, 10);
+	const winners: string[] = [];
+	const participantsCopy = [...participants];
 
-	const channel = await interaction.channel?.fetch();
+	for (let i = 0; i < Math.min(winnersCount, participantsCopy.length); i++) {
+		const randomIndex = Math.floor(Math.random() * participantsCopy.length);
+		winners.push(participantsCopy.splice(randomIndex, 1)[0]);
+	}
+
+	await redis.expire(giveawayId, 3600);
+
+	const channel = await interaction.client.channels
+		.fetch(giveawayData.channelId)
+		.catch(() => null);
+
+	if (channel && 'send' in channel && giveawayData.messageId) {
+		const messages = await (channel as any).messages
+			.fetch({ limit: 100 })
+			.catch(() => null);
+		const originalMessage = messages?.get(giveawayData.messageId);
+
+		if (originalMessage) {
+			const rerollRow = createRow(
+				new ButtonBuilder()
+					.setCustomId(`giveaway/reroll/${giveawayId}`)
+					.setLabel('Reroll')
+					.setStyle(ButtonStyle.Primary)
+					.setEmoji('🔄'),
+			);
+
+			await originalMessage
+				.edit({
+					components: [rerollRow],
+				})
+				.catch(() => {});
+		}
+	}
+
+	const rerollEmbed = createSuccessEmbed(
+		'🔄 Reroll',
+		`New winner(s) for **${giveawayData.prize}**:\n${winners.map((w) => `<@${w}>`).join('\n')}`,
+	);
+
 	if (channel && 'send' in channel) {
-		const embed = createSuccessEmbed('🔄 Reroll', `New winner: <@${winner}>`);
-		await (channel as any).send({ embeds: [embed] });
+		await channel.send({ embeds: [rerollEmbed] }).catch(() => {});
 	}
 
 	const embed = createSuccessEmbed(
 		'Reroll Complete',
-		`New winner: <@${winner}>`,
+		`New winner(s): ${winners.map((w) => `<@${w}>`).join(', ')}`,
 	);
 	await res.ephemeral().raw({ embeds: [embed] });
 }
@@ -444,6 +512,8 @@ export async function checkEndedGiveaways(client: any) {
 		const now = Date.now();
 		const keys = await redis.keys('giveaway:*');
 
+		if (keys.length === 0) return;
+
 		for (const key of keys) {
 			const giveawayData = await redis.hgetall(key);
 
@@ -451,69 +521,115 @@ export async function checkEndedGiveaways(client: any) {
 				continue;
 			}
 
-			if (giveawayData.status !== 'active') continue;
+			if (giveawayData.status !== 'active') {
+				continue;
+			}
 
 			const endTime = parseInt(giveawayData.endTime, 10);
 			if (now > endTime) {
 				await processGiveawayEnd(key, giveawayData, client, 'en-US' as Locale);
-				await redis.del(key);
 			}
 		}
 	} catch (error) {
-		console.error('Error in checkEndedGiveaways worker:', error);
+		logger.error('Error in checkEndedGiveaways worker:', error);
 	}
 }
 
 async function processGiveawayEnd(
-	_giveawayId: string,
+	giveawayId: string,
 	giveawayData: any,
 	client: any,
-	locale: Locale,
+	_locale: Locale,
 ) {
-	try {
-		const prize = giveawayData.prize;
-		const winnersCount = parseInt(giveawayData.winnersCount, 10);
-		const channelId = giveawayData.channelId;
+	const prize = giveawayData.prize;
+	const winnersCount = parseInt(giveawayData.winnersCount, 10);
+	const channelId = giveawayData.channelId;
+	const messageId = giveawayData.messageId;
+	const participants = JSON.parse(giveawayData.participants || '[]');
 
-		const participants = JSON.parse(giveawayData.participants || '[]');
+	await redis.hset(giveawayId, 'status', 'ended');
+	await redis.expire(giveawayId, 3600);
 
-		await redis.hset(_giveawayId, 'status', 'ended');
-
-		if (participants.length === 0) {
-			const channel = await client.channels.fetch(channelId);
-			if (channel?.isTextBased()) {
-				const embed = createErrorEmbed(
-					locale,
-					'Giveaway Ended',
-					`No one participated in the giveaway for **${prize}**.`,
-				);
-				await channel.send({ embeds: [embed] });
-			}
-			return;
-		}
-
-		const winners: string[] = [];
-		const participantsCopy = [...participants];
-
-		for (let i = 0; i < Math.min(winnersCount, participantsCopy.length); i++) {
-			const randomIndex = Math.floor(Math.random() * participantsCopy.length);
-			winners.push(participantsCopy.splice(randomIndex, 1)[0]);
-		}
-
-		const channel = await client.channels.fetch(channelId);
-		if (channel?.isTextBased()) {
-			const embed = createSuccessEmbed(
-				'🎉 Giveaway Ended',
-				`Congratulations! The winner(s) of **${prize}** are:\n${winners.map((w) => `<@${w}>`).join('\n')}`,
-			);
-
-			try {
-				await channel.send({ embeds: [embed] });
-			} catch (error) {
-				console.error('Failed to send giveaway end message:', error);
-			}
-		}
-	} catch (error) {
-		console.error('Error processing giveaway end:', error);
+	const channel = await client.channels.fetch(channelId).catch((err: Error) => {
+		logger.error(`Failed to fetch channel ${channelId}:`, err);
+		return null;
+	});
+	if (!channel || !('send' in channel)) {
+		logger.warn(`Giveaway ${giveawayId}: channel ${channelId} not accessible`);
+		return;
 	}
+
+	if (!messageId) {
+		logger.warn(`Giveaway ${giveawayId}: no messageId found`);
+		return;
+	}
+
+	const messages = await (channel as any).messages
+		.fetch({ limit: 100 })
+		.catch((err: Error) => {
+			logger.error(`Failed to fetch messages in ${channelId}:`, err);
+			return null;
+		});
+	const originalMessage = messages?.get(messageId);
+
+	if (!originalMessage) {
+		logger.warn(
+			`Giveaway ${giveawayId}: original message ${messageId} not found in channel`,
+		);
+		return;
+	}
+
+	const rerollRow = createRow(
+		new ButtonBuilder()
+			.setCustomId(`giveaway/reroll/${giveawayId}`)
+			.setLabel('Reroll')
+			.setStyle(ButtonStyle.Primary)
+			.setEmoji('🔄'),
+	);
+
+	await originalMessage
+		.edit({
+			components: [rerollRow],
+		})
+		.catch((err: Error) => {
+			logger.error(`Failed to edit giveaway message for ${giveawayId}:`, err);
+		});
+
+	if (participants.length === 0) {
+		const noPartEmbed = createErrorEmbed(
+			_locale,
+			'Giveaway Ended',
+			`No one participated in the giveaway for **${prize}**.`,
+		);
+		await channel
+			.send({ embeds: [noPartEmbed] })
+			.catch((err: Error) => {
+				logger.error(
+					`Failed to send no-participants message for ${giveawayId}:`,
+					err,
+				);
+			});
+		return;
+	}
+
+	const winners: string[] = [];
+	const participantsCopy = [...participants];
+	for (let i = 0; i < Math.min(winnersCount, participantsCopy.length); i++) {
+		const randomIndex = Math.floor(Math.random() * participantsCopy.length);
+		winners.push(participantsCopy.splice(randomIndex, 1)[0]);
+	}
+
+	const winnerEmbed = createSuccessEmbed(
+		'🎉 Giveaway Ended',
+		`Congratulations! The winner(s) of **${prize}** are:\n${winners.map((w) => `<@${w}>`).join('\n')}`,
+	);
+
+	await channel
+		.send({ embeds: [winnerEmbed] })
+		.catch((err: Error) => {
+			logger.error(
+				`Failed to send winner announcement for ${giveawayId}:`,
+				err,
+			);
+		});
 }

@@ -6,34 +6,49 @@ import type { ShardingConfig } from './types.js';
 let _isShardManager = false;
 const children: ChildProcess[] = [];
 const guildCounts = new Map<number, number>();
+let topGgApi: Api | null = null;
+let topGgTotalShards = 0;
 
 export function isShardManager(): boolean {
 	return _isShardManager;
+}
+
+function postToTopGg() {
+	if (!topGgApi) return;
+
+	let total = 0;
+	for (const count of guildCounts.values()) {
+		total += count;
+	}
+	if (total === 0) return;
+
+	topGgApi
+		.postStats({ serverCount: total, shardCount: topGgTotalShards })
+		.then(() => console.log('[Koxik] Posted stats on top.gg!'))
+		.catch((err) => console.error('[Koxik] Top.GG post failed:', err));
 }
 
 function startTopGGPosting(totalShards: number) {
 	const token = process.env.TOPGG_TOKEN;
 	if (!token) return;
 
-	const api = new Api(token);
+	topGgApi = new Api(token);
+	topGgTotalShards = totalShards;
 
-	const post = () => {
-		let total = 0;
+	postToTopGg();
+	setInterval(postToTopGg, 30 * 60 * 1000);
+}
 
-		for (const count of guildCounts.values()) {
-			total += count;
-		}
+function broadcastTotalGuildCount() {
+	let total = 0;
+	for (const count of guildCounts.values()) {
+		total += count;
+	}
+	if (total === 0) return;
 
-		if (total === 0) return;
-
-		api
-			.postStats({ serverCount: total, shardCount: totalShards })
-			.then(() => console.log('[Koxik] Posted stats on top.gg!'))
-			.catch((err) => console.error('[Koxik] Top.GG post failed:', err));
-	};
-
-	setTimeout(post, 10 * 60 * 1000);
-	setInterval(post, 30 * 60 * 1000);
+	for (const child of children) {
+		child.send?.({ type: 'TOTAL_GUILD_COUNT', count: total });
+	}
 }
 
 export function setupSharding() {
@@ -81,15 +96,17 @@ export function setupSharding() {
 					break;
 				}
 
-				case 'GUILD_COUNT': {
-					if (
-						typeof msg.shardId === 'number' &&
-						typeof msg.count === 'number'
-					) {
-						guildCounts.set(msg.shardId, msg.count);
-					}
-					break;
+			case 'GUILD_COUNT': {
+				if (
+					typeof msg.shardId === 'number' &&
+					typeof msg.count === 'number'
+				) {
+					guildCounts.set(msg.shardId, msg.count);
+					broadcastTotalGuildCount();
+					postToTopGg();
 				}
+				break;
+			}
 			}
 		});
 	}
