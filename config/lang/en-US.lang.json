@@ -674,5 +674,12 @@
 		"title": "%emoji% Peridot answers!",
 		"question": "Question",
 		"answer": "Answer"
+	},
+	"miraculous": {
+		"title": "✨ You would receive the %miraculousName% Miraculous!",
+ 		"symbol": "Symbol",
+		"kwami": "Kwami",
+		"holder": "Holder",
+		"footer": "The kwamis have decided your destiny."
 	}
 }
