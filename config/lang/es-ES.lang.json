@@ -662,12 +662,19 @@
 				"joined_title": "Draw In!",
 				"joined_description": "Ingresaste con éxito el sorteo de **%prize%**! ¡Buena suerte!",
 				"join_button": "Get in the Draw"
-			}
+			}	
 		},
 		"peridot": {
 			"title": "%emoji% ¡Peridot responde!",
 			"question": "Pregunta",
 			"answer": "Respuesta"
+		},
+		"miraculous": {
+				"title": "✨ ¡Recibirías el Miraculous de %miraculousName%!",
+				"symbol": "Simbología",
+				"kwami": "Kwami",
+				"holder": "Portador",
+				"footer": "Los kwamis decidieron tu destino."
 		}
 	}
 }
