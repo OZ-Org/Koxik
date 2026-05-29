@@ -49,10 +49,14 @@ export async function getUserFullData(
 			return null;
 		}
 
+		const transactions = Array.isArray(user.transactions)
+			? user.transactions
+			: [];
+
 		return {
 			balance: user.balance,
 			bank: user.bank ?? 0,
-			transactions: (user.transactions as Transaction[]) || [],
+			transactions,
 		};
 	} catch (error) {
 		console.error('[getUserFullData] Error:', error);
@@ -168,7 +172,16 @@ export async function claimDaily(
 		}
 	}
 
-	const transactions = (user.transactions as Transaction[]) || [];
+	// Robust fallback for transactions with validation
+	let transactions: Transaction[] = [];
+	if (Array.isArray(user.transactions)) {
+		transactions = user.transactions;
+	} else if (user.transactions === null || user.transactions === undefined) {
+		transactions = [];
+	} else {
+		// Invalid transactions format - fallback to empty array
+		transactions = [];
+	}
 
 	const dailyTransactions = transactions
 		.filter((t) => t.type === 'daily')

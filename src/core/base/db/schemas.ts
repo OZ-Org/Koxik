@@ -88,7 +88,10 @@ export const user = pgTable(
 		lastDaily: timestamp({ precision: 3, mode: 'string' }),
 		datingWith: text('datingWith'),
 		marriedWith: text('marriedWith'),
-		transactions: jsonb().$type<Transaction[]>(),
+		transactions: jsonb()
+			.$type<Transaction[]>()
+			.notNull()
+			.default(sql`'[]'::jsonb`),
 	},
 	(table) => [
 		uniqueIndex('User_discord_id_key').using(

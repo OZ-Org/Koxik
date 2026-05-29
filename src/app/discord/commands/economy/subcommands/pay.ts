@@ -299,6 +299,7 @@ export const paySubCommand = createSubCommand({
 							err.message,
 						);
 						await i.update({ embeds: [errorEmbed], components: [] });
+						throw err;
 					}
 					collector.stop('done');
 				} else if (i.customId === 'decline/pay') {
@@ -348,6 +349,7 @@ export const paySubCommand = createSubCommand({
 				error.message || replyLang(interaction.locale, 'eco#error#generic'),
 			);
 			await interaction.editReply({ embeds: [embed] });
+			throw error;
 		}
 	},
 });

@@ -3,6 +3,7 @@ import { type ConfigsData, user } from '@schemas';
 import type {
 	BackpackItem,
 	BackpackType,
+	MiningResources,
 	Transaction,
 } from 'app/shared/types.js';
 import { eq, sql } from 'drizzle-orm';
@@ -29,7 +30,7 @@ export class UserController {
 					transactions: [],
 					achievements: [],
 					badges: [],
-					miningResources: {},
+					miningResources: {} as MiningResources,
 				})
 				.returning();
 		}
@@ -59,12 +60,32 @@ export class UserController {
 	 * @param discordId The user's Discord ID
 	 */
 	static async create(discordId: string) {
-		if (await UserController.exists(discordId)) {
-			return { success: false, alreadyExists: true };
-		}
+		try {
+			const result = await db
+				.insert(user)
+				.values({
+					discordId,
+					balance: 0,
+					level: 1,
+					xp: 0,
+					backpack: [],
+					transactions: [],
+					achievements: [],
+					badges: [],
+					miningResources: {} as MiningResources,
+				})
+				.onConflictDoNothing({ target: user.discordId })
+				.returning();
 
-		const newUser = await UserController.get(discordId); // get() creates if not exists
-		return { success: true, user: newUser };
+			if (result.length === 0) {
+				return { success: false, alreadyExists: true };
+			}
+
+			return { success: true, user: result[0] };
+		} catch (error) {
+			console.error('[UserController.create] Error:', error);
+			return { success: false, alreadyExists: false };
+		}
 	}
 
 	/**

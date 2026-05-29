@@ -99,6 +99,7 @@ export const balanceSubCommand = createSubCommand({
 				replyLang(interaction.locale, 'eco#error#generic'),
 			);
 			await interaction.editReply({ embeds: [embed] });
+			throw error;
 		}
 	},
 });

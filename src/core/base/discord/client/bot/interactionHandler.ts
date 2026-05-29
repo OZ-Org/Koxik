@@ -73,24 +73,20 @@ async function safeExecuteCommand(
 		logger.error(`Error in command → ${interaction.commandName}`, err);
 
 		try {
+			// Only send error response if the command hasn't already responded
 			if (!interaction.replied && !interaction.deferred) {
 				await interaction.reply({
 					content:
 						'❌ Ocorreu um erro ao executar este comando. Tente novamente.',
 					flags: ['Ephemeral'],
 				});
-			} else if (interaction.deferred) {
+			} else if (interaction.deferred && !interaction.replied) {
 				await interaction.editReply({
 					content:
 						'❌ Ocorreu um erro ao executar este comando. Tente novamente.',
 				});
-			} else {
-				await interaction.followUp({
-					content:
-						'❌ Ocorreu um erro ao executar este comando. Tente novamente.',
-					flags: ['Ephemeral'],
-				});
 			}
+			// If already replied, don't send another response (command handled it)
 		} catch (replyErr) {
 			logger.error('Failed to send error reply to user:', replyErr);
 		}
