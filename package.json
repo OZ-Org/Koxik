@@ -57,7 +57,7 @@
 		"drizzle-orm": "^0.45.0",
 		"ioredis": "^5.10.1",
 		"pg": "^8.20.0",
-		"pm2": "^6.0.14",
+		"pm2": "^7.0.0",
 		"starlightskinapi": "^1.0.10",
 		"table": "^6.9.0",
 		"topgg-autoposter": "^2.0.2",
