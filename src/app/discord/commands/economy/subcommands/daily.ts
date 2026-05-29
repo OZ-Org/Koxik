@@ -95,6 +95,7 @@ export const dailySubCommand = createSubCommand({
 				);
 
 				await interaction.editReply({ embeds: [embed] });
+				throw error;
 			}
 		}
 	},

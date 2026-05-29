@@ -32,4 +32,21 @@ export function initSentry(): boolean {
 	return true;
 }
 
+/**
+ * Capture error with context information
+ * @param error The error to capture
+ * @param context Additional context to attach to the error
+ */
+export function captureError(
+	error: unknown,
+	context?: Record<string, unknown>,
+): void {
+	Sentry.withScope((scope) => {
+		if (context) {
+			scope.setContext('error_context', context);
+		}
+		Sentry.captureException(error);
+	});
+}
+
 export { Sentry };

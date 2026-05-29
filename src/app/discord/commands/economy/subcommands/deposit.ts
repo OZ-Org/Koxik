@@ -72,6 +72,7 @@ export const depositSubCommand = createSubCommand({
 				error.message,
 			);
 			await interaction.editReply({ embeds: [embed] });
+			throw error;
 		}
 	},
 });
