@@ -185,7 +185,11 @@ export class UserController {
 	 */
 	static async addTransaction(discordId: string, transaction: Transaction) {
 		const userData = await UserController.get(discordId);
-		const currentTransactions = (userData.transactions as Transaction[]) || [];
+		let currentTransactions: Transaction[] = [];
+
+		if (Array.isArray(userData.transactions)) {
+			currentTransactions = userData.transactions;
+		}
 
 		const [updatedUser] = await db
 			.update(user)
