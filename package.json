@@ -46,7 +46,7 @@
 	],
 	"dependencies": {
 		"@magicyan/discord": "^1.7.3",
-		"@napi-rs/canvas": "^0.1.99",
+		"@napi-rs/canvas": "^1.0.0",
 		"@sentry/bun": "^10.53.1",
 		"@top-gg/sdk": "^3.1.6",
 		"@vladfrangu/async_event_emitter": "^2.4.7",
