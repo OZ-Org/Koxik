@@ -40,7 +40,7 @@ export default createSubCommand({
 		await res.ephemeral().defer();
 
 		const discordId = interaction.user.id;
-		const texto = interaction.options.getString('texto', true);
+		const texto = interaction.options.getString('text', true);
 
 		const updatedUser = await UserController.updateConfigs(discordId, {
 			aboutme: texto,
