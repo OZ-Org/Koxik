@@ -1,152 +1,512 @@
 # CLAUDE.md
 
-<objective>
-Define a deterministic operational contract for Claude Code agent, eliminating ambiguity and ensuring consistent, secure, and predictable repository modifications.
-</objective>
+## About The Project
 
-<scope>
-Applies exclusively to Claude Code agent (claude.ai/code)
-All actions MUST adhere to this document.
-</scope>
+Koxik is a scalable Discord bot built using:
 
-<context>
-<project>Scalable Discord bot</project>
-<runtime>Bun</runtime>
-<language>TypeScript (strict)</language>
-<database>PostgreSQL</database>
-<orm>Drizzle</orm>
-<library>discord.js v14</library>
-</context>
+* Runtime: Bun
+* Language: TypeScript (strict mode)
+* Database: PostgreSQL
+* ORM: Drizzle ORM
+* Discord Library: discord.js v14
 
-<commands>
-<dev>
-<command>bun run dev</command>
-<command>bun run dev:watch</command>
-<command>bun run format</command>
-<command>bun run lint</command>
-</dev>
+The project is designed to support:
 
-<build>
-<command>bun run build</command>
-<command>bun run start</command>
-</build>
+* Large servers
+* Sharding
+* Horizontal scaling
+* Multiple locales
+* Modular commands
 
-<database>
-<command>bun run migrate</command>
-<command>bun run migrate:dev</command>
-<command>bun run push</command>
-<command>bun run push:dev</command>
-<command>bun run generate</command>
-<command>bun run pull</command>
-<command>bun run pull:dev</command>
-</database>
+---
 
-<discord>
-<command>bun run commands:export</command>
-</discord>
-</commands>
+# Primary Objective
 
-<architecture>
-<core_rule>
-Mandatory separation:
-- core/ → infrastructure
-- app/ → domain logic
-</core_rule>
+When modifying code:
 
-<structure>
-<path>src/index.ts</path><forbidden>business logic</forbidden>
-<path>src/core/</path>
-<path>src/core/base/db/</path>
-<path>src/core/base/discord/</path>
-<path>src/core/utils/</path>
-<path>src/app/</path>
-<path>src/app/discord/commands/</path>
-</structure>
+1. Preserve existing architecture.
+2. Reuse existing code whenever possible.
+3. Apply the smallest possible change.
+4. Maintain strict typing.
+5. Follow existing project patterns.
+6. Avoid introducing new patterns unless explicitly requested.
 
-<principles>
-<principle>low coupling</principle>
-<principle>high cohesion</principle>
-<principle>mandatory modularity</principle>
-<principle>event-driven orientation</principle>
-</principles>
-</architecture>
+---
 
-<mandatory_rules>
-<rule type="forbidden">breaking TypeScript strict mode</rule>
-<rule type="forbidden">using `any` without justification</rule>
-<rule type="forbidden">duplicating logic</rule>
-<rule type="forbidden">altering code outside scope</rule>
-<rule type="forbidden">placing logic in index.ts</rule>
-<rule type="required">using aliases (@basedir)</rule>
-<rule type="required">reusing core/utils</rule>
-<rule type="required">maintaining sharding compatibility</rule>
-</mandatory_rules>
+# Architecture
 
-<database>
-<orm>Drizzle required</orm>
-<model>schema-first</model>
-<requirement>migration required for any change</requirement>
-<forbidden>manual database edits</forbidden>
-</database>
+## Core Layer
 
-<decision_tree>
-<step id="1">Receive task</step>
-<step id="2">Check: involves code? → NO → respond in text only → END</step>
-<step id="3">Check: related code exists? → YES → reuse | NO → create in correct location</step>
-<step id="4">Determine type: domain → app/ | infra → core/</step>
-<step id="5">Check: similar logic exists? → YES → reuse | NO → implement</step>
-<step id="6">Check: affects database? → YES → generate migration (mandatory)</step>
-<step id="7">Check: breaks type safety? → YES → fix before proceeding</step>
-<step id="8">Check: impacts architecture? → YES → minimize impact</step>
-<step id="9">Apply minimal necessary change → END</step>
-</decision_tree>
+Location:
 
-<permissions>
-<allowed>
-<action>create files</action>
-<action>edit files</action>
-<action>refactor locally</action>
-</allowed>
-<forbidden>
-<action>delete entire modules without justification</action>
-<action>alter global architecture</action>
-<action>add dependencies unnecessarily</action>
-</forbidden>
-</permissions>
+```text
+src/core/
+```
 
-<operational_limits>
-<limit>changes must be minimal</limit>
-<limit>avoid broad refactoring</limit>
-<limit>maintain consistency with existing code</limit>
-</operational_limits>
+Contains infrastructure code.
 
-<code_patterns>
-<valid>
-<pattern>small functions</pattern>
-<pattern>single responsibility</pattern>
-<pattern>explicit typing</pattern>
-</valid>
-<invalid>
-<pattern>overly large functions</pattern>
-<pattern>duplicated logic</pattern>
-<pattern>unnecessary `any` usage</pattern>
-</invalid>
-</code_patterns>
+Examples:
 
-<quality_criteria>
-<criterion>build completes without errors</criterion>
-<criterion>lint passes without errors</criterion>
-<criterion>code remains readable</criterion>
-<criterion>behavior is predictable</criterion>
-</quality_criteria>
+* Database
+* Discord client
+* Utilities
+* Cache
+* Shared services
+* Framework internals
 
-<fallback>
-<rule>DO NOT assume behavior</rule>
-<rule>DO NOT invent new patterns</rule>
-<rule>prioritize consistency with existing code</rule>
-<rule>request additional context if uncertain</rule>
-</fallback>
+Examples:
 
-<final_objective>
-Execute code modifications deterministically, minimally, and safely — preserving architecture, avoiding side effects, and ensuring complete system consistency.
-</final_objective>
+```text
+src/core/base/
+src/core/base/db/
+src/core/base/discord/
+src/core/utils/
+```
+
+Infrastructure belongs here.
+
+---
+
+## Application Layer
+
+Location:
+
+```text
+src/app/
+```
+
+Contains business logic.
+
+Examples:
+
+* Commands
+* Services
+* Jobs
+* Features
+* Domain logic
+
+Examples:
+
+```text
+src/app/discord/commands/
+src/app/jobs/
+```
+
+Business logic belongs here.
+
+---
+
+## Bootstrap
+
+File:
+
+```text
+src/index.ts
+```
+
+Rules:
+
+* Bootstrapping only.
+* No business logic.
+* No command logic.
+* No feature implementation.
+
+Only initialize systems.
+
+---
+
+# Development Commands
+
+## Development
+
+```bash
+bun run dev
+bun run dev:watch
+bun run lint
+bun run format
+```
+
+## Build
+
+```bash
+bun run build
+bun run start
+```
+
+## Database
+
+```bash
+bun run migrate
+bun run migrate:dev
+
+bun run push
+bun run push:dev
+
+bun run generate
+
+bun run pull
+bun run pull:dev
+```
+
+## Discord
+
+```bash
+bun run commands:export
+```
+
+---
+
+# TypeScript Rules
+
+Required:
+
+* Strict mode compliance.
+* Explicit types when beneficial.
+* Safe narrowing.
+* Proper null handling.
+
+Forbidden:
+
+* any
+* @ts-ignore
+* disabling strict mode
+* unsafe casting
+
+If any is absolutely necessary, explain why.
+
+---
+
+# Import Rules
+
+Prefer aliases.
+
+Use:
+
+```ts
+import { createCommand } from '@base';
+```
+
+Avoid long relative paths when aliases exist.
+
+Example of preferred imports:
+
+```ts
+@base
+@fx
+@app
+@misc
+```
+
+Always follow existing project conventions.
+
+---
+
+# Command System
+
+The project currently contains two command styles.
+
+---
+
+## Legacy Commands
+
+Example:
+
+```ts
+export default createCommand({
+	data: new SlashCommandBuilder(),
+	run: async () => {},
+});
+```
+
+Characteristics:
+
+* Uses SlashCommandBuilder.
+* Older implementation.
+* Exists for compatibility.
+
+Rules:
+
+* Do not migrate automatically.
+* Preserve style when editing.
+* Only modernize when explicitly requested.
+
+---
+
+## Modern Commands
+
+Preferred style:
+
+```ts
+export default createCommand({
+	name: 'backpack',
+	description: 'View your backpack',
+	run: async () => {},
+});
+```
+
+Use this style for new commands.
+
+---
+
+# Command Localization
+
+Before modifying any command, verify whether localizations already exist.
+
+Supported locales:
+
+* en-US
+* pt-BR
+* es-ES
+
+Example:
+
+```ts
+name: 'start',
+
+name_localizations: {
+	'pt-BR': 'começar',
+	'es-ES': 'empezar',
+},
+
+description: 'Start your Minecraft journey!',
+
+description_localizations: {
+	'pt-BR': 'Comece sua jornada Minecraftiana!',
+	'es-ES': '¡Comienza tu viaje en Minecraft!',
+},
+```
+
+Rules:
+
+* Never remove existing translations.
+* Update translations when modifying text.
+* Preserve localization consistency.
+* Suggest translations when absent.
+
+---
+
+# Language System
+
+User-facing text should use the translation system whenever possible.
+
+Preferred:
+
+```ts
+replyLang(
+	interaction.locale,
+	'commands#backpack#title',
+);
+```
+
+Avoid hardcoded user-facing strings when translation keys exist.
+
+Before creating new strings:
+
+1. Check for existing translation keys.
+2. Reuse them whenever possible.
+
+---
+
+# Responses
+
+Preferred patterns:
+
+```ts
+return res.raw({
+	embeds: [embed],
+});
+```
+
+Ephemeral:
+
+```ts
+return res.ephemeral().raw({
+	embeds: [embed],
+});
+```
+
+Follow existing response conventions.
+
+---
+
+# Cooldowns
+
+Commands may define cooldowns.
+
+Example:
+
+```ts
+cooldown: 50,
+```
+
+Rules:
+
+* Preserve existing cooldowns.
+* Add cooldowns when abuse is possible.
+* Do not remove cooldowns without reason.
+
+---
+
+# Permissions
+
+When Discord permissions are required:
+
+```ts
+default_member_permissions: [
+	PermissionsBitField.Flags.ManageGuild,
+],
+```
+
+Prefer metadata permissions instead of runtime permission checks.
+
+---
+
+# Subcommands
+
+Parent command:
+
+```ts
+export default createCommand({
+	name: 'mc',
+	description: 'View minecraft users from java players!',
+	cooldown: 3,
+	baseCommand: true,
+}).addSubCommands([
+	SkinSubCommand,
+]);
+```
+
+Rules:
+
+* Use addSubCommands().
+* Keep subcommands isolated.
+* Preserve existing structure.
+
+---
+
+## Subcommand Directory Structure
+
+Location:
+
+```text
+{category}/subcommands/{command-name}/
+```
+
+Example:
+
+```text
+minecraft/
+├── mc.ts
+└── subcommands/
+    └── mc/
+        ├── skin.ts
+        ├── profile.ts
+```
+
+Always place new subcommands in the correct directory.
+
+---
+
+# Database Rules
+
+Drizzle ORM is mandatory.
+
+Schema-first workflow:
+
+1. Modify schema.
+2. Generate migration.
+3. Commit migration.
+
+Never:
+
+* Edit production database manually.
+* Skip migrations.
+* Introduce another ORM.
+
+---
+
+# Code Quality
+
+Prefer:
+
+* Small functions
+* Explicit naming
+* Single responsibility
+* Existing utilities
+* Existing abstractions
+
+Avoid:
+
+* Large functions
+* Duplicate logic
+* Deep nesting
+* Premature abstractions
+
+Before creating new helpers:
+
+* Search for an existing helper.
+* Reuse if available.
+
+---
+
+# Sharding Compatibility
+
+The bot must remain shard-safe.
+
+Avoid:
+
+* In-memory state dependencies.
+* Single-process assumptions.
+* Global mutable state.
+
+New features must work correctly across multiple shards.
+
+---
+
+# Workflow
+
+Before implementing:
+
+1. Understand the task.
+2. Search for existing implementations.
+3. Reuse existing patterns.
+4. Determine proper layer.
+5. Verify localization requirements.
+6. Verify command permissions.
+7. Verify cooldown requirements.
+8. Verify translation keys.
+9. Verify sharding compatibility.
+10. Apply minimal changes.
+
+---
+
+# Never Do
+
+Never:
+
+* Rewrite unrelated code.
+* Refactor large sections without request.
+* Remove translations.
+* Remove cooldowns without reason.
+* Break strict mode.
+* Introduce duplicate logic.
+* Add dependencies unnecessarily.
+* Change architecture unnecessarily.
+* Move files without justification.
+
+---
+
+# Success Criteria
+
+A task is complete when:
+
+* TypeScript compiles successfully.
+* Existing architecture remains intact.
+* Existing patterns are preserved.
+* Localizations are handled correctly.
+* Sharding compatibility is preserved.
+* Database migrations exist when required.
+* No duplicated logic is introduced.
+* The change is minimal and focused.
+
+If uncertain about any behavior, inspect the surrounding code and follow existing project conventions rather than inventing a new pattern.
