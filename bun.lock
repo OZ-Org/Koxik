@@ -5,7 +5,7 @@
     "": {
       "name": "koxik",
       "dependencies": {
-        "@magicyan/discord": "^1.7.3",
+        "@magicyan/discord": "^1.7.4",
         "@napi-rs/canvas": "^0.1.99",
         "@sentry/bun": "^10.53.1",
         "@top-gg/sdk": "^3.1.6",
@@ -179,7 +179,7 @@
 
     "@magicyan/core": ["@magicyan/core@1.2.0", "", {}, "sha512-07nwfRr1R3ZCsvr6bE+ZSu5ejwtzLRZq60jwFi8WqisM8c0v9rwsdYxOaH7+QaGeWawUf6D2vqrjPbn01c5KcQ=="],
 
-    "@magicyan/discord": ["@magicyan/discord@1.7.3", "", { "dependencies": { "@magicyan/core": "*" }, "peerDependencies": { "discord.js": "^14.26.0" } }, "sha512-dUwesm+Ui6lrhlAIMh26n8KXoKjWjqT8f5MfhWar7UvX9MD04S7axibdfSZBM+abRfpQ5AxHZoIPlKNCg3iMQg=="],
+    "@magicyan/discord": ["@magicyan/discord@1.7.4", "", { "dependencies": { "@magicyan/core": "*" }, "peerDependencies": { "discord.js": "^14.26.0" } }, "sha512-jDnk3t43fhoXrz03gEAed2fSEW0H1/TI89LiuI1LZxYMtRaaWxuXzOhvi7F5n/SOto9fV+WkLcNw5RVdZm4s7w=="],
 
     "@napi-rs/canvas": ["@napi-rs/canvas@0.1.99", "", { "optionalDependencies": { "@napi-rs/canvas-android-arm64": "0.1.99", "@napi-rs/canvas-darwin-arm64": "0.1.99", "@napi-rs/canvas-darwin-x64": "0.1.99", "@napi-rs/canvas-linux-arm-gnueabihf": "0.1.99", "@napi-rs/canvas-linux-arm64-gnu": "0.1.99", "@napi-rs/canvas-linux-arm64-musl": "0.1.99", "@napi-rs/canvas-linux-riscv64-gnu": "0.1.99", "@napi-rs/canvas-linux-x64-gnu": "0.1.99", "@napi-rs/canvas-linux-x64-musl": "0.1.99", "@napi-rs/canvas-win32-arm64-msvc": "0.1.99", "@napi-rs/canvas-win32-x64-msvc": "0.1.99" } }, "sha512-zN4eQlK3eBf7aJBcTHZilpBH3tDekBzPMIWC8r0s94Ecl73XfOyFi4w7yKFMRVUT0lvNQjtOL8YSrwqQj6mZFg=="],
 

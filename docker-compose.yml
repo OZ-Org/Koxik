@@ -10,14 +10,24 @@ services:
     ports:
       - "5432:5432"
 
+  redis:
+    image: redis:8-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+
   koxik-bot:
     build: .
     env_file:
       - .env
     depends_on:
       - postgres
+      - redis
     command: bun --env-file=.env src/index.ts
     restart: unless-stopped
 
 volumes:
   pgdata:
+  redisdata:
