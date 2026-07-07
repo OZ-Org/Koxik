@@ -15,7 +15,6 @@ export default createSubCommand({
 	run: async ({ interaction, client, res }) => {
 		const library = 'discord.js';
 		const RAMUsage = (process.memoryUsage().rss / 1024 / 1024).toFixed(2);
-		const hostedBy = 'GatiHost';
 		const version = '2.0.1';
 		const website = 'https://koxik.ozorg.xyz';
 		const invite =
@@ -69,12 +68,6 @@ export default createSubCommand({
 				.setLabel(replyLang(interaction.locale, 'koxik#info#buttons#support'))
 				.setStyle(ButtonStyle.Link)
 				.setURL(support),
-
-			new ButtonBuilder()
-				.setLabel(replyLang(interaction.locale, 'koxik#info#buttons#hosted'))
-				.setEmoji('<:gatihost:1447718834080321598>')
-				.setStyle(ButtonStyle.Link)
-				.setURL('https://www.gatihost.com.br'),
 		);
 
 		return res.ephemeral().v2([
