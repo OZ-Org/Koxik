@@ -343,7 +343,6 @@
 				"• Biblioteca: **%library%**",
 				"• Memória utilizada: **%ram% MB**",
 				"• Versão: **v%version%**",
-				"• Hospedada na **%host%**",
 				"",
 				"### ⏳ Uptime",
 				"• Estou viva há **<t:%uptime%:R>**",
@@ -355,8 +354,7 @@
 			"buttons": {
 				"website": "🌐 Website",
 				"invite": "📥 Convidar",
-				"support": "💬 Suporte",
-				"hosted": "Hosted by GatiHost"
+				"support": "💬 Suporte"
 			}
 		}
 	},
