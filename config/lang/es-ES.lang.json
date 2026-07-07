@@ -343,10 +343,9 @@
 				"• Biblioteca: **%library%**",
 				"• Memoria usada: **%ram% MB**",
 				"• Versión: **v%version%**",
-				"• Alojado en **%host%**",
 				"",
 				"### ⏳ Uptime",
-				"• He estado activo por **<t:%uptime%:R>**",
+				"• Estou viva há **<t:%uptime%:R>**",
 				"• Shards: **%shard%**",
 				"",
 				"🔑 Desenvolvido por: **%owner%**"
@@ -355,8 +354,7 @@
 			"buttons": {
 				"website": "🌐 Sitio web",
 				"invite": "📥 Invitar",
-				"support": "💬 Soporte",
-				"hosted": "Hosted by GatiHost"
+				"support": "💬 Soporte"
 			}
 		}
 	},
