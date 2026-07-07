@@ -343,7 +343,6 @@
 				"• Biblioteca: **%library%**",
 				"• Memoria usada: **%ram% MB**",
 				"• Versión: **v%version%**",
-				"• Alojado en **%host%**",
 				"",
 				"### ⏳ Uptime",
 				"• He estado activo por **<t:%uptime%:R>**",
@@ -355,8 +354,7 @@
 			"buttons": {
 				"website": "🌐 Sitio web",
 				"invite": "📥 Invitar",
-				"support": "💬 Soporte",
-				"hosted": "Hosted by GatiHost"
+				"support": "💬 Soporte"
 			}
 		}
 	},
@@ -662,7 +660,7 @@
 				"joined_title": "Draw In!",
 				"joined_description": "Ingresaste con éxito el sorteo de **%prize%**! ¡Buena suerte!",
 				"join_button": "Get in the Draw"
-			}	
+			}
 		},
 		"peridot": {
 			"title": "%emoji% ¡Peridot responde!",
@@ -670,11 +668,11 @@
 			"answer": "Respuesta"
 		},
 		"miraculous": {
-				"title": "✨ ¡Recibirías el Miraculous de %miraculousName%!",
-				"symbol": "Simbología",
-				"kwami": "Kwami",
-				"holder": "Portador",
-				"footer": "Los kwamis decidieron tu destino."
+			"title": "✨ ¡Recibirías el Miraculous de %miraculousName%!",
+			"symbol": "Simbología",
+			"kwami": "Kwami",
+			"holder": "Portador",
+			"footer": "Los kwamis decidieron tu destino."
 		}
 	}
 }
