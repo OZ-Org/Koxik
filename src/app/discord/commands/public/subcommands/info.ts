@@ -82,7 +82,6 @@ export default createSubCommand({
 						library,
 						ram: RAMUsage,
 						version,
-						host: hostedBy,
 						uptime: uptimeTimestamp,
 						owner,
 						shard: `${displayShardId}/${displayShardCount}`,
