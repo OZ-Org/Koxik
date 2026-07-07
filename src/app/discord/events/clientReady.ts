@@ -1,11 +1,8 @@
 import { createEvent } from '@base';
-import { env } from '@env';
 import { logger } from '@fx/utils/logger.js';
-import { isShardManager } from '@basedir/discord/client/bot/sharding.js';
 import { loadWorkers } from '@basedir/discord/client/bot/loaders.js';
 import { preloadBlacklistCache } from '@basedir/discord/client/bot/middleware.js';
 import { ActivityType } from 'discord.js';
-import { AutoPoster } from 'topgg-autoposter';
 import { MusicController } from '@basedir/music/MusicController.js';
 import type { KoxikClient } from '@basedir/discord/client/bot/CustomClient.js';
 import { setupMusicPresence } from '@app/discord/utils/musicPresence.js';
@@ -41,19 +38,19 @@ export default createEvent({
 					type: ActivityType.Watching,
 				},
 				{
-					name: `slash commands`,
+					name: 'slash commands',
 					type: ActivityType.Listening,
 				},
 				{
-					name: `async dreams`,
+					name: 'async dreams',
 					type: ActivityType.Playing,
 				},
 				{
-					name: `TypeScript thoughts`,
+					name: 'TypeScript thoughts',
 					type: ActivityType.Competing,
 				},
 				{
-					name: `online… probably`,
+					name: 'online… probably',
 					type: ActivityType.Playing,
 				},
 			];
@@ -61,7 +58,7 @@ export default createEvent({
 
 		let index = 0;
 
-		setInterval(async () => {
+		setInterval(() => {
 			if (musicController.musicModeActive) return;
 
 			const statuses = getStatuses();
@@ -74,25 +71,6 @@ export default createEvent({
 			index++;
 		}, 60_000);
 
-		if (env.TOPGG_TOKEN) {
-			if (process.env.KOXIK_SHARD === 'true') {
-				const report = () => {
-					if (!process.send) return;
 
-					process.send({
-						type: 'GUILD_COUNT',
-						shardId: Number(process.env.SHARD_ID),
-						count: client.guilds.cache.size,
-					});
-				};
-
-				report();
-				setInterval(report, 30 * 60 * 1000);
-			} else if (!isShardManager()) {
-				AutoPoster(env.TOPGG_TOKEN!, client).on('posted', () => {
-					logger.success('Posted stats on top.gg!');
-				});
-			}
-		}
 	},
 });

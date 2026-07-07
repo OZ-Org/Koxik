@@ -3,7 +3,6 @@ import { env } from '@env';
 import { logger } from '@fx/utils/logger.js';
 import { initSentry, Sentry } from '@basedir/sentry/index.js';
 import {
-	type Client,
 	type ClientEvents,
 	GatewayIntentBits,
 	Partials,
@@ -36,8 +35,10 @@ import type {
 
 import {
 	getShardData,
+	isShardManager,
 	resolveSharding,
 	applySharding,
+	sendGuildCount,
 } from './bot/sharding.js';
 
 export function resolveRegisterTypes(
@@ -71,6 +72,18 @@ export function createBot(options: BotOptions) {
 		applySharding(resolved);
 	}
 
+	if (isShardManager()) {
+		return {
+			client: undefined as never,
+			createCommand: undefined as never,
+			createEvent: undefined as never,
+			createSubCommand: undefined as never,
+			createSubCommandGroup: undefined as never,
+			createResponder: undefined as never,
+			registerResponder: undefined as never,
+		};
+	}
+
 	const { shardId, shardCount, isMainShard, isPM2Cluster } = getShardData();
 
 	const clientOptions: any = {
@@ -98,14 +111,6 @@ export function createBot(options: BotOptions) {
 				? [options.owner]
 				: [],
 	);
-
-	if (shardId !== undefined && shardCount !== undefined) {
-		(client as unknown as Record<string, unknown>).shard = {
-			ids: [shardId],
-			count: shardCount,
-			broadcastEval: async (fn: (c: Client) => unknown) => [await fn(client)],
-		};
-	}
 
 	const commands = new Map<string, Command>();
 	const registeredEvents = new Set<string>();
@@ -136,6 +141,13 @@ export function createBot(options: BotOptions) {
 		logger.info(
 			`Connected as ${client.user?.tag ?? 'unknown'} (shard ${shardId ?? 0})`,
 		);
+
+		sendGuildCount(client.guilds.cache.size);
+		setInterval(() => {
+			sendGuildCount(client.guilds.cache.size);
+		}, 5 * 60 * 1000);
+		client.on('guildCreate', () => sendGuildCount(client.guilds.cache.size));
+		client.on('guildDelete', () => sendGuildCount(client.guilds.cache.size));
 
 		if (!isMainShard) {
 			logger.info('Not main shard - loading commands only');

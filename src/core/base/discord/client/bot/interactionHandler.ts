@@ -10,6 +10,7 @@ import { ReplyBuilder } from './ReplyBuilder.js';
 import { getResponders } from './registry.js';
 import { isShardManager } from './sharding.js';
 import type { Command, ComponentInteraction, InteractionMap } from './types.js';
+import { getShardData } from './sharding.js';
 
 export function checkInteractionGlobal(id: string): Promise<boolean> {
 	return new Promise((resolve) => {
@@ -109,10 +110,9 @@ export function setupInteractionHandler(
 			if (!command) return;
 			if (!(await checkInteractionGlobal(interaction.id))) return;
 
-			if (interaction.guildId && client.shard) {
-				const shardId = client.shard.ids[0];
-				const shardCount = client.options.shardCount ?? 1;
+			const { shardId, shardCount } = getShardData();
 
+			if (interaction.guildId && shardId !== undefined && shardCount !== undefined) {
 				const guildShard =
 					Number(BigInt(interaction.guildId) >> 22n) % shardCount;
 

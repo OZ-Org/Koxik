@@ -15,17 +15,28 @@ export function isShardManager(): boolean {
 
 function postToTopGg() {
 	if (!topGgApi) return;
+	if (guildCounts.size !== topGgTotalShards) return;
+
+	console.log(guildCounts);
 
 	let total = 0;
+
 	for (const count of guildCounts.values()) {
 		total += count;
 	}
-	if (total === 0) return;
+
+	console.log({
+		total,
+		shards: guildCounts.size,
+	});
 
 	topGgApi
-		.postStats({ serverCount: total, shardCount: topGgTotalShards })
-		.then(() => console.log('[Koxik] Posted stats on top.gg!'))
-		.catch((err) => console.error('[Koxik] Top.GG post failed:', err));
+		.postStats({
+			serverCount: total,
+			shardCount: topGgTotalShards,
+		})
+		.then(() => console.log(`[Koxik] Posted ${total} guilds to top.gg!`))
+		.catch(console.error);
 }
 
 function startTopGGPosting(totalShards: number) {
@@ -102,9 +113,14 @@ export function setupSharding() {
 						typeof msg.count === 'number'
 					) {
 						guildCounts.set(msg.shardId, msg.count);
+
 						broadcastTotalGuildCount();
-						postToTopGg();
+
+						if (guildCounts.size === topGgTotalShards) {
+							postToTopGg();
+						}
 					}
+
 					break;
 				}
 			}
@@ -126,6 +142,12 @@ export function setupSharding() {
 	});
 
 	return true;
+}
+
+export function sendGuildCount(count: number) {
+	const { shardId } = getShardData();
+	if (shardId === undefined || !process.send) return;
+	process.send({ type: 'GUILD_COUNT', shardId, count });
 }
 
 export function getShardData() {

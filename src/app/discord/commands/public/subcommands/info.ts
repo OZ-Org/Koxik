@@ -26,28 +26,16 @@ export default createSubCommand({
 		const displayShardId = isSharded ? (shardId ?? 0) + 1 : 1;
 		const displayShardCount = isSharded ? (shardCount ?? 1) : 1;
 
-		let guilds = 0;
-		let members = 0;
-		let channels = 0;
+	const guilds =
+		client.getCustomVariable<number>('totalGuildCount') ??
+		client.guilds.cache.size;
 
-		if (client.shard) {
-			const results = await client.shard.broadcastEval((c) => ({
-				guilds: c.guilds.cache.size,
-				members: c.guilds.cache.reduce((total, g) => total + g.memberCount, 0),
-				channels: c.channels.cache.size,
-			}));
+	const members = client.guilds.cache.reduce(
+		(total, guild) => total + guild.memberCount,
+		0,
+	);
 
-			guilds = results.reduce((a, b) => a + b.guilds, 0);
-			members = results.reduce((a, b) => a + b.members, 0);
-			channels = results.reduce((a, b) => a + b.channels, 0);
-		} else {
-			guilds = client.guilds.cache.size;
-			members = client.guilds.cache.reduce(
-				(total, guild) => total + guild.memberCount,
-				0,
-			);
-			channels = client.channels.cache.size;
-		}
+	const channels = client.channels.cache.size;
 
 		const uptimeTimestamp = Math.floor(
 			(Date.now() - (client.uptime ?? 0)) / 1000,
