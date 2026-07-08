@@ -73,6 +73,6 @@
 		"tsc-alias": "^1.8.16",
 		"tsup": "^8.5.1",
 		"tsx": "^4.21.0",
-		"typescript": "^6.0.3"
+		"typescript": "^7.0.0"
 	}
 }
