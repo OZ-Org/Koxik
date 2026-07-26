@@ -50,7 +50,7 @@
 		"@top-gg/sdk": "^3.1.6",
 		"@vladfrangu/async_event_emitter": "^2.4.7",
 		"axios": "^1.15.2",
-		"chalk": "^5.6.2",
+		"chalk": "^6.0.0",
 		"discord.js": "^14.26.3",
 		"dotenv": "^17.4.2",
 		"drizzle-orm": "^0.45.0",
